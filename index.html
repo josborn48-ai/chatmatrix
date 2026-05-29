@@ -41,7 +41,7 @@
         <span class="text-xs font-bold tracking-wider uppercase text-neutral-400">Chat Matrix</span>
       </div>
       <div class="flex items-center gap-2">
-        <!-- Settings Gear Button (Global top-right placement) -->
+        <!-- Settings Gear Button -->
         <button id="home-settings-btn" class="text-neutral-400 hover:text-white p-1 transition-all cursor-pointer flex items-center justify-center" title="API Settings">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
@@ -122,7 +122,7 @@
         <div class="flex flex-col gap-3">
           <!-- Advanced Perchance Generator Link -->
           <a href="https://perchance.org/ai-art-generator-advanced" target="_blank" 
-             class="bg-neutral-900 hover:bg-neutral-800 text-neutral-200 border border-neutral-800 font-semibold py-3 px-4 rounded-xl text-sm text-center flex items-center justify-center gap-2 transition-all active:scale-[0.98]">
+             class="bg-neutral-900 hover:bg-neutral-850 border border-neutral-800 font-semibold py-3 px-4 rounded-xl text-sm text-center flex items-center justify-center gap-2 transition-all active:scale-[0.98]">
             <span>Open Perchance Generator</span>
             <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
@@ -162,7 +162,7 @@
 
         <!-- Stage 1 Footer Controls -->
         <div class="mt-auto">
-          <button id="stage1-next-btn" disabled class="w-full bg-neutral-850 text-neutral-500 font-semibold py-3 px-4 rounded-xl text-sm transition-all cursor-not-allowed border border-transparent">
+          <button id="stage1-next-btn" disabled class="w-full bg-neutral-855 text-neutral-500 font-semibold py-3 px-4 rounded-xl text-sm transition-all cursor-not-allowed border border-transparent">
             Crop & Continue
           </button>
         </div>
@@ -262,7 +262,9 @@
               <div class="overflow-hidden">
                 <h3 id="chat-header-name" class="font-bold text-sm tracking-wide text-neutral-100/90 truncate"></h3>
                 <span class="text-[10px] text-red-500/85 flex items-center gap-1 font-semibold uppercase">
-                  <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span> Connected
+                  <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
+                  <!-- Connected status dynamically displays active failover model name (FIXED ID PLACED HERE) -->
+                  <span id="chat-connected-status">Connected</span>
                 </span>
               </div>
             </div>
