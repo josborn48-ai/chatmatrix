@@ -142,7 +142,7 @@
           <!-- Upload Button -->
           <button id="upload-trigger" class="bg-red-700 hover:bg-red-600 text-white font-semibold py-3 px-4 rounded-xl text-sm transition-all shadow-lg active:scale-[0.98] flex items-center justify-center gap-2">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
             </svg>
             Choose Image from Device
           </button>
@@ -341,11 +341,11 @@
           
           <!-- Active Chat Translucent Sub-Header -->
           <div class="bg-black/30 backdrop-blur-md px-4 py-3 flex items-center justify-between border-b border-neutral-900/50 shadow-sm z-10">
-            <div class="flex items-center gap-3 overflow-hidden">
+            <div class="flex items-center gap-3 overflow-hidden col-span-1 flex-1">
               <!-- Back & Exit Button -->
               <button id="chat-exit-btn" class="text-neutral-400/80 hover:text-white p-1 transition-all shrink-0" title="Save and Exit">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"></path>
                 </svg>
               </button>
               <img id="chat-header-avatar" class="w-10 h-10 rounded-full object-cover border border-red-500/50 shrink-0" src="" alt="Cropped Headshot">
@@ -359,15 +359,21 @@
               </div>
             </div>
             
-            <div class="flex items-center gap-1.5 shrink-0">
+            <!-- Compact sub-header buttons to prevent overflow inside mobile viewports -->
+            <div class="flex items-center gap-1 shrink-0 ml-1">
+              <!-- Save Chat Button -->
+              <button id="chat-save-btn" class="text-xs font-semibold text-neutral-400/90 hover:text-white hover:bg-neutral-900/50 px-2.5 py-1.5 rounded-lg border border-neutral-800 transition-all cursor-pointer shadow" title="Save Conversation">
+                Save
+              </button>
+
               <!-- Hide Chat Button -->
-              <button id="chat-hide-btn" class="text-xs font-semibold text-neutral-400/90 hover:text-white hover:bg-neutral-900/50 px-3 py-1.5 rounded-lg border border-neutral-800 transition-all cursor-pointer shadow" title="Hide Chat Messages">
-                Hide Chat
+              <button id="chat-hide-btn" class="text-xs font-semibold text-neutral-400/90 hover:text-white hover:bg-neutral-900/50 px-2.5 py-1.5 rounded-lg border border-neutral-800 transition-all cursor-pointer shadow" title="Hide Chat Messages">
+                Hide
               </button>
 
               <!-- Clear Chat Text Button -->
-              <button id="chat-clear-btn" class="text-xs font-semibold text-neutral-400/90 hover:text-white hover:bg-neutral-900/50 px-3 py-1.5 rounded-lg border border-neutral-800 transition-all cursor-pointer shadow" title="Wipe History & Restart">
-                Clear Chat
+              <button id="chat-clear-btn" class="text-xs font-semibold text-neutral-400/90 hover:text-white hover:bg-neutral-900/50 px-2.5 py-1.5 rounded-lg border border-neutral-800 transition-all cursor-pointer shadow" title="Wipe History & Restart">
+                Clear
               </button>
             </div>
           </div>
@@ -399,7 +405,7 @@
               placeholder="Say something...">
             <button id="chat-send-btn" class="bg-red-700 hover:bg-red-600 p-3 rounded-xl transition-all shadow-md active:scale-95 flex justify-center items-center shrink-0">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
               </svg>
             </button>
           </div>
@@ -464,6 +470,69 @@
           <button id="profile-save-btn" class="flex-1 bg-red-700 hover:bg-red-600 text-white font-semibold py-3 px-4 rounded-xl text-sm transition-all shadow-lg active:scale-[0.98]">
             Save Profile
           </button>
+        </div>
+      </section>
+
+      <!-- ================= STAGE 5: CHAT SESSION SELECTOR ================= -->
+      <section id="stage-5" class="hidden p-6 flex-1 flex flex-col gap-5 overflow-y-auto">
+        <div class="flex items-center gap-3">
+          <button id="stage5-back-btn" class="text-neutral-400 hover:text-white transition-all">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path>
+            </svg>
+          </button>
+          <div>
+            <h2 id="stage5-bot-name" class="text-xl font-bold text-neutral-100">Select Chat Session</h2>
+            <p class="text-xs text-neutral-400 mt-0.5">Start fresh or load a saved session.</p>
+          </div>
+        </div>
+
+        <!-- Bot Identity Header card -->
+        <div class="flex items-center gap-4 p-4 bg-neutral-950/60 border border-neutral-900 rounded-2xl">
+          <img id="stage5-bot-avatar" class="w-16 h-16 rounded-2xl object-cover border border-neutral-800 shadow-md" src="">
+          <div class="overflow-hidden">
+            <h3 id="stage5-bot-identity" class="font-bold text-base text-neutral-100">Bot Name</h3>
+            <p id="stage5-bot-desc" class="text-xs text-neutral-500 truncate mt-0.5">Description</p>
+          </div>
+        </div>
+
+        <!-- Session Actions Row -->
+        <div class="flex flex-col gap-3">
+          <!-- Continue Last Session (Bigger and More Prominent) -->
+          <button id="session-continue-btn" class="w-full bg-red-700 hover:bg-red-600 text-white font-bold py-4 px-4 rounded-xl text-sm transition-all shadow-[0_0_20px_rgba(220,38,38,0.2)] active:scale-[0.98] flex items-center justify-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            Continue Last Chat
+          </button>
+
+          <div class="grid grid-cols-2 gap-3">
+            <!-- Start New Session -->
+            <button id="session-new-btn" class="bg-neutral-900 hover:bg-neutral-850 border border-neutral-800 text-neutral-300 font-semibold py-3 px-3 rounded-xl text-xs transition-all active:scale-[0.98] flex items-center justify-center gap-1.5">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path>
+              </svg>
+              New Chat
+            </button>
+
+            <!-- Edit Blueprint directly from Selection -->
+            <button id="session-edit-btn" class="bg-neutral-900 hover:bg-neutral-855 border border-neutral-800 text-neutral-400 hover:text-white font-semibold py-3 px-3 rounded-xl text-xs transition-all active:scale-[0.98] flex items-center justify-center gap-1.5">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+              </svg>
+              Edit Blueprint
+            </button>
+          </div>
+        </div>
+
+        <!-- Saved Chats Section -->
+        <div class="flex-1 flex flex-col gap-3 min-h-[180px]">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-neutral-400">Saved Chats</h4>
+          
+          <div id="saved-sessions-list" class="flex-1 flex flex-col gap-2 overflow-y-auto pb-4">
+            <!-- Dynamic saved sessions list renders here -->
+          </div>
         </div>
       </section>
 
@@ -539,6 +608,9 @@
     let isAudioPlaying = false;
     let playingAudioIndex = null;
 
+    // Active message bubble control tracker 
+    let activeMenuIdx = null;
+
     // Advanced prompt editing state tracker
     let hasManuallyEditedPrompt = false;
 
@@ -579,6 +651,7 @@
     const stage2Sec = document.getElementById('stage-2');
     const stage3Sec = document.getElementById('stage-3');
     const stageProfileForm = document.getElementById('stage-profile-form');
+    const stage5Sec = document.getElementById('stage-5');
 
     // Home DOM
     const botListContainer = document.getElementById('bot-list');
@@ -633,6 +706,7 @@
     const chatHideBtn = document.getElementById('chat-hide-btn'); 
     const chatModeBtn = document.getElementById('chat-mode-btn');
     const chatModeIcon = document.getElementById('chat-mode-icon');
+    const chatSaveBtn = document.getElementById('chat-save-btn');
 
     // Stage 4 (User Profile) DOM
     const profileUploadTrigger = document.getElementById('profile-upload-trigger');
@@ -731,43 +805,62 @@
     // ================= STAGE ROUTER =================
 
     function updateStageUI() {
-      stage0Sec.classList.add('hidden');
-      stage1Sec.classList.add('hidden');
-      stage2Sec.classList.add('hidden');
-      stage3Sec.classList.add('hidden');
-      stageProfileForm.classList.add('hidden');
+      if (stage0Sec) stage0Sec.classList.add('hidden');
+      if (stage1Sec) stage1Sec.classList.add('hidden');
+      if (stage2Sec) stage2Sec.classList.add('hidden');
+      if (stage3Sec) stage3Sec.classList.add('hidden');
+      if (stageProfileForm) stageProfileForm.classList.add('hidden');
+      if (stage5Sec) stage5Sec.classList.add('hidden');
 
       if (currentStage === 0) {
-        stage0Sec.classList.remove('hidden');
-        stageIndicator.innerText = "Home";
-        stageIndicator.className = "text-xs text-neutral-400 font-medium bg-neutral-900 px-2.5 py-1 rounded-full border border-neutral-800";
+        if (stage0Sec) stage0Sec.classList.remove('hidden');
+        if (stageIndicator) {
+          stageIndicator.innerText = "Home";
+          stageIndicator.className = "text-xs text-neutral-400 font-medium bg-neutral-900 px-2.5 py-1 rounded-full border border-neutral-800";
+        }
         renderHomeList();
         renderProfileList();
       } else if (currentStage === 1) {
-        stage1Sec.classList.remove('hidden');
-        stageIndicator.innerText = "Stage 1: Headshot Crop";
-        stageIndicator.className = "text-xs text-red-500 font-medium bg-red-955/40 px-2.5 py-1 rounded-full border border-red-955";
+        if (stage1Sec) stage1Sec.classList.remove('hidden');
+        if (stageIndicator) {
+          stageIndicator.innerText = "Stage 1: Headshot Crop";
+          stageIndicator.className = "text-xs text-red-500 font-medium bg-red-955/40 px-2.5 py-1 rounded-full border border-red-955";
+        }
       } else if (currentStage === 2) {
-        stage2Sec.classList.remove('hidden');
-        stageIndicator.innerText = isEditing ? "Edit Blueprint" : "Stage 2: Logic";
-        stageIndicator.className = "text-xs text-red-500 font-medium bg-red-955/40 px-2.5 py-1 rounded-full border border-red-955";
+        if (stage2Sec) stage2Sec.classList.remove('hidden');
+        if (stageIndicator) {
+          stageIndicator.innerText = isEditing ? "Edit Blueprint" : "Stage 2: Logic";
+          stageIndicator.className = "text-xs text-red-500 font-medium bg-red-955/40 px-2.5 py-1 rounded-full border border-red-955";
+        }
         setupStage2Fields();
       } else if (currentStage === 3) {
-        stage3Sec.classList.remove('hidden');
-        stageIndicator.innerText = "Stage 3: Chat";
-        stageIndicator.className = "text-xs text-emerald-500 font-medium bg-emerald-955/40 px-2.5 py-1 rounded-full border border-neutral-955";
+        if (stage3Sec) stage3Sec.classList.remove('hidden');
+        if (stageIndicator) {
+          stageIndicator.innerText = "Stage 3: Chat";
+          stageIndicator.className = "text-xs text-emerald-500 font-medium bg-emerald-955/40 px-2.5 py-1 rounded-full border border-neutral-955";
+        }
         initiateChatSession();
       } else if (currentStage === 4) {
-        stageProfileForm.classList.remove('hidden');
-        stageIndicator.innerText = (userProfiles.some(p => p.id === profileEditingId)) ? "Edit Profile" : "Create Profile";
-        stageIndicator.className = "text-xs text-red-500 font-medium bg-red-955/40 px-2.5 py-1 rounded-full border border-red-955";
+        if (stageProfileForm) stageProfileForm.classList.remove('hidden');
+        if (stageIndicator) {
+          stageIndicator.innerText = (userProfiles.some(p => p.id === profileEditingId)) ? "Edit Profile" : "Create Profile";
+          stageIndicator.className = "text-xs text-red-500 font-medium bg-red-955/40 px-2.5 py-1 rounded-full border border-red-955";
+        }
         setupProfileFormFields();
+      } else if (currentStage === 5) {
+        if (stage5Sec) stage5Sec.classList.remove('hidden');
+        if (stageIndicator) {
+          stageIndicator.innerText = "Select Session";
+          stageIndicator.className = "text-xs text-red-500 font-medium bg-red-955/40 px-2.5 py-1 rounded-full border border-red-955";
+        }
+        renderStage5Selector();
       }
     }
 
     // ================= STAGE 0 (HOME) RENDERERS =================
 
     function renderHomeList() {
+      if (!botListContainer) return;
       botListContainer.innerHTML = '';
       const cleanBots = chatbots.filter(b => b !== null && b !== undefined);
 
@@ -814,6 +907,7 @@
     }
 
     function renderProfileList() {
+      if (!profileListContainer) return;
       profileListContainer.innerHTML = '';
       
       let renderList = userProfiles.filter(p => p !== null && p !== undefined);
@@ -849,7 +943,7 @@
       });
     }
 
-    // ================= EVENT FLOW HANDLERS =================
+    // ================= STAGE 1: AVATAR CROPPING EVENT FLOW HANDLERS =================
 
     if (homeNewBotBtn) {
       homeNewBotBtn.addEventListener('click', () => {
@@ -857,22 +951,24 @@
         activeBotId = 'bot_' + Date.now(); 
         tempConfig = { avatarUrl: '', fullImageUrl: '', appearance: '', model: 'gemini' };
         
-        botNameInput.value = '';
-        botAppearanceInput.value = '';
-        botPersonalityInput.value = '';
-        botHistoryInput.value = '';
-        botModelInput.value = 'gemini';
-        botCustomSystemPrompt.value = ''; 
+        if (botNameInput) botNameInput.value = '';
+        if (botAppearanceInput) botAppearanceInput.value = '';
+        if (botPersonalityInput) botPersonalityInput.value = '';
+        if (botHistoryInput) botHistoryInput.value = '';
+        if (botModelInput) botModelInput.value = 'gemini';
+        if (botCustomSystemPrompt) botCustomSystemPrompt.value = ''; 
         
         if (cropperInstance) {
           cropperInstance.destroy();
           cropperInstance = null;
         }
-        avatarImg.src = '';
-        cropperWrapper.classList.add('hidden');
-        avatarPlaceholder.classList.remove('hidden');
-        stage1NextBtn.disabled = true;
-        stage1NextBtn.className = "w-full bg-neutral-855 text-neutral-500 font-semibold py-3 px-4 rounded-xl text-sm transition-all cursor-not-allowed border border-transparent";
+        if (avatarImg) avatarImg.src = '';
+        if (cropperWrapper) cropperWrapper.classList.add('hidden');
+        if (avatarPlaceholder) avatarPlaceholder.classList.remove('hidden');
+        if (stage1NextBtn) {
+          stage1NextBtn.disabled = true;
+          stage1NextBtn.className = "w-full bg-neutral-855 text-neutral-500 font-semibold py-3 px-4 rounded-xl text-sm transition-all cursor-not-allowed border border-transparent";
+        }
         
         currentStage = 1;
         updateStageUI();
@@ -892,7 +988,7 @@
 
     if (uploadTrigger) {
       uploadTrigger.addEventListener('click', () => {
-        avatarUpload.click();
+        if (avatarUpload) avatarUpload.click();
       });
     }
 
@@ -910,26 +1006,30 @@
             cropperInstance = null;
           }
 
-          avatarImg.src = event.target.result;
-          avatarPlaceholder.classList.add('hidden');
-          cropperWrapper.classList.remove('hidden');
+          if (avatarImg) avatarImg.src = event.target.result;
+          if (avatarPlaceholder) avatarPlaceholder.classList.add('hidden');
+          if (cropperWrapper) cropperWrapper.classList.remove('hidden');
 
-          cropperInstance = new Cropper(avatarImg, {
-            aspectRatio: 1,
-            viewMode: 1,
-            autoCropArea: 0.8,
-            background: false,
-            responsive: true,
-            modal: true,
-            guides: true,
-            highlight: false,
-            cropBoxMovable: true,
-            cropBoxResizable: true,
-            dragMode: 'move'
-          });
+          if (avatarImg) {
+            cropperInstance = new Cropper(avatarImg, {
+              aspectRatio: 1,
+              viewMode: 1,
+              autoCropArea: 0.8,
+              background: false,
+              responsive: true,
+              modal: true,
+              guides: true,
+              highlight: false,
+              cropBoxMovable: true,
+              cropBoxResizable: true,
+              dragMode: 'move'
+            });
+          }
 
-          stage1NextBtn.disabled = false;
-          stage1NextBtn.className = "w-full bg-red-700 hover:bg-red-600 text-white font-semibold py-3 px-4 rounded-xl text-sm transition-all shadow-lg active:scale-[0.98]";
+          if (stage1NextBtn) {
+            stage1NextBtn.disabled = false;
+            stage1NextBtn.className = "w-full bg-red-700 hover:bg-red-600 text-white font-semibold py-3 px-4 rounded-xl text-sm transition-all shadow-lg active:scale-[0.98]";
+          }
         };
         reader.readAsDataURL(file);
       });
@@ -982,69 +1082,87 @@ Roleplay Instructions:
       if (isEditing) {
         const bot = chatbots.find(b => b.id === activeBotId);
         if (bot) {
-          stage2Title.innerText = "Edit Blueprint";
-          stage2MiniAvatar.src = bot.avatarUrl || bot.fullImageUrl;
-          botNameInput.value = bot.name;
-          botAppearanceInput.value = bot.appearance;
-          botPersonalityInput.value = bot.personality;
-          botHistoryInput.value = bot.history;
-          botModelInput.value = bot.model || 'gemini'; 
+          if (stage2Title) stage2Title.innerText = "Edit Blueprint";
+          if (stage2MiniAvatar) stage2MiniAvatar.src = bot.avatarUrl || bot.fullImageUrl;
+          if (botNameInput) botNameInput.value = bot.name;
+          if (botAppearanceInput) botAppearanceInput.value = bot.appearance;
+          if (botPersonalityInput) botPersonalityInput.value = bot.personality;
+          if (botHistoryInput) botHistoryInput.value = bot.history;
+          if (botModelInput) botModelInput.value = bot.model || 'gemini'; 
           
           // Load Quiet Mode state
-          document.getElementById('bot-quiet-mode').checked = !!bot.isQuietMode;
+          const quietCheck = document.getElementById('bot-quiet-mode');
+          if (quietCheck) quietCheck.checked = !!bot.isQuietMode;
 
           // Pre-populate System Prompt editor with full assembled payload if custom field is blank
-          botCustomSystemPrompt.value = bot.customSystemPrompt || getAssembledSystemPrompt(bot);
-          if (bot.customSystemPrompt) {
-            hasManuallyEditedPrompt = true;
+          if (botCustomSystemPrompt) {
+            botCustomSystemPrompt.value = bot.customSystemPrompt || getAssembledSystemPrompt(bot);
+            if (bot.customSystemPrompt) {
+              hasManuallyEditedPrompt = true;
+            }
           }
           
-          stage2SaveBtn.innerText = "Save Changes";
+          if (stage2SaveBtn) stage2SaveBtn.innerText = "Save Changes";
 
           // Load Voice selection parameters
-          botVoiceInput.value = bot.voiceName || 'Kore';
-          botVoicePrompt.value = bot.voicePrompt || '';
+          if (botVoiceInput) botVoiceInput.value = bot.voiceName || 'Kore';
+          if (botVoicePrompt) botVoicePrompt.value = bot.voicePrompt || '';
         }
       } else {
-        stage2Title.innerText = "Configure Blueprint";
-        stage2MiniAvatar.src = tempConfig.avatarUrl;
-        botNameInput.value = '';
-        botAppearanceInput.value = tempConfig.appearance || '';
-        botPersonalityInput.value = '';
-        botHistoryInput.value = '';
-        botModelInput.value = tempConfig.model || 'gemini';
-        document.getElementById('bot-quiet-mode').checked = false;
-        botVoiceInput.value = 'Kore';
-        botVoicePrompt.value = '';
+        if (stage2Title) stage2Title.innerText = "Configure Blueprint";
+        if (stage2MiniAvatar) stage2MiniAvatar.src = tempConfig.avatarUrl;
+        if (botNameInput) botNameInput.value = '';
+        if (botAppearanceInput) botAppearanceInput.value = tempConfig.appearance || '';
+        if (botPersonalityInput) botPersonalityInput.value = '';
+        if (botHistoryInput) botHistoryInput.value = '';
+        if (botModelInput) botModelInput.value = tempConfig.model || 'gemini';
+        
+        const quietCheck = document.getElementById('bot-quiet-mode');
+        if (quietCheck) quietCheck.checked = false;
+        
+        if (botVoiceInput) botVoiceInput.value = 'Kore';
+        if (botVoicePrompt) botVoicePrompt.value = '';
 
         // Build default prompt layout for clean bot blueprint
         const dummyBot = { name: '', appearance: '', personality: '', history: '' };
-        botCustomSystemPrompt.value = getAssembledSystemPrompt(dummyBot);
+        if (botCustomSystemPrompt) {
+          botCustomSystemPrompt.value = getAssembledSystemPrompt(dummyBot);
+        }
 
-        stage2SaveBtn.innerText = "Assemble Bot";
+        if (stage2SaveBtn) stage2SaveBtn.innerText = "Assemble Bot";
       }
     }
 
     // Dynamic, live prompt compiler as parameters are edited
     function updateDynamicSystemPrompt() {
       if (hasManuallyEditedPrompt) return;
+      
+      const bName = botNameInput ? botNameInput.value.trim() : '';
+      const bApp = botAppearanceInput ? botAppearanceInput.value.trim() : '';
+      const bPers = botPersonalityInput ? botPersonalityInput.value.trim() : '';
+      const bHist = botHistoryInput ? botHistoryInput.value.trim() : '';
+      
       const dummyBot = {
-        name: botNameInput.value.trim(),
-        appearance: botAppearanceInput.value.trim(),
-        personality: botPersonalityInput.value.trim(),
-        history: botHistoryInput.value.trim()
+        name: bName,
+        appearance: bApp,
+        personality: bPers,
+        history: bHist
       };
-      botCustomSystemPrompt.value = getAssembledSystemPrompt(dummyBot);
+      if (botCustomSystemPrompt) {
+        botCustomSystemPrompt.value = getAssembledSystemPrompt(dummyBot);
+      }
     }
 
-    // Attach text inputs listeners to update advanced editor in real-time
-    botCustomSystemPrompt.addEventListener('input', () => {
-      hasManuallyEditedPrompt = true;
-    });
-    botNameInput.addEventListener('input', updateDynamicSystemPrompt);
-    botAppearanceInput.addEventListener('input', updateDynamicSystemPrompt);
-    botPersonalityInput.addEventListener('input', updateDynamicSystemPrompt);
-    botHistoryInput.addEventListener('input', updateDynamicSystemPrompt);
+    // Attach text inputs listeners defensively to update advanced editor in real-time
+    if (botCustomSystemPrompt) {
+      botCustomSystemPrompt.addEventListener('input', () => {
+        hasManuallyEditedPrompt = true;
+      });
+    }
+    if (botNameInput) botNameInput.addEventListener('input', updateDynamicSystemPrompt);
+    if (botAppearanceInput) botAppearanceInput.addEventListener('input', updateDynamicSystemPrompt);
+    if (botPersonalityInput) botPersonalityInput.addEventListener('input', updateDynamicSystemPrompt);
+    if (botHistoryInput) botHistoryInput.addEventListener('input', updateDynamicSystemPrompt);
 
     if (stage2BackBtn) {
       stage2BackBtn.addEventListener('click', () => {
@@ -1059,28 +1177,38 @@ Roleplay Instructions:
 
     if (stage2SaveBtn) {
       stage2SaveBtn.addEventListener('click', () => {
-        const name = botNameInput.value.trim();
+        const name = botNameInput ? botNameInput.value.trim() : '';
         if (!name) {
           alert("The chatbot configuration requires a name.");
           return;
         }
 
+        const bApp = botAppearanceInput ? botAppearanceInput.value.trim() : '';
+        const bPers = botPersonalityInput ? botPersonalityInput.value.trim() : '';
+        const bHist = botHistoryInput ? botHistoryInput.value.trim() : '';
+        const bModel = botModelInput ? botModelInput.value : 'gemini';
+        const bPrompt = botCustomSystemPrompt ? botCustomSystemPrompt.value.trim() : '';
+        const bVoice = botVoiceInput ? botVoiceInput.value : 'Kore';
+        const bVoicePr = botVoicePrompt ? botVoicePrompt.value.trim() : '';
+        const quietCheck = document.getElementById('bot-quiet-mode');
+        const isQuiet = quietCheck ? quietCheck.checked : false;
+
         if (isEditing) {
           const index = chatbots.findIndex(b => b.id === activeBotId);
           if (index !== -1) {
             chatbots[index].name = name;
-            chatbots[index].appearance = botAppearanceInput.value.trim();
-            chatbots[index].personality = botPersonalityInput.value.trim();
-            chatbots[index].history = botHistoryInput.value.trim();
-            chatbots[index].model = botModelInput.value; 
-            chatbots[index].customSystemPrompt = botCustomSystemPrompt.value.trim(); 
+            chatbots[index].appearance = bApp;
+            chatbots[index].personality = bPers;
+            chatbots[index].history = bHist;
+            chatbots[index].model = bModel; 
+            chatbots[index].customSystemPrompt = bPrompt; 
             
             // Save voice parameters
-            chatbots[index].voiceName = botVoiceInput.value;
-            chatbots[index].voicePrompt = botVoicePrompt.value.trim();
+            chatbots[index].voiceName = bVoice;
+            chatbots[index].voicePrompt = bVoicePr;
 
             // Save Quiet Mode parameter
-            chatbots[index].isQuietMode = document.getElementById('bot-quiet-mode').checked;
+            chatbots[index].isQuietMode = isQuiet;
 
             if (tempConfig.avatarUrl) {
               chatbots[index].avatarUrl = tempConfig.avatarUrl;
@@ -1089,34 +1217,162 @@ Roleplay Instructions:
 
             saveToLocalStorage();
           }
-          currentStage = 0; 
+          currentStage = 5; // Return to Chat selector screen instead of home
         } else {
           const newBot = {
             id: activeBotId,
             name: name,
-            appearance: botAppearanceInput.value.trim(),
-            personality: botPersonalityInput.value.trim(),
-            history: botHistoryInput.value.trim(),
-            model: botModelInput.value, 
-            customSystemPrompt: botCustomSystemPrompt.value.trim(), 
-            voiceName: botVoiceInput.value, // Save voice settings
-            voicePrompt: botVoicePrompt.value.trim(),
-            isQuietMode: document.getElementById('bot-quiet-mode').checked, // Save quiet setting
-            chatHistory: []
+            appearance: bApp,
+            personality: bPers,
+            history: bHist,
+            model: bModel, 
+            customSystemPrompt: bPrompt, 
+            voiceName: bVoice, // Save voice settings
+            voicePrompt: bVoicePr,
+            isQuietMode: isQuiet, // Save quiet setting
+            chatHistory: [],
+            savedChats: [] // Initialize array for conversations
           };
           chatbots.push(newBot);
           saveToLocalStorage();
-          currentStage = 3; 
+          currentStage = 5; // Direct to selector menu
         }
         updateStageUI();
       });
     }
 
+    // ================= STAGE 5: SESSION SELECTOR SCREEN =================
+
     window.openChat = function(id) {
       isEditing = false;
       activeBotId = id;
-      currentStage = 3;
+      currentStage = 5; // Open selection menu instead of loading immediately
       updateStageUI();
+    };
+
+    function renderStage5Selector() {
+      const bot = chatbots.find(b => b.id === activeBotId);
+      if (!bot) {
+        currentStage = 0;
+        updateStageUI();
+        return;
+      }
+
+      const stage5BotName = document.getElementById('stage5-bot-name');
+      const stage5BotAvatar = document.getElementById('stage5-bot-avatar');
+      const stage5BotIdentity = document.getElementById('stage5-bot-identity');
+      const stage5BotDesc = document.getElementById('stage5-bot-desc');
+
+      if (stage5BotName) stage5BotName.innerText = `Chat with ${bot.name}`;
+      if (stage5BotAvatar) stage5BotAvatar.src = bot.avatarUrl || bot.fullImageUrl;
+      if (stage5BotIdentity) stage5BotIdentity.innerText = bot.name;
+      if (stage5BotDesc) stage5BotDesc.innerText = bot.personality || 'Neutral designation';
+
+      const savedList = document.getElementById('saved-sessions-list');
+      if (!savedList) return;
+      savedList.innerHTML = '';
+
+      const savedChats = bot.savedChats || [];
+      if (savedChats.length === 0) {
+        savedList.innerHTML = `
+          <div class="flex-1 flex flex-col justify-center items-center text-center p-6 text-neutral-600 border border-neutral-900 border-dashed rounded-xl bg-neutral-950/20">
+            <p class="text-xs font-semibold text-neutral-500">No saved conversations</p>
+            <p class="text-[10px] text-neutral-600 mt-1">Click the "Save" tab in the chat header to store your context.</p>
+          </div>
+        `;
+      } else {
+        savedChats.forEach(chat => {
+          const row = document.createElement('div');
+          row.className = "bg-neutral-900/40 hover:bg-neutral-900/80 border border-neutral-805 p-3 rounded-xl flex items-center justify-between gap-3 transition-all";
+          
+          row.innerHTML = `
+            <div class="overflow-hidden flex-1 cursor-pointer" onclick="loadSavedSession('${chat.id}')">
+              <h5 class="text-xs font-bold text-neutral-200 truncate hover:text-red-400 transition-colors">${chat.name}</h5>
+              <p class="text-[10px] text-neutral-500 mt-0.5">${chat.history ? chat.history.length : 0} messages</p>
+            </div>
+            <button onclick="deleteSavedSession('${chat.id}')" class="text-neutral-500 hover:text-red-500 p-1.5 rounded-md hover:bg-neutral-900/60 shrink-0 transition-colors" title="Delete conversation">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+              </svg>
+            </button>
+          `;
+          savedList.appendChild(row);
+        });
+      }
+    }
+
+    const stage5BackBtn = document.getElementById('stage5-back-btn');
+    if (stage5BackBtn) {
+      stage5BackBtn.addEventListener('click', () => {
+        currentStage = 0;
+        updateStageUI();
+      });
+    }
+
+    const sessionContinueBtn = document.getElementById('session-continue-btn');
+    if (sessionContinueBtn) {
+      sessionContinueBtn.addEventListener('click', () => {
+        currentStage = 3;
+        updateStageUI();
+      });
+    }
+
+    const sessionNewBtn = document.getElementById('session-new-btn');
+    if (sessionNewBtn) {
+      sessionNewBtn.addEventListener('click', () => {
+        const bot = chatbots.find(b => b.id === activeBotId);
+        if (bot) {
+          const confirmNew = confirm("Are you sure you want to start a fresh chat session? This will wipe the active session's unsaved progress.");
+          if (confirmNew) {
+            bot.chatHistory = [];
+            saveToLocalStorage();
+            activeChatHistory = [];
+            currentStage = 3;
+            updateStageUI();
+          }
+        }
+      });
+    }
+
+    const sessionEditBtn = document.getElementById('session-edit-btn');
+    if (sessionEditBtn) {
+      sessionEditBtn.addEventListener('click', () => {
+        isEditing = true;
+        const bot = chatbots.find(b => b.id === activeBotId);
+        if (bot) {
+          tempConfig.avatarUrl = bot.avatarUrl;
+          tempConfig.fullImageUrl = bot.fullImageUrl;
+          tempConfig.model = bot.model || 'gemini';
+          tempConfig.customSystemPrompt = bot.customSystemPrompt || '';
+        }
+        currentStage = 2;
+        updateStageUI();
+      });
+    }
+
+    window.loadSavedSession = function(sessionId) {
+      const bot = chatbots.find(b => b.id === activeBotId);
+      if (bot && bot.savedChats) {
+        const saved = bot.savedChats.find(s => s.id === sessionId);
+        if (saved) {
+          bot.chatHistory = [...saved.history];
+          saveToLocalStorage();
+          currentStage = 3;
+          updateStageUI();
+        }
+      }
+    };
+
+    window.deleteSavedSession = function(sessionId) {
+      const bot = chatbots.find(b => b.id === activeBotId);
+      if (bot && bot.savedChats) {
+        const confirmDel = confirm("Are you sure you want to permanently delete this saved chat session?");
+        if (confirmDel) {
+          bot.savedChats = bot.savedChats.filter(s => s.id !== sessionId);
+          saveToLocalStorage();
+          renderStage5Selector();
+        }
+      }
     };
 
     window.openEdit = function(id) {
@@ -1135,18 +1391,6 @@ Roleplay Instructions:
       updateStageUI();
     };
 
-    window.deleteBot = function(id) {
-      const bot = chatbots.find(b => b.id === id);
-      if (!bot) return;
-
-      const confirmDelete = confirm(`Are you sure you want to permanently delete "${bot.name}"?`);
-      if (confirmDelete) {
-        chatbots = chatbots.filter(b => b.id !== id);
-        saveToLocalStorage();
-        renderHomeList();
-      }
-    };
-
     // ================= STAGE 4 (USER PROFILE) EVENT HANDLERS =================
 
     if (homeNewProfileBtn) {
@@ -1154,17 +1398,17 @@ Roleplay Instructions:
         profileEditingId = 'profile_' + Date.now();
         tempProfileConfig = { avatarUrl: '' };
         
-        profileNameInput.value = '';
-        profileAppearanceInput.value = '';
-        profileBackstoryInput.value = '';
+        if (profileNameInput) profileNameInput.value = '';
+        if (profileAppearanceInput) profileAppearanceInput.value = '';
+        if (profileBackstoryInput) profileBackstoryInput.value = '';
         
         if (profileCropperInstance) {
           profileCropperInstance.destroy();
           profileCropperInstance = null;
         }
-        profileAvatarImg.src = '';
-        profileCropperWrapper.classList.add('hidden');
-        profileAvatarPreview.classList.add('hidden');
+        if (profileAvatarImg) profileAvatarImg.src = '';
+        if (profileCropperWrapper) profileCropperWrapper.classList.add('hidden');
+        if (profileAvatarPreview) profileAvatarPreview.classList.add('hidden');
         
         currentStage = 4;
         updateStageUI();
@@ -1184,7 +1428,7 @@ Roleplay Instructions:
 
     if (profileUploadTrigger) {
       profileUploadTrigger.addEventListener('click', () => {
-        profileAvatarUpload.click();
+        if (profileAvatarUpload) profileAvatarUpload.click();
       });
     }
 
@@ -1200,23 +1444,25 @@ Roleplay Instructions:
             profileCropperInstance = null;
           }
 
-          profileAvatarImg.src = event.target.result;
-          profileCropperWrapper.classList.remove('hidden');
-          profileAvatarPreview.classList.add('hidden');
+          if (profileAvatarImg) profileAvatarImg.src = event.target.result;
+          if (profileCropperWrapper) profileCropperWrapper.classList.remove('hidden');
+          if (profileAvatarPreview) profileAvatarPreview.classList.add('hidden');
 
-          profileCropperInstance = new Cropper(profileAvatarImg, {
-            aspectRatio: 1,
-            viewMode: 1,
-            autoCropArea: 0.8,
-            background: false,
-            responsive: true,
-            modal: true,
-            guides: true,
-            highlight: false,
-            cropBoxMovable: true,
-            cropBoxResizable: true,
-            dragMode: 'move'
-          });
+          if (profileAvatarImg) {
+            profileCropperInstance = new Cropper(profileAvatarImg, {
+              aspectRatio: 1,
+              viewMode: 1,
+              autoCropArea: 0.8,
+              background: false,
+              responsive: true,
+              modal: true,
+              guides: true,
+              highlight: false,
+              cropBoxMovable: true,
+              cropBoxResizable: true,
+              dragMode: 'move'
+            });
+          }
         };
         reader.readAsDataURL(file);
       });
@@ -1227,30 +1473,30 @@ Roleplay Instructions:
         profileCropperInstance.destroy();
         profileCropperInstance = null;
       }
-      profileCropperWrapper.classList.add('hidden');
-      profileAvatarPreview.classList.add('hidden');
+      if (profileCropperWrapper) profileCropperWrapper.classList.add('hidden');
+      if (profileAvatarPreview) profileAvatarPreview.classList.add('hidden');
       tempProfileConfig.avatarUrl = '';
 
       const p = userProfiles.find(profile => profile.id === profileEditingId);
       if (p) {
-        profileNameInput.value = p.name;
-        profileAppearanceInput.value = p.appearance;
-        profileBackstoryInput.value = p.backstory;
-        if (p.avatarUrl) {
+        if (profileNameInput) profileNameInput.value = p.name;
+        if (profileAppearanceInput) profileAppearanceInput.value = p.appearance;
+        if (profileBackstoryInput) profileBackstoryInput.value = p.backstory;
+        if (p.avatarUrl && profileAvatarPreview) {
           profileAvatarPreview.src = p.avatarUrl;
           profileAvatarPreview.classList.remove('hidden');
           tempProfileConfig.avatarUrl = p.avatarUrl;
         }
       } else {
-        profileNameInput.value = '';
-        profileAppearanceInput.value = '';
-        profileBackstoryInput.value = '';
+        if (profileNameInput) profileNameInput.value = '';
+        if (profileAppearanceInput) profileAppearanceInput.value = '';
+        if (profileBackstoryInput) profileBackstoryInput.value = '';
       }
     }
 
     if (profileSaveBtn) {
       profileSaveBtn.addEventListener('click', () => {
-        const name = profileNameInput.value.trim();
+        const name = profileNameInput ? profileNameInput.value.trim() : '';
         if (!name) {
           alert("The user profile requires a name.");
           return;
@@ -1271,8 +1517,8 @@ Roleplay Instructions:
         const profileData = {
           id: profileEditingId,
           name: name,
-          appearance: profileAppearanceInput.value.trim(),
-          backstory: profileBackstoryInput.value.trim(),
+          appearance: profileAppearanceInput ? profileAppearanceInput.value.trim() : '',
+          backstory: profileBackstoryInput ? profileBackstoryInput.value.trim() : '',
           avatarUrl: croppedAvatar || defaultProfile.avatarUrl
         };
 
@@ -1554,7 +1800,7 @@ Roleplay Instructions:
     // Test Voice Selector trigger
     if (testVoiceBtn) {
       testVoiceBtn.addEventListener('click', async () => {
-        const voiceName = botVoiceInput.value;
+        const voiceName = botVoiceInput ? botVoiceInput.value : '';
         if (!voiceName) {
           alert("A prebuilt voice profile must be selected to run a vocal test.");
           return;
@@ -1566,7 +1812,7 @@ Roleplay Instructions:
 
         const dummyBot = {
           voiceName: voiceName,
-          voicePrompt: botVoicePrompt.value.trim()
+          voicePrompt: botVoicePrompt ? botVoicePrompt.value.trim() : ''
         };
 
         try {
@@ -1597,12 +1843,12 @@ Roleplay Instructions:
     window.toggleAdvancedPrompt = function() {
       const container = document.getElementById('advanced-prompt-container');
       const toggleLabel = document.getElementById('advanced-prompt-toggle');
-      if (container.classList.contains('hidden')) {
+      if (container && container.classList.contains('hidden')) {
         container.classList.remove('hidden');
-        toggleLabel.innerText = "Hide ▴";
-      } else {
+        if (toggleLabel) toggleLabel.innerText = "Hide ▴";
+      } else if (container) {
         container.classList.add('hidden');
-        toggleLabel.innerText = "Show ▾";
+        if (toggleLabel) toggleLabel.innerText = "Show ▾";
       }
     };
 
@@ -1736,17 +1982,22 @@ Roleplay Instructions:
         return;
       }
 
-      if (bot.fullImageUrl) {
-        chatBgLayer.style.backgroundImage = `url('${bot.fullImageUrl}')`;
-      } else if (bot.avatarUrl) {
-        chatBgLayer.style.backgroundImage = `url('${bot.avatarUrl}')`;
-      } else {
-        chatBgLayer.style.backgroundImage = 'none';
+      if (chatBgLayer) {
+        if (bot.fullImageUrl) {
+          chatBgLayer.style.backgroundImage = `url('${bot.fullImageUrl}')`;
+        } else if (bot.avatarUrl) {
+          chatBgLayer.style.backgroundImage = `url('${bot.avatarUrl}')`;
+        } else {
+          chatBgLayer.style.backgroundImage = 'none';
+        }
       }
 
-      chatHeaderAvatar.src = bot.avatarUrl || bot.fullImageUrl;
-      chatHeaderName.innerText = bot.name;
+      if (chatHeaderAvatar) chatHeaderAvatar.src = bot.avatarUrl || bot.fullImageUrl;
+      if (chatHeaderName) chatHeaderName.innerText = bot.name;
       activeChatHistory = bot.chatHistory || [];
+
+      // Reset menu index on session load
+      activeMenuIdx = null;
 
       // Reset prompt toggle mode to dialogue default when opening chat
       isNarrativeMode = false;
@@ -1755,15 +2006,15 @@ Roleplay Instructions:
         chatModeBtn.classList.add('border-neutral-800', 'text-neutral-400');
         chatModeBtn.classList.remove('border-red-800', 'text-red-500', 'shadow-[0_0_10px_rgba(220,38,38,0.2)]');
       }
-      chatInput.placeholder = "Say something...";
+      if (chatInput) chatInput.placeholder = "Say something...";
 
       // Reset Hide Chat state when changing/opening chat sessions
       isChatHidden = false;
-      chatMessagesContainer.classList.remove('opacity-0', 'pointer-events-none');
+      if (chatMessagesContainer) chatMessagesContainer.classList.remove('opacity-0', 'pointer-events-none');
       if (chatHideBtn) {
         chatHideBtn.classList.add('text-neutral-400/90', 'hover:text-white', 'border-neutral-800');
         chatHideBtn.classList.remove('text-neutral-600', 'border-neutral-900', 'hover:text-neutral-600');
-        chatHideBtn.innerText = "Hide Chat";
+        chatHideBtn.innerText = "Hide";
       }
 
       renderChatMessagesOnly();
@@ -1791,15 +2042,15 @@ Roleplay Instructions:
       chatHideBtn.addEventListener('click', () => {
         isChatHidden = !isChatHidden;
         if (isChatHidden) {
-          chatMessagesContainer.classList.add('opacity-0', 'pointer-events-none');
+          if (chatMessagesContainer) chatMessagesContainer.classList.add('opacity-0', 'pointer-events-none');
           chatHideBtn.classList.remove('text-neutral-400/90', 'hover:text-white', 'border-neutral-800');
           chatHideBtn.classList.add('text-neutral-600', 'border-neutral-900', 'hover:text-neutral-600');
-          chatHideBtn.innerText = "Show Chat";
+          chatHideBtn.innerText = "Show";
         } else {
-          chatMessagesContainer.classList.remove('opacity-0', 'pointer-events-none');
+          if (chatMessagesContainer) chatMessagesContainer.classList.remove('opacity-0', 'pointer-events-none');
           chatHideBtn.classList.add('text-neutral-400/90', 'hover:text-white', 'border-neutral-800');
           chatHideBtn.classList.remove('text-neutral-600', 'border-neutral-900', 'hover:text-neutral-600');
-          chatHideBtn.innerText = "Hide Chat";
+          chatHideBtn.innerText = "Hide";
         }
       });
     }
@@ -1808,21 +2059,96 @@ Roleplay Instructions:
       chatModeBtn.addEventListener('click', () => {
         isNarrativeMode = !isNarrativeMode;
         if (isNarrativeMode) {
-          chatModeIcon.innerText = "📖";
+          if (chatModeIcon) chatModeIcon.innerText = "📖";
           chatModeBtn.classList.remove('border-neutral-800', 'text-neutral-400');
           chatModeBtn.classList.add('border-red-800', 'text-red-500', 'shadow-[0_0_10px_rgba(220,38,38,0.2)]');
-          chatInput.placeholder = "Describe an event or environmental shift...";
+          if (chatInput) chatInput.placeholder = "Describe an event or environmental shift...";
         } else {
-          chatModeIcon.innerText = "💬";
+          if (chatModeIcon) chatModeIcon.innerText = "💬";
           chatModeBtn.classList.add('border-neutral-800', 'text-neutral-400');
           chatModeBtn.classList.remove('border-red-800', 'text-red-500', 'shadow-[0_0_10px_rgba(220,38,38,0.2)]');
-          chatInput.placeholder = "Say something...";
+          if (chatInput) chatInput.placeholder = "Say something...";
         }
       });
     }
 
+    // Active Chat context save handler
+    if (chatSaveBtn) {
+      chatSaveBtn.addEventListener('click', () => {
+        if (activeChatHistory.length === 0) {
+          alert("No chat elements to save yet! Type something first.");
+          return;
+        }
+
+        const defaultLabel = "Session " + new Date().toLocaleString([], {year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute:'2-digit'});
+        const nameInput = prompt("Save active conversation as:", defaultLabel);
+        if (nameInput === null) return; 
+
+        const nameToSave = nameInput.trim() || defaultLabel;
+        const bot = chatbots.find(b => b.id === activeBotId);
+        
+        if (bot) {
+          if (!bot.savedChats) {
+            bot.savedChats = [];
+          }
+          bot.savedChats.push({
+            id: 'session_' + Date.now(),
+            name: nameToSave,
+            history: [...activeChatHistory]
+          });
+          saveToLocalStorage();
+          alert("Conversation saved successfully! Access it anytime from the selection menu.");
+        }
+      });
+    }
+
+    // Toggle menu visibility state for standard message bubble controls 
+    window.toggleBubbleControls = function(index) {
+      if (activeMenuIdx === index) {
+        activeMenuIdx = null;
+      } else {
+        activeMenuIdx = index;
+      }
+      renderChatMessagesOnly();
+    };
+
+    // Global message editor supporting user, narrative event, and bot reply updates
+    window.editUserMessage = async function(index) {
+      const originalText = activeChatHistory[index].text;
+      const modifiedText = prompt("Edit message text:", originalText);
+      if (modifiedText === null) return; 
+      
+      const cleanText = modifiedText.trim();
+      if (!cleanText) return;
+
+      // Halt active TTS synthesis
+      stopCurrentAudio();
+
+      const senderType = activeChatHistory[index].sender;
+
+      if (senderType === 'bot') {
+        // Editing a chatbot message preserves subsequent context but replaces the specific reply text
+        activeChatHistory = activeChatHistory.slice(0, index + 1);
+        activeChatHistory[index].text = cleanText;
+        
+        saveSessionState(false);
+        renderChatMessagesOnly();
+      } else {
+        // Slicing user/event message truncates downstream conversation and regenerates fresh response
+        activeChatHistory = activeChatHistory.slice(0, index);
+        activeChatHistory.push({ sender: senderType, text: cleanText });
+        
+        saveSessionState(false);
+        renderChatMessagesOnly();
+        
+        // Force response sequence
+        await triggerBotResponse();
+      }
+    };
+
     // Dynamic, Glassmorphic Chat Bubble Renderer (Supports Markdown parsing, top-aligned 50% larger avatars, and relative snug buttons)
     function renderChatMessagesOnly() {
+      if (!chatMessagesContainer) return;
       chatMessagesContainer.innerHTML = '';
       const bot = chatbots.find(b => b.id === activeBotId);
       if (!bot) return;
@@ -1834,9 +2160,26 @@ Roleplay Instructions:
         if (msg.sender === 'event') {
           const bubbleWrapper = document.createElement('div');
           bubbleWrapper.className = `w-full flex justify-center py-1.5 z-10`;
+
+          const isControlsVisible = (activeMenuIdx === idx);
+          let controlsRow = '';
+          if (isControlsVisible) {
+            controlsRow = `
+              <div class="flex justify-start mt-1 select-none">
+                <button onclick="event.stopPropagation(); editUserMessage(${idx})" class="bg-neutral-900 hover:bg-neutral-850 border border-neutral-800 px-2 py-0.5 rounded-md flex items-center justify-center gap-1 shadow-md cursor-pointer text-[10px] text-neutral-400" title="Edit text">
+                  <span>Edit</span>
+                  <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+                  </svg>
+                </button>
+              </div>
+            `;
+          }
+
           bubbleWrapper.innerHTML = `
-            <div class="px-5 py-2.5 rounded-xl text-center text-xs text-red-400/80 bg-red-955/10 border border-red-900/20 italic max-w-[90%] backdrop-blur-sm shadow-sm leading-relaxed whitespace-pre-wrap">
-              ${parseMarkdown(msg.text)}
+            <div onclick="toggleBubbleControls(${idx})" class="px-5 py-2.5 rounded-xl text-center text-xs text-red-400/80 bg-red-955/10 border border-red-900/20 italic max-w-[90%] backdrop-blur-sm shadow-sm leading-relaxed whitespace-pre-wrap cursor-pointer">
+              <div>${parseMarkdown(msg.text)}</div>
+              ${controlsRow}
             </div>
           `;
           chatMessagesContainer.appendChild(bubbleWrapper);
@@ -1844,69 +2187,88 @@ Roleplay Instructions:
         }
 
         const bubbleWrapper = document.createElement('div');
-        // Align avatar to top-left / top-right of the row using self-start
-        bubbleWrapper.className = `flex gap-3 max-w-[85%] ${msg.sender === 'user' ? 'self-end flex-row-reverse' : 'self-start'} z-10 relative group`;
+        // Align avatar to top-left / top-right of row using self-start
+        bubbleWrapper.className = `flex gap-3 max-w-[85%] ${msg.sender === 'user' ? 'self-end flex-row-reverse' : 'self-start'} z-10 relative`;
 
         // Speaker Avatars scaled to be 50% larger (w-12 h-12) and top aligned (self-start)
         const avatarMarkup = msg.sender === 'bot' 
           ? `<img class="w-12 h-12 rounded-full object-cover self-start border border-red-955/40 shrink-0 shadow-md" src="${bot.avatarUrl || tempConfig.avatarUrl}" alt="">`
           : `<img class="w-12 h-12 rounded-full object-cover self-start border border-red-955/40 shrink-0 shadow-md" src="${userAvatarSrc}" alt="">`;
 
-        // Tight vertical padding on bottom (pb-2) to bring buttons tight to the last line
+        // Adjust bottom padding based on controls open/close state
+        const isCurrentlyPlaying = (isAudioPlaying && playingAudioIndex === idx);
+        const isControlsVisible = (activeMenuIdx === idx || isCurrentlyPlaying);
+        const paddingClass = isControlsVisible ? 'pb-2' : 'pb-2.5';
+
         const bubbleColor = msg.sender === 'user' 
-          ? 'bg-red-955/20 border border-red-900/30 text-white/80 rounded-t-2xl rounded-bl-2xl shadow-lg backdrop-blur-sm shadow-black/20 px-4 py-2.5' 
-          : 'bg-neutral-900/20 border border-neutral-800/30 text-neutral-200/80 rounded-t-2xl rounded-br-2xl shadow-lg backdrop-blur-sm shadow-black/20 px-4 pt-2.5 pb-2';
+          ? `bg-red-955/20 border border-red-900/30 text-white/80 rounded-t-2xl rounded-bl-2xl shadow-lg backdrop-blur-sm shadow-black/20 px-4 pt-2.5 ${paddingClass} cursor-pointer` 
+          : `bg-neutral-900/20 border border-neutral-800/30 text-neutral-200/80 rounded-t-2xl rounded-br-2xl shadow-lg backdrop-blur-sm shadow-black/20 px-4 pt-2.5 ${paddingClass} cursor-pointer`;
 
         let actionControlsMarkup = '';
 
-        if (msg.sender === 'bot') {
-          if (isAudioPlaying && playingAudioIndex === idx) {
-            // Centers STOP perfectly inside the bottom-snug layout container
-            actionControlsMarkup = `
-              <div class="flex justify-end gap-1.5 mt-1 select-none h-6 items-center">
+        if (isControlsVisible) {
+          // Edit button is left-aligned and available on user, narrative, and chatbot replies
+          const editBtnMarkup = `
+            <button onclick="event.stopPropagation(); editUserMessage(${idx})" class="bg-neutral-955/80 hover:bg-neutral-850 border border-neutral-800/60 px-2 py-0.5 rounded-md flex items-center justify-center gap-1 shadow-md cursor-pointer text-[10px] text-neutral-400" title="Edit message">
+              <span>Edit</span>
+              <svg class="w-2.5 h-2.5 text-neutral-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+              </svg>
+            </button>
+          `;
+
+          let rightSideMarkup = '';
+          if (msg.sender === 'bot') {
+            if (isCurrentlyPlaying) {
+              rightSideMarkup = `
                 <div onclick="event.stopPropagation(); stopCurrentAudio();" 
-                  class="w-[72px] h-[22px] bg-red-600 hover:bg-red-500 text-black font-black text-[13px] uppercase tracking-widest rounded-md flex items-center justify-center p-0 m-0 leading-none cursor-pointer shadow-lg border border-red-700/50 select-none text-center" 
-                  title="Stop message voice"
+                  class="w-[72px] h-[22px] bg-red-600 hover:bg-red-500 text-black font-black text-[13.5px] uppercase tracking-widest rounded-md flex items-center justify-center p-0 m-0 leading-none cursor-pointer shadow-lg border border-red-700/50 select-none text-center" 
+                  title="Stop voice player"
                   role="button">
                   <span class="-translate-y-[1px]">STOP</span>
                 </div>
-              </div>
-            `;
-          } else {
-            // Apply unclickable states to standard play and reuse buttons if audio is active elsewhere
-            const btnStateClass = isAudioPlaying 
-              ? 'pointer-events-none opacity-20' 
-              : 'opacity-0 group-hover:opacity-100';
+              `;
+            } else {
+              const btnStateClass = isAudioPlaying 
+                ? 'pointer-events-none opacity-20' 
+                : 'opacity-100';
 
-            const speakerBtnMarkup = bot.voiceName
-              ? `<button onclick="playBubbleSpeech(${idx})" class="bg-neutral-955/80 hover:bg-neutral-850 border border-neutral-800/60 p-1 rounded-md flex items-center justify-center shadow-md ${btnStateClass} transition-all duration-200 cursor-pointer h-[22px] w-[22px]" title="Speak message">
-                  <svg class="w-3 h-3 text-neutral-400 hover:text-white transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z"></path>
+              const speakerBtnMarkup = bot.voiceName
+                ? `<button onclick="event.stopPropagation(); playBubbleSpeech(${idx})" class="bg-neutral-955/80 hover:bg-neutral-850 border border-neutral-800/60 p-1 rounded-md flex items-center justify-center shadow-md ${btnStateClass} transition-all duration-200 cursor-pointer h-[22px] w-[22px]" title="Speak message">
+                    <svg class="w-3 h-3 text-neutral-400 hover:text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z"></path>
+                    </svg>
+                   </button>`
+                : '';
+
+              const regenBtnMarkup = `
+                <button onclick="event.stopPropagation(); regenerateFrom(${idx})" class="bg-neutral-955/80 hover:bg-neutral-850 border border-neutral-800/60 p-1 rounded-md flex items-center justify-center shadow-md ${btnStateClass} transition-all duration-200 cursor-pointer h-[22px] w-[22px]" title="Regenerate from here">
+                  <svg class="w-3 h-3 text-red-500 hover:text-red-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"></path>
                   </svg>
-                 </button>`
-              : '';
+                </button>
+              `;
 
-            const regenBtnMarkup = `
-              <button onclick="regenerateFrom(${idx})" class="bg-neutral-955/80 hover:bg-neutral-850 border border-neutral-800/60 p-1 rounded-md flex items-center justify-center shadow-md ${btnStateClass} transition-all duration-200 cursor-pointer h-[22px] w-[22px]" title="Regenerate from here">
-                <svg class="w-3 h-3 text-red-500 hover:text-red-400 transition-colors" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"></path>
-                </svg>
-              </button>
-            `;
-
-            // Nest action controls in a normal, bottom-right inline row with mt-1 to eliminate overlap and padding waste
-            actionControlsMarkup = `
-              <div class="flex justify-end gap-1.5 mt-1 select-none h-6 items-center">
-                ${speakerBtnMarkup}
-                ${regenBtnMarkup}
-              </div>
-            `;
+              rightSideMarkup = speakerBtnMarkup + regenBtnMarkup;
+            }
           }
+
+          // Combined Snug Row with Edit on bottom-left, playback controls on bottom-right
+          actionControlsMarkup = `
+            <div class="flex justify-between items-center mt-1 select-none h-6">
+              <div class="flex justify-start">
+                ${editBtnMarkup}
+              </div>
+              <div class="flex justify-end gap-1.5 items-center">
+                ${rightSideMarkup}
+              </div>
+            </div>
+          `;
         }
 
         bubbleWrapper.innerHTML = `
           ${avatarMarkup}
-          <div class="text-sm ${bubbleColor} leading-relaxed whitespace-pre-wrap flex flex-col justify-between">
+          <div onclick="toggleBubbleControls(${idx})" class="text-sm ${bubbleColor} leading-relaxed whitespace-pre-wrap flex flex-col justify-between">
             <div>${parseMarkdown(msg.text)}</div>
             ${actionControlsMarkup}
           </div>
@@ -1922,12 +2284,12 @@ Roleplay Instructions:
       const bot = chatbots.find(b => b.id === activeBotId);
       if (!bot) return;
 
-      typingText.innerText = `${bot.name} is thinking...`;
-      typingIndicator.classList.remove('hidden');
+      if (typingText) typingText.innerText = `${bot.name} is thinking...`;
+      if (typingIndicator) typingIndicator.classList.remove('hidden');
 
       const activeProfile = getActiveProfile();
 
-      // System Instructions (Allows system prompt overrides or defaults)
+      // System Instructions
       const defaultAssembledPrompt = getAssembledSystemPrompt(bot);
       const systemPrompt = bot.customSystemPrompt || defaultAssembledPrompt;
 
@@ -1942,14 +2304,16 @@ Roleplay Instructions:
 
           if (bot.model === 'local') {
             reply = await callLocalLLM(apiMessages, systemPrompt, appSettings.localUrl, appSettings.localModel);
-            document.getElementById('chat-connected-status').innerText = `Connected • Local`;
+            const statusNode = document.getElementById('chat-connected-status');
+            if (statusNode) statusNode.innerText = `Connected • Local`;
           } else {
             if (!appSettings.geminiKey) {
               throw new Error("Missing Gemini API Key. Open settings on the Home Screen to configure it.");
             }
             const result = await callGeminiWithFallback(apiMessages, systemPrompt, appSettings.geminiKey);
             reply = result.reply;
-            document.getElementById('chat-connected-status').innerText = `Connected • ${result.modelUsed}`;
+            const statusNode = document.getElementById('chat-connected-status');
+            if (statusNode) statusNode.innerText = `Connected • ${result.modelUsed}`;
           }
         } else {
           // Chat Turn Generator
@@ -1966,18 +2330,20 @@ Roleplay Instructions:
 
           if (bot.model === 'local') {
             reply = await callLocalLLM(apiMessages, systemPrompt, appSettings.localUrl, appSettings.localModel);
-            document.getElementById('chat-connected-status').innerText = `Connected • Local`;
+            const statusNode = document.getElementById('chat-connected-status');
+            if (statusNode) statusNode.innerText = `Connected • Local`;
           } else {
             if (!appSettings.geminiKey) {
               throw new Error("Missing Gemini API Key. Open settings on the Home Screen to configure it.");
             }
             const result = await callGeminiWithFallback(apiMessages, systemPrompt, appSettings.geminiKey);
             reply = result.reply;
-            document.getElementById('chat-connected-status').innerText = `Connected • ${result.modelUsed}`;
+            const statusNode = document.getElementById('chat-connected-status');
+            if (statusNode) statusNode.innerText = `Connected • ${result.modelUsed}`;
           }
         }
 
-        typingIndicator.classList.add('hidden');
+        if (typingIndicator) typingIndicator.classList.add('hidden');
         
         activeChatHistory.push({ sender: 'bot', text: reply });
         renderChatMessagesOnly();
@@ -1989,7 +2355,7 @@ Roleplay Instructions:
         }
 
       } catch (err) {
-        typingIndicator.classList.add('hidden');
+        if (typingIndicator) typingIndicator.classList.add('hidden');
         console.error(err);
         alert(err.message);
         
@@ -2008,16 +2374,17 @@ Roleplay Instructions:
     };
 
     async function handleChatMessage() {
-      const userMessage = chatInput.value.trim();
+      const userMessage = chatInput ? chatInput.value.trim() : '';
       if (!userMessage) return;
 
       const senderType = isNarrativeMode ? 'event' : 'user';
       activeChatHistory.push({ sender: senderType, text: userMessage });
 
-      // Story / Say input mode is now fully persistent across subsequent posts
+      // Story / Say input mode is fully persistent across subsequent posts
+      activeMenuIdx = null; // Close control rows
 
       renderChatMessagesOnly();
-      chatInput.value = '';
+      if (chatInput) chatInput.value = '';
 
       await triggerBotResponse();
     }
@@ -2036,7 +2403,7 @@ Roleplay Instructions:
         stopCurrentAudio();
         if (typeof speechSynthesis !== 'undefined') speechSynthesis.cancel(); 
         saveSessionState(false);
-        currentStage = 0;
+        currentStage = 5; // Return to selection screen instead of home screen directly
         updateStageUI();
       });
     }
@@ -2062,3 +2429,4 @@ Roleplay Instructions:
   </script>
 </body>
 </html>
+```
