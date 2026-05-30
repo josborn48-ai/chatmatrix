@@ -125,7 +125,7 @@
              class="bg-neutral-900 hover:bg-neutral-855 border border-neutral-800 font-semibold py-3 px-4 rounded-xl text-sm text-center flex items-center justify-center gap-2 transition-all active:scale-[0.98]">
             <span>Open Perchance Generator</span>
             <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
             </svg>
           </a>
 
@@ -405,7 +405,7 @@
               placeholder="Say something...">
             <button id="chat-send-btn" class="bg-red-700 hover:bg-red-600 p-3 rounded-xl transition-all shadow-md active:scale-95 flex justify-center items-center shrink-0">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
               </svg>
             </button>
           </div>
@@ -519,7 +519,7 @@
             <!-- Edit Blueprint directly from Selection -->
             <button id="session-edit-btn" class="bg-neutral-900 hover:bg-neutral-855 border border-neutral-800 text-neutral-400 hover:text-white font-semibold py-3 px-3 rounded-xl text-xs transition-all active:scale-[0.98] flex items-center justify-center gap-1.5">
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828L11.828 15H9v-2.828l8.586-8.586z"></path>
               </svg>
               Edit Blueprint
             </button>
@@ -771,37 +771,6 @@
       localStorage.setItem('botforge_settings', JSON.stringify(appSettings));
     }
 
-    function saveProfilesToLocalStorage() {
-      localStorage.setItem('botforge_user_profiles', JSON.stringify(userProfiles));
-      localStorage.setItem('botforge_active_profile', activeProfileId);
-    }
-
-    // Settings elements
-    if (homeSettingsBtn) {
-      homeSettingsBtn.addEventListener('click', () => {
-        settingsGeminiKey.value = appSettings.geminiKey || '';
-        settingsLocalUrl.value = appSettings.localUrl || 'http://localhost:1234/v1';
-        settingsLocalModel.value = appSettings.localModel || 'mistral';
-        settingsModal.classList.remove('hidden');
-      });
-    }
-
-    if (settingsCloseBtn) {
-      settingsCloseBtn.addEventListener('click', () => {
-        settingsModal.classList.add('hidden');
-      });
-    }
-
-    if (settingsSaveBtn) {
-      settingsSaveBtn.addEventListener('click', () => {
-        appSettings.geminiKey = settingsGeminiKey.value.trim();
-        appSettings.localUrl = settingsLocalUrl.value.trim();
-        appSettings.localModel = settingsLocalModel.value.trim();
-        saveSettings();
-        settingsModal.classList.add('hidden');
-      });
-    }
-
     // ================= STAGE ROUTER =================
 
     function updateStageUI() {
@@ -869,7 +838,7 @@
           <div class="flex-1 flex flex-col justify-center items-center text-center p-8 text-neutral-600">
             <span class="text-5xl text-neutral-700">🩸</span>
             <p class="font-semibold mt-3 text-sm text-neutral-400">No active entities</p>
-            <p class="text-[10px] mt-1 text-neutral-500 max-w-[200px]">Assemble your companion by configuring APIs first and clicking the plus icon.</p>
+            <p class="text-xs mt-1 text-neutral-500 max-w-[200px]">Assemble your companion by configuring APIs first and clicking the plus icon.</p>
           </div>
         `;
         return;
@@ -2167,7 +2136,7 @@ Roleplay Instructions:
           if (isControlsVisible) {
             controlsRow = `
               <div class="flex justify-start mt-1 select-none">
-                <button onclick="event.stopPropagation(); editUserMessage(${idx})" class="bg-neutral-900 hover:bg-neutral-850 border border-neutral-800 px-2 py-0.5 rounded-md flex items-center justify-center gap-1 shadow-md cursor-pointer text-[10px] text-neutral-400" title="Edit text">
+                <button onclick="event.stopPropagation(); editUserMessage(${idx})" class="bg-neutral-900 hover:bg-neutral-855 border border-neutral-800 px-2 py-0.5 rounded-md flex items-center justify-center gap-1 shadow-md cursor-pointer text-[10px] text-neutral-400" title="Edit text">
                   <span>Edit</span>
                   <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
@@ -2230,6 +2199,7 @@ Roleplay Instructions:
                 </div>
               `;
             } else {
+              // CHANGE: Replaced hover states with definite opacity-100 controls to show up on mobile taps
               const btnStateClass = isAudioPlaying 
                 ? 'pointer-events-none opacity-20' 
                 : 'opacity-100';
