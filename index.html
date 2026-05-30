@@ -299,7 +299,7 @@
               </div>
 
               <!-- Voice Test Trigger -->
-              <button id="test-voice-btn" type="button" class="bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 text-neutral-300 font-semibold py-2 px-3 rounded-xl text-xs transition-all active:scale-[0.98] self-start flex items-center gap-1.5">
+              <button id="test-voice-btn" type="button" class="bg-neutral-900 hover:bg-neutral-855 border border-neutral-800 text-neutral-300 font-semibold py-2 px-3 rounded-xl text-xs transition-all active:scale-[0.98] self-start flex items-center gap-1.5">
                 <span>Test Voice</span>
               </button>
             </div>
@@ -405,7 +405,7 @@
               placeholder="Say something...">
             <button id="chat-send-btn" class="bg-red-700 hover:bg-red-600 p-3 rounded-xl transition-all shadow-md active:scale-95 flex justify-center items-center shrink-0">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
               </svg>
             </button>
           </div>
@@ -519,7 +519,7 @@
             <!-- Edit Blueprint directly from Selection -->
             <button id="session-edit-btn" class="bg-neutral-900 hover:bg-neutral-855 border border-neutral-800 text-neutral-400 hover:text-white font-semibold py-3 px-3 rounded-xl text-xs transition-all active:scale-[0.98] flex items-center justify-center gap-1.5">
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828L11.828 15H9v-2.828l8.586-8.586z"></path>
               </svg>
               Edit Blueprint
             </button>
@@ -869,7 +869,7 @@
           <div class="flex-1 flex flex-col justify-center items-center text-center p-8 text-neutral-600">
             <span class="text-5xl text-neutral-700">🩸</span>
             <p class="font-semibold mt-3 text-sm text-neutral-400">No active entities</p>
-            <p class="text-xs mt-1 text-neutral-500 max-w-[200px]">Assemble your companion by configuring APIs first and clicking the plus icon.</p>
+            <p class="text-[10px] mt-1 text-neutral-500 max-w-[200px]">Assemble your companion by configuring APIs first and clicking the plus icon.</p>
           </div>
         `;
         return;
@@ -892,7 +892,7 @@
           <div class="flex items-center gap-1 shrink-0">
             <button onclick="openEdit('${bot.id}')" class="p-2 hover:bg-neutral-900 text-neutral-400 hover:text-white rounded-xl transition-all" title="Edit blueprint">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828L11.828 15H9v-2.828l8.586-8.586z"></path>
               </svg>
             </button>
             <button onclick="deleteBot('${bot.id}')" class="p-2 hover:bg-red-955/40 text-neutral-500 hover:text-red-400 rounded-xl transition-all" title="Delete bot">
@@ -1938,7 +1938,7 @@ Roleplay Instructions:
           ) {
             continue;
           } else {
-            // Instantly throw non-failover configuration errors (e.g. invalid API key)
+            // Instantly throw unhanded non-failover configuration errors (e.g. invalid API key)
             throw err;
           }
         }
@@ -2017,7 +2017,7 @@ Roleplay Instructions:
         chatHideBtn.innerText = "Hide";
       }
 
-      renderChatMessagesOnly();
+      renderChatMessagesOnly(true); // Scroll to bottom on initial load
 
       if (activeChatHistory.length === 0) {
         await triggerBotResponse();
@@ -2031,7 +2031,7 @@ Roleplay Instructions:
           stopCurrentAudio();
           activeChatHistory = [];
           saveSessionState(false);
-          renderChatMessagesOnly();
+          renderChatMessagesOnly(true);
           await triggerBotResponse();
         }
       });
@@ -2109,7 +2109,7 @@ Roleplay Instructions:
       } else {
         activeMenuIdx = index;
       }
-      renderChatMessagesOnly();
+      renderChatMessagesOnly(false); // Do NOT scroll to bottom when opening controls
     };
 
     // Global message editor supporting user, narrative event, and bot reply updates
@@ -2132,14 +2132,14 @@ Roleplay Instructions:
         activeChatHistory[index].text = cleanText;
         
         saveSessionState(false);
-        renderChatMessagesOnly();
+        renderChatMessagesOnly(true); // Maintain view scroll update
       } else {
         // Slicing user/event message truncates downstream conversation and regenerates fresh response
         activeChatHistory = activeChatHistory.slice(0, index);
         activeChatHistory.push({ sender: senderType, text: cleanText });
         
         saveSessionState(false);
-        renderChatMessagesOnly();
+        renderChatMessagesOnly(true); // Scroll to bottom on edits
         
         // Force response sequence
         await triggerBotResponse();
@@ -2147,7 +2147,8 @@ Roleplay Instructions:
     };
 
     // Dynamic, Glassmorphic Chat Bubble Renderer (Supports Markdown parsing, top-aligned 50% larger avatars, and relative snug buttons)
-    function renderChatMessagesOnly() {
+    // Accept standard parameter to control automatic scrolling logic
+    function renderChatMessagesOnly(shouldScrollToBottom = false) {
       if (!chatMessagesContainer) return;
       chatMessagesContainer.innerHTML = '';
       const bot = chatbots.find(b => b.id === activeBotId);
@@ -2187,7 +2188,7 @@ Roleplay Instructions:
         }
 
         const bubbleWrapper = document.createElement('div');
-        // Align avatar to top-left / top-right of row using self-start
+        // Align avatar to top-left / top-right of the row using self-start
         bubbleWrapper.className = `flex gap-3 max-w-[85%] ${msg.sender === 'user' ? 'self-end flex-row-reverse' : 'self-start'} z-10 relative`;
 
         // Speaker Avatars scaled to be 50% larger (w-12 h-12) and top aligned (self-start)
@@ -2276,7 +2277,11 @@ Roleplay Instructions:
 
         chatMessagesContainer.appendChild(bubbleWrapper);
       });
-      chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
+
+      // Conditional viewport alignment
+      if (shouldScrollToBottom) {
+        chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
+      }
     }
 
     // Handles text generation (Incorporate Narrative Prompt recognition & Failover Loop)
@@ -2346,7 +2351,7 @@ Roleplay Instructions:
         if (typingIndicator) typingIndicator.classList.add('hidden');
         
         activeChatHistory.push({ sender: 'bot', text: reply });
-        renderChatMessagesOnly();
+        renderChatMessagesOnly(true); // Scroll to bottom when bot responds
         saveSessionState(false);
 
         // Speak generated reply aloud if voice is active and Quiet Mode is off
@@ -2361,7 +2366,7 @@ Roleplay Instructions:
         
         const errorFallback = `System error: ${err.message}`;
         activeChatHistory.push({ sender: 'bot', text: errorFallback });
-        renderChatMessagesOnly();
+        renderChatMessagesOnly(true); // Maintain view scroll update on exceptions
       }
     }
 
@@ -2369,7 +2374,7 @@ Roleplay Instructions:
       stopCurrentAudio();
       activeChatHistory = activeChatHistory.slice(0, index);
       saveSessionState(false);
-      renderChatMessagesOnly();
+      renderChatMessagesOnly(true); // Align to bottom on regenerations
       await triggerBotResponse();
     };
 
@@ -2383,7 +2388,7 @@ Roleplay Instructions:
       // Story / Say input mode is fully persistent across subsequent posts
       activeMenuIdx = null; // Close control rows
 
-      renderChatMessagesOnly();
+      renderChatMessagesOnly(true); // Scroll to bottom when user posts a message
       if (chatInput) chatInput.value = '';
 
       await triggerBotResponse();
@@ -2396,6 +2401,17 @@ Roleplay Instructions:
         saveToLocalStorageQuiet();
       }
     }
+
+    // Defensive initialization wrappers for advanced prompt editor listeners
+    if (botCustomSystemPrompt) {
+      botCustomSystemPrompt.addEventListener('input', () => {
+        hasManuallyEditedPrompt = true;
+      });
+    }
+    if (botNameInput) botNameInput.addEventListener('input', updateDynamicSystemPrompt);
+    if (botAppearanceInput) botAppearanceInput.addEventListener('input', updateDynamicSystemPrompt);
+    if (botPersonalityInput) botPersonalityInput.addEventListener('input', updateDynamicSystemPrompt);
+    if (botHistoryInput) botHistoryInput.addEventListener('input', updateDynamicSystemPrompt);
 
     // Event listeners
     if (chatExitBtn) {
