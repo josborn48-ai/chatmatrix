@@ -235,6 +235,15 @@
             <label class="text-xs font-bold uppercase tracking-wider text-neutral-400">Text-To-Speech (TTS) Voice Configuration</label>
             
             <div class="flex flex-col gap-3">
+              <!-- TTS Engine Selector -->
+              <div class="flex flex-col gap-1">
+                <span class="text-[10px] text-neutral-500">TTS Engine Mode</span>
+                <select id="bot-tts-engine" class="bg-black border border-neutral-800 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-red-700 text-white transition-all">
+                  <option value="gemini" selected>Google Gemini Native TTS (High Quality)</option>
+                  <option value="browser">Browser Web Speech API (Offline/Free Fallback)</option>
+                </select>
+              </div>
+
               <!-- Gemini Prebuilt Voices Dropdown -->
               <div class="flex flex-col gap-1">
                 <span class="text-[10px] text-neutral-500">Google Gemini Prebuilt Vocal Profile</span>
@@ -415,6 +424,7 @@
 
       <!-- ================= STAGE 4: USER PROFILE CONFIGURATION ================= -->
       <section id="stage-profile-form" class="hidden p-6 flex-1 flex flex-col gap-5 overflow-y-auto">
+        <div class="flex class flex-col">
         <div class="flex items-center gap-3">
           <button id="profile-back-btn" class="text-neutral-400 hover:text-white transition-all">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -509,7 +519,7 @@
 
           <div class="grid grid-cols-2 gap-3">
             <!-- Start New Session -->
-            <button id="session-new-btn" class="bg-neutral-900 hover:bg-neutral-850 border border-neutral-800 text-neutral-300 font-semibold py-3 px-3 rounded-xl text-xs transition-all active:scale-[0.98] flex items-center justify-center gap-1.5">
+            <button id="session-new-btn" class="bg-neutral-900 hover:bg-neutral-855 border border-neutral-800 text-neutral-300 font-semibold py-3 px-3 rounded-xl text-xs transition-all active:scale-[0.98] flex items-center justify-center gap-1.5">
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path>
               </svg>
@@ -607,6 +617,11 @@
     let currentAudio = null;
     let isAudioPlaying = false;
     let playingAudioIndex = null;
+
+    // Serial TTS Sentence playback queue data stores
+    let speechQueue = [];
+    let currentQueueIndex = 0;
+    let isQueuePlaying = false;
 
     // Active message bubble control tracker 
     let activeMenuIdx = null;
@@ -720,36 +735,149 @@
     const profileSaveBtn = document.getElementById('profile-save-btn');
     const profileBackBtn = document.getElementById('profile-back-btn');
 
+    // ================= INDEXEDDB ENGINE STORAGE =================
+
+    const DB_NAME = 'BotForgeDB';
+    const DB_VERSION = 1;
+    let dbConnection = null;
+    let memoryFallbackStorage = {};
+
+    function initDB() {
+      return new Promise((resolve) => {
+        try {
+          const request = indexedDB.open(DB_NAME, DB_VERSION);
+          request.onupgradeneeded = (e) => {
+            const database = e.target.result;
+            if (!database.objectStoreNames.contains('store')) {
+              database.createObjectStore('store');
+            }
+          };
+          request.onsuccess = (e) => {
+            dbConnection = e.target.result;
+            resolve(dbConnection);
+          };
+          request.onerror = (e) => {
+            console.warn("IndexedDB initialization failed, falling back to memory storage.", e);
+            resolve(null);
+          };
+        } catch (e) {
+          console.warn("IndexedDB not supported or blocked, falling back to memory storage.", e);
+          resolve(null);
+        }
+      });
+    }
+
+    function getDBValue(key, fallback) {
+      return new Promise((resolve) => {
+        if (!dbConnection) {
+          resolve(memoryFallbackStorage[key] !== undefined ? memoryFallbackStorage[key] : fallback);
+          return;
+        }
+        try {
+          const transaction = dbConnection.transaction('store', 'readonly');
+          const store = transaction.objectStore('store');
+          const request = store.get(key);
+          request.onsuccess = () => {
+            resolve(request.result !== undefined ? request.result : fallback);
+          };
+          request.onerror = () => {
+            resolve(fallback);
+          };
+        } catch (e) {
+          resolve(fallback);
+        }
+      });
+    }
+
+    function setDBValue(key, val) {
+      return new Promise((resolve) => {
+        if (!dbConnection) {
+          memoryFallbackStorage[key] = val;
+          resolve();
+          return;
+        }
+        try {
+          const transaction = dbConnection.transaction('store', 'readwrite');
+          const store = transaction.objectStore('store');
+          const request = store.put(val, key);
+          request.onsuccess = () => resolve();
+          request.onerror = () => resolve();
+        } catch (e) {
+          resolve();
+        }
+      });
+    }
+
+    async function migrateLocalStorageToIndexedDB() {
+      try {
+        const migrated = localStorage.getItem('botforge_migrated_to_idb');
+        if (migrated === 'true') return;
+
+        const legacyBots = localStorage.getItem('botforge_bots');
+        const legacySettings = localStorage.getItem('botforge_settings');
+        const legacyProfiles = localStorage.getItem('botforge_user_profiles');
+        const legacyActiveProfile = localStorage.getItem('botforge_active_profile');
+
+        if (legacyBots) {
+          try {
+            await setDBValue('botforge_bots', JSON.parse(legacyBots));
+          } catch(e) {}
+        }
+        if (legacySettings) {
+          try {
+            await setDBValue('botforge_settings', JSON.parse(legacySettings));
+          } catch(e) {}
+        }
+        if (legacyProfiles) {
+          try {
+            await setDBValue('botforge_user_profiles', JSON.parse(legacyProfiles));
+          } catch(e) {}
+        }
+        if (legacyActiveProfile) {
+          try {
+            await setDBValue('botforge_active_profile', legacyActiveProfile);
+          } catch(e) {}
+        }
+
+        localStorage.setItem('botforge_migrated_to_idb', 'true');
+      } catch (e) {
+        console.warn("Migration step bypassed or local storage access restricted.", e);
+      }
+    }
+
     // ================= STORAGE FUNCTIONS (DEFENSIVELY SHIELDED) =================
 
-    function loadFromLocalStorage() {
+    async function loadFromStorage() {
+      await initDB();
+      await migrateLocalStorageToIndexedDB();
+
       try {
-        const stored = localStorage.getItem('botforge_bots');
-        chatbots = stored ? JSON.parse(stored) : [];
+        const stored = await getDBValue('botforge_bots', null);
+        chatbots = stored || [];
       } catch (e) {
         console.error("Failed to parse chatbots from storage. Resetting locally.", e);
         chatbots = [];
       }
 
       try {
-        const settingsStored = localStorage.getItem('botforge_settings');
+        const settingsStored = await getDBValue('botforge_settings', null);
         if (settingsStored) {
-          appSettings = { ...appSettings, ...JSON.parse(settingsStored) };
+          appSettings = { ...appSettings, ...settingsStored };
         }
       } catch (e) {
         console.error("Failed to parse settings. Preserving defaults.", e);
       }
 
       try {
-        const profilesStored = localStorage.getItem('botforge_user_profiles');
-        userProfiles = profilesStored ? JSON.parse(profilesStored) : [];
+        const profilesStored = await getDBValue('botforge_user_profiles', null);
+        userProfiles = profilesStored || [];
       } catch (e) {
         console.error("Failed to parse user profiles. Resetting profiles.", e);
         userProfiles = [];
       }
       
       try {
-        activeProfileId = localStorage.getItem('botforge_active_profile');
+        activeProfileId = await getDBValue('botforge_active_profile', null);
         const cleanProfiles = userProfiles.filter(p => p !== null && p !== undefined);
         if (cleanProfiles.length > 0 && (!activeProfileId || !cleanProfiles.some(p => p.id === activeProfileId))) {
           activeProfileId = cleanProfiles[0].id;
@@ -760,15 +888,46 @@
     }
 
     function saveToLocalStorage() {
-      localStorage.setItem('botforge_bots', JSON.stringify(chatbots));
+      setDBValue('botforge_bots', chatbots);
     }
 
     function saveToLocalStorageQuiet() {
-      localStorage.setItem('botforge_bots', JSON.stringify(chatbots));
+      setDBValue('botforge_bots', chatbots);
     }
 
     function saveSettings() {
-      localStorage.setItem('botforge_settings', JSON.stringify(appSettings));
+      setDBValue('botforge_settings', appSettings);
+    }
+
+    function saveProfilesToLocalStorage() {
+      setDBValue('botforge_user_profiles', userProfiles);
+      setDBValue('botforge_active_profile', activeProfileId);
+    }
+
+    // Settings elements
+    if (homeSettingsBtn) {
+      homeSettingsBtn.addEventListener('click', () => {
+        settingsGeminiKey.value = appSettings.geminiKey || '';
+        settingsLocalUrl.value = appSettings.localUrl || 'http://localhost:1234/v1';
+        settingsLocalModel.value = appSettings.localModel || 'mistral';
+        settingsModal.classList.remove('hidden');
+      });
+    }
+
+    if (settingsCloseBtn) {
+      settingsCloseBtn.addEventListener('click', () => {
+        settingsModal.classList.add('hidden');
+      });
+    }
+
+    if (settingsSaveBtn) {
+      settingsSaveBtn.addEventListener('click', () => {
+        appSettings.geminiKey = settingsGeminiKey.value.trim();
+        appSettings.localUrl = settingsLocalUrl.value.trim();
+        appSettings.localModel = settingsLocalModel.value.trim();
+        saveSettings();
+        settingsModal.classList.add('hidden');
+      });
     }
 
     // ================= STAGE ROUTER =================
@@ -838,7 +997,7 @@
           <div class="flex-1 flex flex-col justify-center items-center text-center p-8 text-neutral-600">
             <span class="text-5xl text-neutral-700">🩸</span>
             <p class="font-semibold mt-3 text-sm text-neutral-400">No active entities</p>
-            <p class="text-xs mt-1 text-neutral-500 max-w-[200px]">Assemble your companion by configuring APIs first and clicking the plus icon.</p>
+            <p class="text-[10px] mt-1 text-neutral-500 max-w-[200px]">Assemble your companion by configuring APIs first and clicking the plus icon.</p>
           </div>
         `;
         return;
@@ -875,6 +1034,25 @@
       });
     }
 
+    // Global trash can deletion helper
+    window.deleteBot = function(id) {
+      const bot = chatbots.find(b => b.id === id);
+      if (!bot) return;
+
+      const confirmDelete = confirm(`Are you sure you want to permanently delete "${bot.name}" and all associated conversation history?`);
+      if (confirmDelete) {
+        // Reset current speech and active focus variables defensively
+        if (activeBotId === id) {
+          stopCurrentAudio();
+          activeBotId = null;
+        }
+        chatbots = chatbots.filter(b => b.id !== id);
+        saveToLocalStorage();
+        renderHomeList();
+      }
+    };
+
+    // Symmetrical, non-overlapping responsive profile cards renderer
     function renderProfileList() {
       if (!profileListContainer) return;
       profileListContainer.innerHTML = '';
@@ -888,23 +1066,28 @@
       renderList.forEach(p => {
         const isActive = p.id === activeProfileId;
         const item = document.createElement('div');
-        item.className = `flex items-center gap-2.5 p-2 rounded-xl shrink-0 cursor-pointer border transition-all relative group min-w-[130px] max-w-[150px] ${isActive ? 'border-red-700 bg-red-955/15' : 'border-neutral-800 bg-neutral-950/40'} hover:border-red-900/40`;
-        item.onclick = () => selectProfile(p.id);
+        
+        // Removed parent item.onclick to separate selection click zone completely from action buttons
+        item.className = `flex items-center justify-between p-2 rounded-xl shrink-0 border transition-all relative min-w-[160px] max-w-[180px] ${isActive ? 'border-red-700 bg-red-955/15' : 'border-neutral-800 bg-neutral-950/40'} hover:border-red-900/40`;
 
         const avatarSrc = p.avatarUrl || defaultProfile.avatarUrl;
         
+        // Clean layout container vertically separating select zone from edits (no overlay overlap)
         const actionsMarkup = p.id !== 'default_user' 
-          ? `<div class="absolute right-1 top-1 hidden group-hover:flex gap-1 bg-neutral-950/95 p-0.5 rounded border border-neutral-800 z-10">
-              <button onclick="event.stopPropagation(); triggerEditProfile('${p.id}')" class="text-[10px] text-neutral-400 hover:text-white px-1">✎</button>
-              <button onclick="event.stopPropagation(); triggerDeleteProfile('${p.id}')" class="text-[10px] text-neutral-500 hover:text-red-500 px-1">×</button>
+          ? `<div class="flex flex-col gap-1 shrink-0 ml-1.5 border-l border-neutral-800/80 pl-1.5">
+              <button onclick="event.stopPropagation(); window.triggerEditProfile('${p.id}')" class="text-[11px] text-neutral-400 hover:text-white p-1" title="Edit Profile">✎</button>
+              <button onclick="event.stopPropagation(); window.triggerDeleteProfile('${p.id}')" class="text-[11px] text-neutral-500 hover:text-red-500 p-1" title="Delete Profile">×</button>
              </div>`
           : '';
 
+        // Tapping only left/center div selects the active profile context cleanly
         item.innerHTML = `
-          <img src="${avatarSrc}" class="w-8 h-8 rounded-full object-cover border border-neutral-800 shrink-0">
-          <div class="text-left overflow-hidden flex-1">
-            <h4 class="text-xs font-bold truncate text-neutral-200">${p.name}</h4>
-            <span class="text-[8px] uppercase tracking-wider font-bold ${isActive ? 'text-red-500' : 'text-neutral-500'}">${isActive ? 'Active' : 'Select'}</span>
+          <div class="flex items-center gap-2 overflow-hidden flex-1 cursor-pointer" onclick="window.selectProfile('${p.id}')">
+            <img src="${avatarSrc}" class="w-8 h-8 rounded-full object-cover border border-neutral-800 shrink-0">
+            <div class="text-left overflow-hidden">
+              <h4 class="text-xs font-bold truncate text-neutral-200 w-[70px]">${p.name}</h4>
+              <span class="text-[8px] uppercase tracking-wider font-bold ${isActive ? 'text-red-500' : 'text-neutral-500'}">${isActive ? 'Active' : 'Select'}</span>
+            </div>
           </div>
           ${actionsMarkup}
         `;
@@ -1063,6 +1246,10 @@ Roleplay Instructions:
           const quietCheck = document.getElementById('bot-quiet-mode');
           if (quietCheck) quietCheck.checked = !!bot.isQuietMode;
 
+          // Load TTS Selector & seed states
+          const ttsSelector = document.getElementById('bot-tts-engine');
+          if (ttsSelector) ttsSelector.value = bot.ttsEngine || 'gemini';
+
           // Pre-populate System Prompt editor with full assembled payload if custom field is blank
           if (botCustomSystemPrompt) {
             botCustomSystemPrompt.value = bot.customSystemPrompt || getAssembledSystemPrompt(bot);
@@ -1088,6 +1275,9 @@ Roleplay Instructions:
         
         const quietCheck = document.getElementById('bot-quiet-mode');
         if (quietCheck) quietCheck.checked = false;
+
+        const ttsSelector = document.getElementById('bot-tts-engine');
+        if (ttsSelector) ttsSelector.value = 'gemini';
         
         if (botVoiceInput) botVoiceInput.value = 'Kore';
         if (botVoicePrompt) botVoicePrompt.value = '';
@@ -1162,6 +1352,9 @@ Roleplay Instructions:
         const quietCheck = document.getElementById('bot-quiet-mode');
         const isQuiet = quietCheck ? quietCheck.checked : false;
 
+        const ttsSelector = document.getElementById('bot-tts-engine');
+        const bTts = ttsSelector ? ttsSelector.value : 'gemini';
+
         if (isEditing) {
           const index = chatbots.findIndex(b => b.id === activeBotId);
           if (index !== -1) {
@@ -1179,6 +1372,9 @@ Roleplay Instructions:
             // Save Quiet Mode parameter
             chatbots[index].isQuietMode = isQuiet;
 
+            // Save TTS Engine states
+            chatbots[index].ttsEngine = bTts;
+
             if (tempConfig.avatarUrl) {
               chatbots[index].avatarUrl = tempConfig.avatarUrl;
               chatbots[index].fullImageUrl = tempConfig.fullImageUrl;
@@ -1188,6 +1384,7 @@ Roleplay Instructions:
           }
           currentStage = 5; // Return to Chat selector screen instead of home
         } else {
+          // Creating a NEW Bot with fully resolved avatar/backdrop/TTS references
           const newBot = {
             id: activeBotId,
             name: name,
@@ -1199,8 +1396,11 @@ Roleplay Instructions:
             voiceName: bVoice, // Save voice settings
             voicePrompt: bVoicePr,
             isQuietMode: isQuiet, // Save quiet setting
+            ttsEngine: bTts, // Save TTS Engine Selection
+            avatarUrl: tempConfig.avatarUrl, // Preserves cropped avatar on creation
+            fullImageUrl: tempConfig.fullImageUrl, // Preserves backdrop layout on creation
             chatHistory: [],
-            savedChats: [] // Initialize array for conversations
+            savedChats: [] 
           };
           chatbots.push(newBot);
           saveToLocalStorage();
@@ -1210,7 +1410,7 @@ Roleplay Instructions:
       });
     }
 
-    // ================= STAGE 5: SESSION SELECTOR SCREEN =================
+    // ================= STAGE 5: CHAT SESSION SELECTOR SCREEN =================
 
     window.openChat = function(id) {
       isEditing = false;
@@ -1506,12 +1706,14 @@ Roleplay Instructions:
       });
     }
 
+    // Exposed dynamic profile swap selection handler
     window.selectProfile = function(id) {
       activeProfileId = id;
       saveProfilesToLocalStorage();
       renderProfileList();
     };
 
+    // Exposed user profile delete context handler
     window.triggerDeleteProfile = function(id) {
       const p = userProfiles.find(profile => profile.id === id);
       if (!p) return;
@@ -1526,6 +1728,7 @@ Roleplay Instructions:
       }
     };
 
+    // Exposed user profile edit transition handler
     window.triggerEditProfile = function(id) {
       profileEditingId = id;
       currentStage = 4;
@@ -1677,128 +1880,174 @@ Roleplay Instructions:
       throw lastError;
     }
 
-    // Stop current audio playback cleanly
+    // Stop current audio playback cleanly and flush serial playback queue
     window.stopCurrentAudio = function() {
-      if (currentAudio) {
+      if (currentAudio === speechSynthesis) {
+        speechSynthesis.cancel();
+      } else if (currentAudio) {
         currentAudio.pause();
         currentAudio.currentTime = 0;
-        currentAudio = null;
       }
+      currentAudio = null;
       isAudioPlaying = false;
       playingAudioIndex = null;
+
+      // Clear serial playback states
+      speechQueue = [];
+      currentQueueIndex = 0;
+      isQueuePlaying = false;
+
       if (typingIndicator) {
         typingIndicator.classList.add('hidden');
       }
       renderChatMessagesOnly();
     };
 
-    // Unified speech player with index tracking and cancellation check
+    // Unified speech player with index tracking, sentence chunking, and fallback handoffs
     async function speakMessage(text, bot, index = null) {
-      if (!bot || !bot.voiceName) return;
-      
-      if (!appSettings.geminiKey) {
-        console.warn("Gemini API key is required to use Native Voice synthesis.");
+      if (!bot) return;
+
+      // Stop any audio currently playing and clear active queue
+      stopCurrentAudio();
+
+      if (bot.ttsEngine === 'browser') {
+        // Native Browser Web Speech API Playback (Option 2 / Offline free fallback)
+        const utterance = new SpeechSynthesisUtterance(text);
+        currentAudio = speechSynthesis;
+
+        utterance.addEventListener('start', () => {
+          isAudioPlaying = true;
+          if (playingAudioIndex === null) playingAudioIndex = index;
+          if (typingIndicator) typingIndicator.classList.add('hidden');
+          renderChatMessagesOnly();
+        });
+
+        utterance.addEventListener('end', () => {
+          isAudioPlaying = false;
+          playingAudioIndex = null;
+          renderChatMessagesOnly();
+        });
+
+        utterance.addEventListener('error', (e) => {
+          console.error("Browser TTS error:", e);
+          isAudioPlaying = false;
+          playingAudioIndex = null;
+          renderChatMessagesOnly();
+        });
+
+        speechSynthesis.speak(utterance);
         return;
       }
 
-      // Stop any audio currently playing
-      stopCurrentAudio();
+      // Google Gemini REST TTS Playback with Min 30 Word Chunking ending on sentence
+      if (!appSettings.geminiKey) {
+        console.warn("Gemini API key is required to use Gemini Voice synthesis.");
+        return;
+      }
 
-      // Display synthesis progress indicator on active chat
+      const chunkTextBySentences = (txt) => {
+        const sentences = txt.match(/[^.!?]+[.!?]+(\s+|$)/g) || [txt];
+        const chunks = [];
+        let currentChunkSentences = [];
+        
+        for (let i = 0; i < sentences.length; i++) {
+          currentChunkSentences.push(sentences[i]);
+          const combinedText = currentChunkSentences.join(" ").trim();
+          const words = combinedText.split(/\s+/).filter(w => w.length > 0);
+          if (words.length >= 30) {
+            chunks.push(combinedText);
+            currentChunkSentences = [];
+          }
+        }
+        
+        if (currentChunkSentences.length > 0) {
+          const remainderText = currentChunkSentences.join(" ").trim();
+          if (remainderText.length > 0) {
+            chunks.push(remainderText);
+          }
+        }
+        
+        return chunks.filter(c => c.length > 0);
+      };
+
+      speechQueue = chunkTextBySentences(text);
+      currentQueueIndex = 0;
+      isQueuePlaying = true;
+
+      if (speechQueue.length === 0) return;
+
+      // Begin serial queue execution
+      await playNextQueueItem(bot, index);
+    }
+
+    // Execute next item in the voice queue sequentially
+    async function playNextQueueItem(bot, bubbleIndex) {
+      if (!isQueuePlaying || currentQueueIndex >= speechQueue.length) {
+        // Queue complete, tear down audio state
+        isAudioPlaying = false;
+        playingAudioIndex = null;
+        isQueuePlaying = false;
+        speechQueue = [];
+        currentQueueIndex = 0;
+        renderChatMessagesOnly();
+        return;
+      }
+
+      const currentChunkText = speechQueue[currentQueueIndex];
+
+      // Show typing indicator during loading phase of the current chunk
       if (typingText && typingIndicator) {
-        typingText.innerText = `${bot.name} is thinking...`;
+        typingText.innerText = `${bot.name} is vocalizing...`;
         typingIndicator.classList.remove('hidden');
       }
 
-      try {
-        if (index !== null) {
-          playingAudioIndex = index;
-          isAudioPlaying = true;
-          renderChatMessagesOnly();
-        }
+      if (bubbleIndex !== null) {
+        playingAudioIndex = bubbleIndex;
+        isAudioPlaying = true;
+        renderChatMessagesOnly();
+      }
 
-        const rawBase64 = await callGeminiNativeTTSWithFallback(text, bot, appSettings.geminiKey);
+      try {
+        const rawBase64 = await callGeminiNativeTTSWithFallback(currentChunkText, bot, appSettings.geminiKey);
         const playableWavUrl = convertPcmToWav(rawBase64, 24000);
-        
-        // Prevent playing if user clicked STOP or chose another action while compiling
-        if (index !== null && playingAudioIndex !== index) {
+
+        // Double check if context hasn't changed or stopped during download
+        if (!isQueuePlaying || (bubbleIndex !== null && playingAudioIndex !== bubbleIndex)) {
           if (typingIndicator) typingIndicator.classList.add('hidden');
           return;
         }
 
         currentAudio = new Audio(playableWavUrl);
-        
+
         currentAudio.addEventListener('playing', () => {
           isAudioPlaying = true;
-          // Hide processing indicator when synthesis completes and audio streams
           if (typingIndicator) typingIndicator.classList.add('hidden');
           renderChatMessagesOnly();
         });
 
-        currentAudio.addEventListener('ended', () => {
-          isAudioPlaying = false;
-          playingAudioIndex = null;
-          if (typingIndicator) typingIndicator.classList.add('hidden');
-          renderChatMessagesOnly();
+        currentAudio.addEventListener('ended', async () => {
+          // Move queue index forward and trigger next chunk
+          currentQueueIndex++;
+          await playNextQueueItem(bot, bubbleIndex);
         });
 
         currentAudio.addEventListener('pause', () => {
-          isAudioPlaying = false;
-          playingAudioIndex = null;
-          if (typingIndicator) typingIndicator.classList.add('hidden');
-          renderChatMessagesOnly();
+          // Handled by standard pause/exit routines
         });
 
-        currentAudio.addEventListener('error', () => {
-          isAudioPlaying = false;
-          playingAudioIndex = null;
-          if (typingIndicator) typingIndicator.classList.add('hidden');
-          renderChatMessagesOnly();
+        currentAudio.addEventListener('error', async (e) => {
+          console.error("Audio error on queue chunk, skipping to next:", e);
+          currentQueueIndex++;
+          await playNextQueueItem(bot, bubbleIndex);
         });
 
         await currentAudio.play();
+
       } catch (err) {
-        console.error("Vocal synthesis failed on all fallback models:", err);
-        isAudioPlaying = false;
-        playingAudioIndex = null;
-        if (typingIndicator) typingIndicator.classList.add('hidden');
-        renderChatMessagesOnly();
+        console.error("Gemini TTS synthesis failed on all cycled models:", err);
+        alert(`Voice synthesis failed.\n\nAll available Gemini TTS models were exhausted.\nError: ${err.message}`);
+        stopCurrentAudio();
       }
-    }
-
-    // Test Voice Selector trigger
-    if (testVoiceBtn) {
-      testVoiceBtn.addEventListener('click', async () => {
-        const voiceName = botVoiceInput ? botVoiceInput.value : '';
-        if (!voiceName) {
-          alert("A prebuilt voice profile must be selected to run a vocal test.");
-          return;
-        }
-        if (!appSettings.geminiKey) {
-          alert("Please input your Gemini API Key in the Home settings panel before testing vocal synthesis.");
-          return;
-        }
-
-        const dummyBot = {
-          voiceName: voiceName,
-          voicePrompt: botVoicePrompt ? botVoicePrompt.value.trim() : ''
-        };
-
-        try {
-          stopCurrentAudio();
-          const rawBase64 = await callGeminiNativeTTSWithFallback(
-            "Hello, this is a test of my synthetic vocal registry. Is my clarity and tone acceptable?", 
-            dummyBot, 
-            appSettings.geminiKey
-          );
-          const playableWavUrl = convertPcmToWav(rawBase64, 24000);
-          
-          currentAudio = new Audio(playableWavUrl);
-          await currentAudio.play();
-        } catch (e) {
-          alert(`Voice test failed: ${e.message}`);
-        }
-      });
     }
 
     window.playBubbleSpeech = function(index) {
@@ -2090,7 +2339,7 @@ Roleplay Instructions:
       const cleanText = modifiedText.trim();
       if (!cleanText) return;
 
-      // Halt active TTS synthesis
+      // Halt any active TTS synthesis
       stopCurrentAudio();
 
       const senderType = activeChatHistory[index].sender;
@@ -2179,7 +2428,7 @@ Roleplay Instructions:
         if (isControlsVisible) {
           // Edit button is left-aligned and available on user, narrative, and chatbot replies
           const editBtnMarkup = `
-            <button onclick="event.stopPropagation(); editUserMessage(${idx})" class="bg-neutral-955/80 hover:bg-neutral-850 border border-neutral-800/60 px-2 py-0.5 rounded-md flex items-center justify-center gap-1 shadow-md cursor-pointer text-[10px] text-neutral-400" title="Edit message">
+            <button onclick="event.stopPropagation(); editUserMessage(${idx})" class="bg-neutral-955/80 hover:bg-neutral-855 border border-neutral-800/60 px-2 py-0.5 rounded-md flex items-center justify-center gap-1 shadow-md cursor-pointer text-[10px] text-neutral-400" title="Edit message">
               <span>Edit</span>
               <svg class="w-2.5 h-2.5 text-neutral-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
@@ -2199,13 +2448,13 @@ Roleplay Instructions:
                 </div>
               `;
             } else {
-              // CHANGE: Replaced hover states with definite opacity-100 controls to show up on mobile taps
+              // Replaced hover states with definite opacity-100 controls to show up on mobile taps
               const btnStateClass = isAudioPlaying 
                 ? 'pointer-events-none opacity-20' 
                 : 'opacity-100';
 
               const speakerBtnMarkup = bot.voiceName
-                ? `<button onclick="event.stopPropagation(); playBubbleSpeech(${idx})" class="bg-neutral-955/80 hover:bg-neutral-850 border border-neutral-800/60 p-1 rounded-md flex items-center justify-center shadow-md ${btnStateClass} transition-all duration-200 cursor-pointer h-[22px] w-[22px]" title="Speak message">
+                ? `<button onclick="event.stopPropagation(); playBubbleSpeech(${idx})" class="bg-neutral-955/80 hover:bg-neutral-855 border border-neutral-800/60 p-1 rounded-md flex items-center justify-center shadow-md ${btnStateClass} transition-all duration-200 cursor-pointer h-[22px] w-[22px]" title="Speak message">
                     <svg class="w-3 h-3 text-neutral-400 hover:text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z"></path>
                     </svg>
@@ -2213,7 +2462,7 @@ Roleplay Instructions:
                 : '';
 
               const regenBtnMarkup = `
-                <button onclick="event.stopPropagation(); regenerateFrom(${idx})" class="bg-neutral-955/80 hover:bg-neutral-850 border border-neutral-800/60 p-1 rounded-md flex items-center justify-center shadow-md ${btnStateClass} transition-all duration-200 cursor-pointer h-[22px] w-[22px]" title="Regenerate from here">
+                <button onclick="event.stopPropagation(); regenerateFrom(${idx})" class="bg-neutral-955/80 hover:bg-neutral-855 border border-neutral-800/60 p-1 rounded-md flex items-center justify-center shadow-md ${btnStateClass} transition-all duration-200 cursor-pointer h-[22px] w-[22px]" title="Regenerate from here">
                   <svg class="w-3 h-3 text-red-500 hover:text-red-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"></path>
                   </svg>
@@ -2404,10 +2653,39 @@ Roleplay Instructions:
       });
     }
 
+    // Exposed dynamic profile swap selection handler
+    window.selectProfile = function(id) {
+      activeProfileId = id;
+      saveProfilesToLocalStorage();
+      renderProfileList();
+    };
+
+    // Exposed user profile delete context handler
+    window.triggerDeleteProfile = function(id) {
+      const p = userProfiles.find(profile => profile.id === id);
+      if (!p) return;
+      const confirmDelete = confirm(`Are you sure you want to permanently delete your profile "${p.name}"?`);
+      if (confirmDelete) {
+        userProfiles = userProfiles.filter(profile => profile.id !== id);
+        if (activeProfileId === id) {
+          activeProfileId = userProfiles.length > 0 ? userProfiles[0].id : defaultProfile.id;
+        }
+        saveProfilesToLocalStorage();
+        renderProfileList();
+      }
+    };
+
+    // Exposed user profile edit transition handler
+    window.triggerEditProfile = function(id) {
+      profileEditingId = id;
+      currentStage = 4;
+      updateStageUI();
+    };
+
     // ================= INITIAL ENGINE START =================
 
-    window.onload = function() {
-      loadFromLocalStorage();
+    window.onload = async function() {
+      await loadFromStorage();
       currentStage = 0;
       updateStageUI();
     };
