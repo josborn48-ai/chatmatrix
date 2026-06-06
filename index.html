@@ -27,6 +27,13 @@
     .cropper-container {
       max-height: 240px !important;
     }
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
   </style>
 </head>
 <body class="bg-black flex justify-center items-center min-h-screen p-0 sm:p-4 text-white font-sans selection:bg-red-800 selection:text-white">
@@ -77,7 +84,7 @@
           </div>
           
           <!-- Horizontal Scrollable Profile Cards -->
-          <div id="profile-list" class="flex gap-3 overflow-x-auto py-1 no-scrollbar">
+          <div id="profile-list" class="flex gap-3 overflow-x-auto pb-2 pt-1 select-none cursor-grab active:cursor-grabbing">
             <!-- Dynamic profiles list renders here -->
           </div>
         </div>
@@ -182,12 +189,26 @@
           </div>
         </div>
 
-        <!-- Mini Preview Box -->
-        <div class="flex items-center gap-3 p-3 bg-neutral-950 border border-neutral-800 rounded-xl">
-          <img id="stage2-mini-avatar" class="w-12 h-12 rounded-lg object-cover border border-neutral-800" src="" alt="Headshot Profile">
-          <div>
-            <span class="text-xs text-red-500 font-semibold">Headshot Portrait Confirmed</span>
-            <p class="text-[10px] text-neutral-500">Full layout image reserved for chat backdrop.</p>
+        <!-- Mini Preview Box with Backdrop Modification & Reshooting options -->
+        <div class="flex items-start gap-4 p-4 bg-neutral-950 border border-neutral-800 rounded-2xl">
+          <img id="stage2-mini-avatar" class="w-14 h-14 rounded-xl object-cover border border-neutral-800 shrink-0" src="" alt="Headshot Profile">
+          <div class="flex-1 flex flex-col gap-2">
+            <div>
+              <span class="text-xs text-red-500 font-bold block">Portrait Configuration</span>
+              <p class="text-[9px] text-neutral-500 leading-tight">Headshot is used for list views; Background backdrop is shown during chat.</p>
+            </div>
+            <div class="flex gap-2">
+              <!-- Change Background Button -->
+              <button type="button" id="stage2-change-bg-btn" class="bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 text-neutral-300 font-bold py-1 px-2.5 rounded-lg text-[10px] transition-all cursor-pointer">
+                Change Backdrop
+              </button>
+              <!-- Reshoot Headshot Button -->
+              <button type="button" id="stage2-recrop-btn" class="bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 text-neutral-300 font-bold py-1 px-2.5 rounded-lg text-[10px] transition-all cursor-pointer">
+                Reshoot Headshot
+              </button>
+            </div>
+            <!-- Hidden inputs for Background Change -->
+            <input type="file" id="backdrop-upload-input" accept="image/*" class="hidden">
           </div>
         </div>
 
@@ -228,6 +249,25 @@
             <textarea id="bot-history" rows="3" 
               class="bg-black border border-neutral-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-red-700 transition-all resize-none placeholder:text-neutral-700"
               placeholder="e.g., Built secretly to safeguard data networks. Reluctant to trust strangers."></textarea>
+          </div>
+
+          <!-- BACKGROUND COLOR TINT CONFIGURATION (CUSTOM INTERACTIVE SELECT DROPDOWN) -->
+          <div class="flex flex-col gap-1.5 border-t border-neutral-900 pt-4 relative">
+            <label class="text-xs font-bold uppercase tracking-wider text-neutral-400">Background Tint Color</label>
+            
+            <!-- Custom Select Trigger -->
+            <button type="button" id="custom-tint-trigger" class="w-full bg-black border border-neutral-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-red-700 text-white transition-all flex items-center justify-between cursor-pointer select-none">
+              <div class="flex items-center gap-2" id="custom-tint-selected-value">
+                <span class="w-3.5 h-3.5 rounded-full border border-white bg-transparent shrink-0" id="custom-tint-selected-circle"></span>
+                <span id="custom-tint-selected-name" class="truncate">Default (Neutral / None)</span>
+              </div>
+              <span class="text-xs text-neutral-500">▼</span>
+            </button>
+
+            <!-- Custom Select Options List -->
+            <div id="custom-tint-options" class="hidden absolute left-0 right-0 top-[100%] bg-neutral-950 border border-neutral-800 rounded-xl mt-1 max-h-[220px] overflow-y-auto z-40 shadow-xl no-scrollbar">
+              <!-- Custom color options dynamically populated here -->
+            </div>
           </div>
 
           <!-- GEMINI NATIVE TEXT-TO-SPEECH SELECTION -->
@@ -295,11 +335,11 @@
                 <p class="text-[9px] text-neutral-600 mt-0.5 leading-relaxed">Direct the AI using natural language instructions (such as "cheerful", "gothic", "excited", "whispering", "slow pacing") to attune how your character speaks.</p>
               </div>
 
-              <!-- Quiet Mode Toggle Option -->
+              <!-- Quiet Mode / Talk Mode Toggle Option -->
               <div class="flex items-center justify-between bg-black border border-neutral-800 rounded-xl px-4 py-3 transition-all mt-1">
                 <div class="flex flex-col gap-0.5">
-                  <span class="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Quiet Mode</span>
-                  <p class="text-[9px] text-neutral-600 leading-tight">Do not auto-generate voice when new replies are received.</p>
+                  <span id="quiet-mode-label" class="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Talk Mode</span>
+                  <p id="quiet-mode-desc" class="text-[9px] text-neutral-600 leading-tight">Auto-plays voice synthesis and hides chat text bubbles by default.</p>
                 </div>
                 <label class="relative inline-flex items-center cursor-pointer select-none">
                   <input id="bot-quiet-mode" type="checkbox" class="sr-only peer">
@@ -341,9 +381,16 @@
       <section id="stage-3" class="hidden flex-1 flex flex-col h-full bg-black relative overflow-hidden">
         
         <!-- Full Layout Background Layer (Brightened to 80% Opacity) -->
-        <div id="chat-bg-layer" class="absolute inset-0 bg-cover bg-center pointer-events-none opacity-80 z-0"></div>
+        <div id="chat-bg-layer" class="absolute inset-0 bg-cover bg-center pointer-events-none opacity-80 z-0 animate-pulse-slow"></div>
+        <!-- Background Vignette Arc Tint Overlay -->
+        <div id="chat-bg-tint-overlay" class="absolute inset-0 pointer-events-none z-0 opacity-45"></div>
         <!-- Softer Overlay Mask to Preserve High Brightness -->
         <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-black/10 to-black/50 pointer-none z-0"></div>
+
+        <!-- Centered Spinning Wheel Overlay for Talk Mode loading (Twice as Large) -->
+        <div id="talk-mode-spinner" class="hidden absolute inset-0 flex items-center justify-center bg-black/40 z-20 pointer-events-none">
+          <div class="w-48 h-48 border-[12px] border-red-900/30 border-t-red-600 rounded-full animate-spin"></div>
+        </div>
 
         <!-- Chat Container Content Group -->
         <div class="relative z-10 flex-1 flex flex-col h-full overflow-hidden">
@@ -375,14 +422,14 @@
                 Save
               </button>
 
-              <!-- Hide Chat Button -->
-              <button id="chat-hide-btn" class="text-xs font-semibold text-neutral-400/90 hover:text-white hover:bg-neutral-900/50 px-2.5 py-1.5 rounded-lg border border-neutral-800 transition-all cursor-pointer shadow" title="Hide Chat Messages">
+              <!-- Hide/Show Chat Button (contrast style locked to prevent grey-outs) -->
+              <button id="chat-hide-btn" class="text-xs font-semibold text-neutral-200 hover:text-white bg-neutral-900/50 px-2.5 py-1.5 rounded-lg border border-neutral-800 transition-all cursor-pointer shadow shrink-0" title="Toggle Message Overlay">
                 Hide
               </button>
 
-              <!-- Clear Chat Text Button -->
+              <!-- Clear Chat Text Button (Renamed to New) -->
               <button id="chat-clear-btn" class="text-xs font-semibold text-neutral-400/90 hover:text-white hover:bg-neutral-900/50 px-2.5 py-1.5 rounded-lg border border-neutral-800 transition-all cursor-pointer shadow" title="Wipe History & Restart">
-                Clear
+                New
               </button>
             </div>
           </div>
@@ -409,6 +456,11 @@
               <span id="chat-mode-icon" class="text-sm">💬</span>
             </button>
 
+            <!-- Microphone Speak-to-Text Button -->
+            <button id="chat-mic-btn" class="bg-black/40 border border-neutral-800 text-neutral-400 hover:text-red-500 p-3 rounded-xl transition-all shrink-0 flex items-center justify-center cursor-pointer shadow" title="Speak to Bot (🎙️)">
+              <span id="chat-mic-icon" class="text-sm">🎙️</span>
+            </button>
+
             <input id="chat-input" type="text" 
               class="flex-1 bg-black/25 border border-neutral-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-red-700 transition-all placeholder:text-neutral-500 text-white/80"
               placeholder="Say something...">
@@ -424,62 +476,63 @@
 
       <!-- ================= STAGE 4: USER PROFILE CONFIGURATION ================= -->
       <section id="stage-profile-form" class="hidden p-6 flex-1 flex flex-col gap-5 overflow-y-auto">
-        <div class="flex class flex-col">
-        <div class="flex items-center gap-3">
-          <button id="profile-back-btn" class="text-neutral-400 hover:text-white transition-all">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path>
-            </svg>
-          </button>
-          <div>
-            <h2 id="profile-stage-title" class="text-xl font-bold text-neutral-100">User Profile</h2>
-            <p class="text-xs text-neutral-400 mt-0.5">Configure your own persona and avatar.</p>
-          </div>
-        </div>
-
-        <!-- Profile Image Picker & Crop Sandbox -->
-        <div class="flex flex-col gap-3">
-          <input type="file" id="profile-avatar-upload" accept="image/*" class="hidden">
-          <button id="profile-upload-trigger" class="bg-neutral-900 hover:bg-neutral-855 border border-neutral-800 text-neutral-300 font-semibold py-2.5 px-4 rounded-xl text-xs transition-all active:scale-[0.98] flex items-center justify-center gap-2">
-            Choose Profile Picture
-          </button>
-          
-          <div class="w-full max-h-[180px] hidden flex items-center justify-center overflow-hidden bg-black rounded-xl border border-neutral-800 p-2" id="profile-cropper-wrapper">
-            <img id="profile-avatar-img" class="max-w-full max-h-[160px] rounded-lg object-contain" src="">
-          </div>
-          <div id="profile-avatar-preview-container" class="flex justify-center">
-            <img id="profile-avatar-preview" class="w-16 h-16 rounded-full object-cover border border-red-955 hidden" src="">
-          </div>
-        </div>
-
-        <!-- Inputs Fields -->
-        <div class="flex flex-col gap-4">
-          <div class="flex flex-col gap-1.5">
-            <label class="text-xs font-bold uppercase tracking-wider text-neutral-400">Your Name</label>
-            <input id="profile-name" type="text" 
-              class="bg-black border border-neutral-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-red-700 transition-all placeholder:text-neutral-700 text-white"
-              placeholder="e.g., Alex, Creator">
+        <div class="flex flex-col gap-5">
+          <div class="flex items-center gap-3">
+            <button id="profile-back-btn" class="text-neutral-400 hover:text-white transition-all">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path>
+              </svg>
+            </button>
+            <div>
+              <h2 id="profile-stage-title" class="text-xl font-bold text-neutral-100">User Profile</h2>
+              <p class="text-xs text-neutral-400 mt-0.5">Configure your own persona and avatar.</p>
+            </div>
           </div>
 
-          <div class="flex flex-col gap-1.5">
-            <label class="text-xs font-bold uppercase tracking-wider text-neutral-400">Your Appearance</label>
-            <textarea id="profile-appearance" rows="2" 
-              class="bg-black border border-neutral-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-red-700 transition-all resize-none placeholder:text-neutral-700 text-white"
-              placeholder="e.g., Tall, brown hair, wearing a block leather jacket."></textarea>
+          <!-- Profile Image Picker & Crop Sandbox -->
+          <div class="flex flex-col gap-3">
+            <input type="file" id="profile-avatar-upload" accept="image/*" class="hidden">
+            <button id="profile-upload-trigger" class="bg-neutral-900 hover:bg-neutral-855 border border-neutral-800 text-neutral-300 font-semibold py-2.5 px-4 rounded-xl text-xs transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+              Choose Profile Picture
+            </button>
+            
+            <div class="w-full max-h-[180px] hidden flex items-center justify-center overflow-hidden bg-black rounded-xl border border-neutral-800 p-2" id="profile-cropper-wrapper">
+              <img id="profile-avatar-img" class="max-w-full max-h-[160px] rounded-lg object-contain" src="">
+            </div>
+            <div id="profile-avatar-preview-container" class="flex justify-center">
+              <img id="profile-avatar-preview" class="w-16 h-16 rounded-full object-cover border border-red-955 hidden" src="">
+            </div>
           </div>
 
-          <div class="flex flex-col gap-1.5">
-            <label class="text-xs font-bold uppercase tracking-wider text-neutral-400">Your Backstory</label>
-            <textarea id="profile-backstory" rows="3" 
-              class="bg-black border border-neutral-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-red-700 transition-all resize-none placeholder:text-neutral-700 text-white"
-              placeholder="e.g., An enigmatic developer who initiated this synthetic portal. Curious and adventurous."></textarea>
-          </div>
-        </div>
+          <!-- Inputs Fields -->
+          <div class="flex flex-col gap-4">
+            <div class="flex flex-col gap-1.5">
+              <label class="text-xs font-bold uppercase tracking-wider text-neutral-400">Your Name</label>
+              <input id="profile-name" type="text" 
+                class="bg-black border border-neutral-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-red-700 transition-all placeholder:text-neutral-700 text-white"
+                placeholder="e.g., Alex, Creator">
+            </div>
 
-        <div class="mt-auto pt-4 flex gap-3">
-          <button id="profile-save-btn" class="flex-1 bg-red-700 hover:bg-red-600 text-white font-semibold py-3 px-4 rounded-xl text-sm transition-all shadow-lg active:scale-[0.98]">
-            Save Profile
-          </button>
+            <div class="flex flex-col gap-1.5">
+              <label class="text-xs font-bold uppercase tracking-wider text-neutral-400">Your Appearance</label>
+              <textarea id="profile-appearance" rows="2" 
+                class="bg-black border border-neutral-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-red-700 transition-all resize-none placeholder:text-neutral-700 text-white"
+                placeholder="e.g., Tall, brown hair, wearing a block leather jacket."></textarea>
+            </div>
+
+            <div class="flex flex-col gap-1.5">
+              <label class="text-xs font-bold uppercase tracking-wider text-neutral-400">Your Backstory</label>
+              <textarea id="profile-backstory" rows="3" 
+                class="bg-black border border-neutral-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-red-700 transition-all resize-none placeholder:text-neutral-700 text-white"
+                placeholder="e.g., An enigmatic developer who initiated this synthetic portal. Curious and adventurous."></textarea>
+            </div>
+          </div>
+
+          <div class="mt-auto pt-4 flex gap-3">
+            <button id="profile-save-btn" class="flex-1 bg-red-700 hover:bg-red-600 text-white font-semibold py-3 px-4 rounded-xl text-sm transition-all shadow-lg active:scale-[0.98]">
+              Save Profile
+            </button>
+          </div>
         </div>
       </section>
 
@@ -584,6 +637,14 @@
             class="bg-black border border-neutral-800 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-red-700 placeholder:text-neutral-700 text-white"
             placeholder="e.g., mistral, llama3">
         </div>
+
+        <!-- UNHIDE HIDDEN CHATBOTS SETTINGS BLOCK -->
+        <div class="flex flex-col gap-1.5 border-t border-neutral-900 pt-4" id="settings-unhide-section">
+          <label class="text-[10px] font-bold uppercase tracking-wider text-neutral-450">Hidden Chatbots</label>
+          <div id="settings-hidden-bots-list" class="flex flex-col gap-2 max-h-[120px] overflow-y-auto bg-black border border-neutral-900 rounded-xl p-2 no-scrollbar">
+            <!-- Dynamically populated hidden chatbots render here -->
+          </div>
+        </div>
       </div>
 
       <div class="flex gap-3 mt-2">
@@ -612,6 +673,8 @@
     let profileCropperInstance = null; 
     let isNarrativeMode = false; 
     let isChatHidden = false; 
+    let hiddenBotIds = []; // Global list of hidden chatbot entities
+    let isDraggingProfileList = false; // Flag to prevent selection events during swipe-scroll drag
 
     // Global Audio State Variables
     let currentAudio = null;
@@ -622,6 +685,18 @@
     let speechQueue = [];
     let currentQueueIndex = 0;
     let isQueuePlaying = false;
+    let speechAudioCache = {}; // index -> playable Wav blob URL Promise
+
+    // Web Audio visualizer components
+    let audioCtx = null;
+    let analyserNode = null;
+    let audioSourceMap = new WeakMap();
+    let animationFrameId = null;
+
+    // Speech-To-Text Recognition global variables
+    let recognition = null;
+    let isListening = false;
+    let speechResultBuffer = "";
 
     // Active message bubble control tracker 
     let activeMenuIdx = null;
@@ -651,7 +726,8 @@
       fullImageUrl: '',  
       appearance: '',
       model: 'gemini',
-      customSystemPrompt: '' 
+      customSystemPrompt: '',
+      bgTint: 'none'
     };
 
     // Temporary values for user profile configuration
@@ -707,6 +783,12 @@
     const testVoiceBtn = document.getElementById('test-voice-btn'); 
     const botCustomSystemPrompt = document.getElementById('bot-custom-system-prompt'); 
 
+    // Custom Tint Dropdown Components
+    const customTintTrigger = document.getElementById('custom-tint-trigger');
+    const customTintOptions = document.getElementById('custom-tint-options');
+    const customTintSelectedCircle = document.getElementById('custom-tint-selected-circle');
+    const customTintSelectedName = document.getElementById('custom-tint-selected-name');
+
     // Stage 3 DOM
     const chatBgLayer = document.getElementById('chat-bg-layer');
     const chatHeaderAvatar = document.getElementById('chat-header-avatar');
@@ -734,6 +816,177 @@
     const profileBackstoryInput = document.getElementById('profile-backstory');
     const profileSaveBtn = document.getElementById('profile-save-btn');
     const profileBackBtn = document.getElementById('profile-back-btn');
+
+    // Background Gradient Color Scale Data Definition
+    const TINT_COLORS_LIST = [
+      { value: 'purple', name: 'Purple', rgb: '168, 85, 247' },
+      { value: 'blue', name: 'Blue', rgb: '59, 130, 246' },
+      { value: 'light-blue', name: 'Light Blue', rgb: '56, 189, 248' },
+      { value: 'green', name: 'Green', rgb: '34, 197, 94' },
+      { value: 'toxic-green', name: 'Toxic Green', rgb: '57, 255, 20' },
+      { value: 'yellow', name: 'Yellow', rgb: '234, 179, 8' },
+      { value: 'orange', name: 'Orange', rgb: '249, 115, 22' },
+      { value: 'red', name: 'Red', rgb: '239, 68, 68' },
+      { value: 'maroon', name: 'Maroon', rgb: '128, 0, 0' },
+      { value: 'pink', name: 'Pink', rgb: '236, 72, 153' },
+      { value: 'none', name: 'Default (Neutral / None)', rgb: 'transparent' }
+    ];
+
+    let selectedBgTintValue = 'none';
+
+    // Initialize custom dropdown rows
+    function initCustomTintDropdown() {
+      if (!customTintOptions) return;
+      customTintOptions.innerHTML = '';
+
+      TINT_COLORS_LIST.forEach(color => {
+        const row = document.createElement('div');
+        row.className = "flex items-center gap-2.5 px-4 py-2.5 hover:bg-neutral-900 cursor-pointer transition-colors text-xs text-neutral-300";
+        row.onclick = () => selectCustomTint(color.value);
+
+        const circleColor = color.rgb === 'transparent' ? 'transparent' : `rgb(${color.rgb})`;
+        row.innerHTML = `
+          <span class="w-3.5 h-3.5 rounded-full border border-white shrink-0" style="background-color: ${circleColor}"></span>
+          <span>${color.name}</span>
+        `;
+        customTintOptions.appendChild(row);
+      });
+    }
+
+    function selectCustomTint(val) {
+      selectedBgTintValue = val;
+      const matched = TINT_COLORS_LIST.find(c => c.value === val) || TINT_COLORS_LIST[TINT_COLORS_LIST.length - 1];
+      if (customTintSelectedName) customTintSelectedName.innerText = matched.name;
+      if (customTintSelectedCircle) {
+        customTintSelectedCircle.style.backgroundColor = matched.rgb === 'transparent' ? 'transparent' : `rgb(${matched.rgb})`;
+      }
+      if (customTintOptions) customTintOptions.classList.add('hidden');
+    }
+
+    if (customTintTrigger) {
+      customTintTrigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (customTintOptions) {
+          customTintOptions.classList.toggle('hidden');
+        }
+      });
+    }
+
+    // Dismiss custom dropdown list on viewport blur
+    document.addEventListener('click', () => {
+      if (customTintOptions) {
+        customTintOptions.classList.add('hidden');
+      }
+    });
+
+    initCustomTintDropdown();
+
+    // ================= SPEECH TO TEXT ENGINE wrappers =================
+
+    function initSpeechRecognition() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        console.warn("Speech Recognition API is not supported in this browser.");
+        return null;
+      }
+      
+      const rec = new SpeechRecognition();
+      rec.continuous = false; // continuous set to false yields natural silence timeout auto-transmitions
+      rec.interimResults = true;
+      rec.lang = 'en-US';
+
+      rec.onstart = () => {
+        isListening = true;
+        speechResultBuffer = "";
+        const micIcon = document.getElementById('chat-mic-icon');
+        const micBtn = document.getElementById('chat-mic-btn');
+        if (micIcon) micIcon.innerText = "🛑"; 
+        if (micBtn) {
+          micBtn.classList.remove('border-neutral-800', 'text-neutral-400');
+          micBtn.classList.add('border-red-650', 'text-red-500', 'animate-pulse');
+        }
+      };
+
+      rec.onresult = (event) => {
+        let interimTranscript = '';
+        let finalTranscript = '';
+
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          if (event.results[i].isFinal) {
+            finalTranscript += event.results[i][0].transcript;
+          } else {
+            interimTranscript += event.results[i][0].transcript;
+          }
+        }
+
+        const currentResult = finalTranscript || interimTranscript;
+        if (currentResult) {
+          speechResultBuffer = currentResult;
+          if (chatInput) {
+            chatInput.value = currentResult;
+          }
+        }
+      };
+
+      rec.onend = async () => {
+        isListening = false;
+        const micIcon = document.getElementById('chat-mic-icon');
+        const micBtn = document.getElementById('chat-mic-btn');
+        if (micIcon) micIcon.innerText = "🎙️";
+        if (micBtn) {
+          micBtn.classList.remove('border-red-650', 'text-red-500', 'animate-pulse');
+          micBtn.classList.add('border-neutral-800', 'text-neutral-400');
+        }
+
+        // Auto-transmit dialogue transcript on detection of pause (silence threshold)
+        const trimmedResult = speechResultBuffer.trim();
+        if (trimmedResult) {
+          if (chatInput) chatInput.value = trimmedResult;
+          await handleChatMessage();
+        }
+      };
+
+      rec.onerror = (e) => {
+        console.error("Speech recognition error:", e);
+        isListening = false;
+        const micIcon = document.getElementById('chat-mic-icon');
+        const micBtn = document.getElementById('chat-mic-btn');
+        if (micIcon) micIcon.innerText = "🎙️";
+        if (micBtn) {
+          micBtn.classList.remove('border-red-650', 'text-red-500', 'animate-pulse');
+          micBtn.classList.add('border-neutral-800', 'text-neutral-400');
+        }
+      };
+
+      return rec;
+    }
+
+    function toggleListening() {
+      if (!recognition) {
+        recognition = initSpeechRecognition();
+      }
+      if (!recognition) {
+        alert("Speech recognition is not supported on this device/browser. Please verify microphone access on Chrome or Safari.");
+        return;
+      }
+
+      if (isListening) {
+        recognition.stop(); // Triggers final onend submission immediately
+      } else {
+        // Prevent feedback loop by muting active vocalization before recording starts
+        stopCurrentAudio();
+        try {
+          recognition.start();
+        } catch(e) {
+          console.warn("Speech Recognition instance already active.", e);
+        }
+      }
+    }
+
+    const chatMicBtn = document.getElementById('chat-mic-btn');
+    if (chatMicBtn) {
+      chatMicBtn.addEventListener('click', toggleListening);
+    }
 
     // ================= INDEXEDDB ENGINE STORAGE =================
 
@@ -860,6 +1113,13 @@
       }
 
       try {
+        const storedHidden = await getDBValue('botforge_hidden_bots', null);
+        hiddenBotIds = storedHidden || [];
+      } catch (e) {
+        hiddenBotIds = [];
+      }
+
+      try {
         const settingsStored = await getDBValue('botforge_settings', null);
         if (settingsStored) {
           appSettings = { ...appSettings, ...settingsStored };
@@ -889,10 +1149,12 @@
 
     function saveToLocalStorage() {
       setDBValue('botforge_bots', chatbots);
+      setDBValue('botforge_hidden_bots', hiddenBotIds);
     }
 
     function saveToLocalStorageQuiet() {
       setDBValue('botforge_bots', chatbots);
+      setDBValue('botforge_hidden_bots', hiddenBotIds);
     }
 
     function saveSettings() {
@@ -910,6 +1172,7 @@
         settingsGeminiKey.value = appSettings.geminiKey || '';
         settingsLocalUrl.value = appSettings.localUrl || 'http://localhost:1234/v1';
         settingsLocalModel.value = appSettings.localModel || 'mistral';
+        populateSettingsHiddenBots();
         settingsModal.classList.remove('hidden');
       });
     }
@@ -990,7 +1253,7 @@
     function renderHomeList() {
       if (!botListContainer) return;
       botListContainer.innerHTML = '';
-      const cleanBots = chatbots.filter(b => b !== null && b !== undefined);
+      const cleanBots = chatbots.filter(b => b !== null && b !== undefined && !hiddenBotIds.includes(b.id));
 
       if (cleanBots.length === 0) {
         botListContainer.innerHTML = `
@@ -1023,6 +1286,11 @@
                 <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828L11.828 15H9v-2.828l8.586-8.586z"></path>
               </svg>
             </button>
+            <button onclick="hideBot('${bot.id}')" class="p-2 hover:bg-neutral-900 text-neutral-400 hover:text-white rounded-xl transition-all" title="Hide chatbot">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.477 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88"></path>
+              </svg>
+            </button>
             <button onclick="deleteBot('${bot.id}')" class="p-2 hover:bg-red-955/40 text-neutral-500 hover:text-red-400 rounded-xl transition-all" title="Delete bot">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
@@ -1034,22 +1302,66 @@
       });
     }
 
-    // Global trash can deletion helper
+    // Global chatbot deletion handler
     window.deleteBot = function(id) {
       const bot = chatbots.find(b => b.id === id);
       if (!bot) return;
 
-      const confirmDelete = confirm(`Are you sure you want to permanently delete "${bot.name}" and all associated conversation history?`);
+      const confirmDelete = confirm(`Are you sure you want to permanently delete "${bot.name}"? This cannot be undone.`);
       if (confirmDelete) {
-        // Reset current speech and active focus variables defensively
         if (activeBotId === id) {
           stopCurrentAudio();
-          activeBotId = null;
         }
         chatbots = chatbots.filter(b => b.id !== id);
+        hiddenBotIds = hiddenBotIds.filter(hid => hid !== id);
         saveToLocalStorage();
         renderHomeList();
       }
+    };
+
+    // Global chatbot hiding handler
+    window.hideBot = function(id) {
+      const bot = chatbots.find(b => b.id === id);
+      if (!bot) return;
+
+      const confirmHide = confirm(`This chatbot will be hidden and not accessible until you click the "unhide chatbot" button from the settings menu (accessed via the gear icon in the header).\n\nDo you want to hide "${bot.name}"?`);
+      if (confirmHide) {
+        hiddenBotIds.push(id);
+        saveToLocalStorage();
+        renderHomeList();
+      }
+    };
+
+    // Settings populator for hidden chatbots
+    function populateSettingsHiddenBots() {
+      const list = document.getElementById('settings-hidden-bots-list');
+      if (!list) return;
+      list.innerHTML = '';
+
+      const hiddenBots = chatbots.filter(b => b && hiddenBotIds.includes(b.id));
+      if (hiddenBots.length === 0) {
+        list.innerHTML = `<p class="text-[10px] text-neutral-600 text-center py-3">No hidden chatbots</p>`;
+        return;
+      }
+
+      hiddenBots.forEach(bot => {
+        const row = document.createElement('div');
+        row.className = "flex items-center justify-between gap-2 p-1.5 border-b border-neutral-900 last:border-b-0";
+        row.innerHTML = `
+          <span class="text-[10px] font-bold text-neutral-300 truncate max-w-[120px]">${bot.name}</span>
+          <button onclick="unhideBot('${bot.id}')" class="bg-red-750 hover:bg-red-700 text-white font-bold py-1 px-2.5 rounded-lg text-[9px] transition-all cursor-pointer">
+            Unhide Chatbot
+          </button>
+        `;
+        list.appendChild(row);
+      });
+    }
+
+    window.unhideBot = function(id) {
+      hiddenBotIds = hiddenBotIds.filter(hid => hid !== id);
+      saveToLocalStorage();
+      populateSettingsHiddenBots();
+      renderHomeList();
     };
 
     // Symmetrical, non-overlapping responsive profile cards renderer
@@ -1067,12 +1379,10 @@
         const isActive = p.id === activeProfileId;
         const item = document.createElement('div');
         
-        // Removed parent item.onclick to separate selection click zone completely from action buttons
         item.className = `flex items-center justify-between p-2 rounded-xl shrink-0 border transition-all relative min-w-[160px] max-w-[180px] ${isActive ? 'border-red-700 bg-red-955/15' : 'border-neutral-800 bg-neutral-950/40'} hover:border-red-900/40`;
 
         const avatarSrc = p.avatarUrl || defaultProfile.avatarUrl;
         
-        // Clean layout container vertically separating select zone from edits (no overlay overlap)
         const actionsMarkup = p.id !== 'default_user' 
           ? `<div class="flex flex-col gap-1 shrink-0 ml-1.5 border-l border-neutral-800/80 pl-1.5">
               <button onclick="event.stopPropagation(); window.triggerEditProfile('${p.id}')" class="text-[11px] text-neutral-400 hover:text-white p-1" title="Edit Profile">✎</button>
@@ -1080,7 +1390,6 @@
              </div>`
           : '';
 
-        // Tapping only left/center div selects the active profile context cleanly
         item.innerHTML = `
           <div class="flex items-center gap-2 overflow-hidden flex-1 cursor-pointer" onclick="window.selectProfile('${p.id}')">
             <img src="${avatarSrc}" class="w-8 h-8 rounded-full object-cover border border-neutral-800 shrink-0">
@@ -1101,7 +1410,7 @@
       homeNewBotBtn.addEventListener('click', () => {
         isEditing = false;
         activeBotId = 'bot_' + Date.now(); 
-        tempConfig = { avatarUrl: '', fullImageUrl: '', appearance: '', model: 'gemini' };
+        tempConfig = { avatarUrl: '', fullImageUrl: '', appearance: '', model: 'gemini', bgTint: 'none' };
         
         if (botNameInput) botNameInput.value = '';
         if (botAppearanceInput) botAppearanceInput.value = '';
@@ -1109,6 +1418,7 @@
         if (botHistoryInput) botHistoryInput.value = '';
         if (botModelInput) botModelInput.value = 'gemini';
         if (botCustomSystemPrompt) botCustomSystemPrompt.value = ''; 
+        selectCustomTint('none');
         
         if (cropperInstance) {
           cropperInstance.destroy();
@@ -1228,6 +1538,26 @@ Roleplay Instructions:
 6. Never include meta-text, disclaimers, or moral commentary. Do not reference yourself as an AI or large language model.`;
     }
 
+    // Dynamic Quiet Mode / Talk Mode toggling labels
+    function updateQuietModeLabel() {
+      const quietCheck = document.getElementById('bot-quiet-mode');
+      const labelSpan = document.getElementById('quiet-mode-label');
+      const labelDesc = document.getElementById('quiet-mode-desc');
+      if (quietCheck && labelSpan) {
+        if (quietCheck.checked) {
+          labelSpan.innerText = "Quiet Mode";
+          if (labelDesc) {
+            labelDesc.innerText = "Silences voice auto-play and displays chat bubbles normally.";
+          }
+        } else {
+          labelSpan.innerText = "Talk Mode";
+          if (labelDesc) {
+            labelDesc.innerText = "Auto-plays voice synthesis and hides chat text bubbles by default.";
+          }
+        }
+      }
+    }
+
     // Stage 2 setup handler 
     function setupStage2Fields() {
       hasManuallyEditedPrompt = false; // Reset modification flag when opening Stage 2 configuration
@@ -1241,10 +1571,14 @@ Roleplay Instructions:
           if (botPersonalityInput) botPersonalityInput.value = bot.personality;
           if (botHistoryInput) botHistoryInput.value = bot.history;
           if (botModelInput) botModelInput.value = bot.model || 'gemini'; 
+          selectCustomTint(bot.bgTint || 'none');
           
           // Load Quiet Mode state
           const quietCheck = document.getElementById('bot-quiet-mode');
-          if (quietCheck) quietCheck.checked = !!bot.isQuietMode;
+          if (quietCheck) {
+            quietCheck.checked = !!bot.isQuietMode;
+          }
+          updateQuietModeLabel();
 
           // Load TTS Selector & seed states
           const ttsSelector = document.getElementById('bot-tts-engine');
@@ -1272,9 +1606,13 @@ Roleplay Instructions:
         if (botPersonalityInput) botPersonalityInput.value = '';
         if (botHistoryInput) botHistoryInput.value = '';
         if (botModelInput) botModelInput.value = tempConfig.model || 'gemini';
+        selectCustomTint(tempConfig.bgTint || 'none');
         
         const quietCheck = document.getElementById('bot-quiet-mode');
-        if (quietCheck) quietCheck.checked = false;
+        if (quietCheck) {
+          quietCheck.checked = false;
+        }
+        updateQuietModeLabel();
 
         const ttsSelector = document.getElementById('bot-tts-engine');
         if (ttsSelector) ttsSelector.value = 'gemini';
@@ -1334,6 +1672,89 @@ Roleplay Instructions:
       });
     }
 
+    // Dynamic background change action triggers (Blueprint View card options)
+    const backdropUploadInput = document.getElementById('backdrop-upload-input');
+    const stage2ChangeBgBtn = document.getElementById('stage2-change-bg-btn');
+    if (stage2ChangeBgBtn && backdropUploadInput) {
+      stage2ChangeBgBtn.addEventListener('click', () => {
+        backdropUploadInput.click();
+      });
+    }
+    if (backdropUploadInput) {
+      backdropUploadInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          if (isEditing) {
+            const bot = chatbots.find(b => b.id === activeBotId);
+            if (bot) {
+              bot.fullImageUrl = event.target.result;
+              saveToLocalStorage();
+            }
+          } else {
+            tempConfig.fullImageUrl = event.target.result;
+          }
+          alert("Chat backdrop image updated successfully.");
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // Reshoot headshot action (Blueprint View card options)
+    const stage2RecropBtn = document.getElementById('stage2-recrop-btn');
+    if (stage2RecropBtn) {
+      stage2RecropBtn.addEventListener('click', () => {
+        let imgToRecrop = "";
+        if (isEditing) {
+          const bot = chatbots.find(b => b.id === activeBotId);
+          if (bot && bot.fullImageUrl) {
+            imgToRecrop = bot.fullImageUrl;
+          }
+        } else if (tempConfig.fullImageUrl) {
+          imgToRecrop = tempConfig.fullImageUrl;
+        }
+
+        if (!imgToRecrop) {
+          alert("No original source image exists to reshoot. Please upload an image first.");
+          return;
+        }
+
+        // Destroy old cropper and reload Stage 1 cropper sandbox with stored image
+        if (cropperInstance) {
+          cropperInstance.destroy();
+          cropperInstance = null;
+        }
+        if (avatarImg) avatarImg.src = imgToRecrop;
+        if (avatarPlaceholder) avatarPlaceholder.classList.add('hidden');
+        if (cropperWrapper) cropperWrapper.classList.remove('hidden');
+
+        if (avatarImg) {
+          cropperInstance = new Cropper(avatarImg, {
+            aspectRatio: 1,
+            viewMode: 1,
+            autoCropArea: 0.8,
+            background: false,
+            responsive: true,
+            modal: true,
+            guides: true,
+            highlight: false,
+            cropBoxMovable: true,
+            cropBoxResizable: true,
+            dragMode: 'move'
+          });
+        }
+
+        if (stage1NextBtn) {
+          stage1NextBtn.disabled = false;
+          stage1NextBtn.className = "w-full bg-red-700 hover:bg-red-600 text-white font-semibold py-3 px-4 rounded-xl text-sm transition-all shadow-lg active:scale-[0.98]";
+        }
+
+        currentStage = 1;
+        updateStageUI();
+      });
+    }
+
     if (stage2SaveBtn) {
       stage2SaveBtn.addEventListener('click', () => {
         const name = botNameInput ? botNameInput.value.trim() : '';
@@ -1372,8 +1793,9 @@ Roleplay Instructions:
             // Save Quiet Mode parameter
             chatbots[index].isQuietMode = isQuiet;
 
-            // Save TTS Engine states
+            // Save TTS Engine and Tint states
             chatbots[index].ttsEngine = bTts;
+            chatbots[index].bgTint = selectedBgTintValue;
 
             if (tempConfig.avatarUrl) {
               chatbots[index].avatarUrl = tempConfig.avatarUrl;
@@ -1397,6 +1819,7 @@ Roleplay Instructions:
             voicePrompt: bVoicePr,
             isQuietMode: isQuiet, // Save quiet setting
             ttsEngine: bTts, // Save TTS Engine Selection
+            bgTint: selectedBgTintValue,
             avatarUrl: tempConfig.avatarUrl, // Preserves cropped avatar on creation
             fullImageUrl: tempConfig.fullImageUrl, // Preserves backdrop layout on creation
             chatHistory: [],
@@ -1706,35 +2129,6 @@ Roleplay Instructions:
       });
     }
 
-    // Exposed dynamic profile swap selection handler
-    window.selectProfile = function(id) {
-      activeProfileId = id;
-      saveProfilesToLocalStorage();
-      renderProfileList();
-    };
-
-    // Exposed user profile delete context handler
-    window.triggerDeleteProfile = function(id) {
-      const p = userProfiles.find(profile => profile.id === id);
-      if (!p) return;
-      const confirmDelete = confirm(`Are you sure you want to permanently delete your profile "${p.name}"?`);
-      if (confirmDelete) {
-        userProfiles = userProfiles.filter(profile => profile.id !== id);
-        if (activeProfileId === id) {
-          activeProfileId = userProfiles.length > 0 ? userProfiles[0].id : defaultProfile.id;
-        }
-        saveProfilesToLocalStorage();
-        renderProfileList();
-      }
-    };
-
-    // Exposed user profile edit transition handler
-    window.triggerEditProfile = function(id) {
-      profileEditingId = id;
-      currentStage = 4;
-      updateStageUI();
-    };
-
     function getActiveProfile() {
       const active = userProfiles.find(p => p && p.id === activeProfileId);
       return active || defaultProfile;
@@ -1810,7 +2204,6 @@ Roleplay Instructions:
     async function speakGeminiNativeTTS(text, bot, apiKey, modelName) {
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
 
-      // Prepend vocal style instructions (style prompts) directly to the generation payload
       const stylePrefix = bot.voicePrompt ? `[Style: ${bot.voicePrompt}] ` : "";
       const fullPromptToSpeak = `${stylePrefix}${text}`;
 
@@ -1856,7 +2249,6 @@ Roleplay Instructions:
       return data.candidates[0].content.parts[0].inlineData.data;
     }
 
-    // API-specific fallback models array for Native Audio capabilities
     const GEMINI_TTS_MODELS = [
       "gemini-2.5-flash-preview-tts",
       "gemini-3.1-flash-tts-preview",
@@ -1873,7 +2265,6 @@ Roleplay Instructions:
         } catch (err) {
           console.warn(`Gemini TTS model ${model} failed, attempting next in queue: ${err.message}`);
           lastError = err;
-          // Silently fail over to the next model for congestion, rate limits, or updates
           continue;
         }
       }
@@ -1896,12 +2287,114 @@ Roleplay Instructions:
       speechQueue = [];
       currentQueueIndex = 0;
       isQueuePlaying = false;
+      speechAudioCache = {}; // Flush cache
+
+      // Reset background brightness
+      const chatBg = document.getElementById('chat-bg-layer');
+      if (chatBg) {
+        chatBg.style.filter = 'brightness(1)';
+      }
+
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
+      }
+
+      // Dismiss talk mode spinner on stop
+      const spinner = document.getElementById('talk-mode-spinner');
+      if (spinner) {
+        spinner.classList.add('hidden');
+      }
 
       if (typingIndicator) {
         typingIndicator.classList.add('hidden');
       }
       renderChatMessagesOnly();
     };
+
+    // Setup Audio Analyser for pulsing effect
+    function setupAudioAnalyser(audioElement) {
+      try {
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          analyserNode = audioCtx.createAnalyser();
+          analyserNode.fftSize = 64; 
+          analyserNode.connect(audioCtx.destination);
+        }
+        
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+
+        let source;
+        if (audioSourceMap.has(audioElement)) {
+          source = audioSourceMap.get(audioElement);
+        } else {
+          source = audioCtx.createMediaElementSource(audioElement);
+          audioSourceMap.set(audioElement, source);
+        }
+
+        source.disconnect();
+        source.connect(analyserNode);
+        
+        startBackgroundPulsing();
+      } catch (e) {
+        console.warn("Web Audio Analyser setup failed:", e);
+      }
+    }
+
+    // Dynamic background pulsing loop
+    function startBackgroundPulsing() {
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
+
+      const chatBg = document.getElementById('chat-bg-layer');
+      if (!chatBg) return;
+
+      const bufferLength = analyserNode.frequencyBinCount;
+      const dataArray = new Uint8Array(bufferLength);
+
+      function draw() {
+        if (!isAudioPlaying || !currentAudio) {
+          chatBg.style.filter = 'brightness(1)';
+          return;
+        }
+
+        animationFrameId = requestAnimationFrame(draw);
+
+        analyserNode.getByteFrequencyData(dataArray);
+
+        let sum = 0;
+        for (let i = 0; i < bufferLength; i++) {
+          sum += dataArray[i];
+        }
+        const average = sum / bufferLength;
+
+        const brightnessValue = 0.7 + (average / 255) * 0.6;
+        chatBg.style.filter = `brightness(${brightnessValue})`;
+      }
+
+      draw();
+    }
+
+    // Preloads specific index item inside speech queue in the background
+    async function preloadQueueItem(bot, idx) {
+      if (idx >= speechQueue.length || idx < 0) return;
+      if (speechAudioCache[idx]) return; // Already loading or complete
+
+      const currentChunkText = speechQueue[idx];
+      speechAudioCache[idx] = (async () => {
+        try {
+          const rawBase64 = await callGeminiNativeTTSWithFallback(currentChunkText, bot, appSettings.geminiKey);
+          const playableWavUrl = convertPcmToWav(rawBase64, 24000);
+          return playableWavUrl;
+        } catch (err) {
+          console.error(`Failed to preload speech chunk ${idx}:`, err);
+          return null;
+        }
+      })();
+    }
 
     // Unified speech player with index tracking, sentence chunking, and fallback handoffs
     async function speakMessage(text, bot, index = null) {
@@ -1911,7 +2404,6 @@ Roleplay Instructions:
       stopCurrentAudio();
 
       if (bot.ttsEngine === 'browser') {
-        // Native Browser Web Speech API Playback (Option 2 / Offline free fallback)
         const utterance = new SpeechSynthesisUtterance(text);
         currentAudio = speechSynthesis;
 
@@ -1919,6 +2411,12 @@ Roleplay Instructions:
           isAudioPlaying = true;
           if (playingAudioIndex === null) playingAudioIndex = index;
           if (typingIndicator) typingIndicator.classList.add('hidden');
+          
+          const spinner = document.getElementById('talk-mode-spinner');
+          if (spinner) {
+            spinner.classList.add('hidden');
+          }
+
           renderChatMessagesOnly();
         });
 
@@ -1939,7 +2437,6 @@ Roleplay Instructions:
         return;
       }
 
-      // Google Gemini REST TTS Playback with Min 30 Word Chunking ending on sentence
       if (!appSettings.geminiKey) {
         console.warn("Gemini API key is required to use Gemini Voice synthesis.");
         return;
@@ -1973,32 +2470,45 @@ Roleplay Instructions:
       speechQueue = chunkTextBySentences(text);
       currentQueueIndex = 0;
       isQueuePlaying = true;
+      speechAudioCache = {}; // Clear old preload cache
 
       if (speechQueue.length === 0) return;
 
-      // Begin serial queue execution
+      preloadQueueItem(bot, 0);
+
       await playNextQueueItem(bot, index);
     }
 
-    // Execute next item in the voice queue sequentially
+    // Execute next item in the voice queue sequentially (With Pipelined Background Preloading)
     async function playNextQueueItem(bot, bubbleIndex) {
       if (!isQueuePlaying || currentQueueIndex >= speechQueue.length) {
-        // Queue complete, tear down audio state
         isAudioPlaying = false;
         playingAudioIndex = null;
         isQueuePlaying = false;
         speechQueue = [];
         currentQueueIndex = 0;
+        speechAudioCache = {};
+        
+        const chatBg = document.getElementById('chat-bg-layer');
+        if (chatBg) chatBg.style.filter = 'brightness(1)';
+        
         renderChatMessagesOnly();
         return;
       }
 
-      const currentChunkText = speechQueue[currentQueueIndex];
+      if (currentQueueIndex + 1 < speechQueue.length) {
+        preloadQueueItem(bot, currentQueueIndex + 1);
+      }
 
-      // Show typing indicator during loading phase of the current chunk
-      if (typingText && typingIndicator) {
-        typingText.innerText = `${bot.name} is vocalizing...`;
-        typingIndicator.classList.remove('hidden');
+      if (currentQueueIndex === 0) {
+        if (typingText && typingIndicator) {
+          typingText.innerText = `${bot.name} is vocalizing...`;
+          typingIndicator.classList.remove('hidden');
+        }
+      } else {
+        if (typingIndicator) {
+          typingIndicator.classList.add('hidden');
+        }
       }
 
       if (bubbleIndex !== null) {
@@ -2008,10 +2518,19 @@ Roleplay Instructions:
       }
 
       try {
-        const rawBase64 = await callGeminiNativeTTSWithFallback(currentChunkText, bot, appSettings.geminiKey);
-        const playableWavUrl = convertPcmToWav(rawBase64, 24000);
+        let playableWavUrl = null;
+        if (speechAudioCache[currentQueueIndex]) {
+          playableWavUrl = await speechAudioCache[currentQueueIndex];
+        } else {
+          const currentChunkText = speechQueue[currentQueueIndex];
+          const rawBase64 = await callGeminiNativeTTSWithFallback(currentChunkText, bot, appSettings.geminiKey);
+          playableWavUrl = convertPcmToWav(rawBase64, 24000);
+        }
 
-        // Double check if context hasn't changed or stopped during download
+        if (!playableWavUrl) {
+          throw new Error("Speech synthesis preload returned empty payload.");
+        }
+
         if (!isQueuePlaying || (bubbleIndex !== null && playingAudioIndex !== bubbleIndex)) {
           if (typingIndicator) typingIndicator.classList.add('hidden');
           return;
@@ -2019,21 +2538,28 @@ Roleplay Instructions:
 
         currentAudio = new Audio(playableWavUrl);
 
+        setupAudioAnalyser(currentAudio);
+
         currentAudio.addEventListener('playing', () => {
           isAudioPlaying = true;
           if (typingIndicator) typingIndicator.classList.add('hidden');
+          const spinner = document.getElementById('talk-mode-spinner');
+          if (spinner) {
+            spinner.classList.add('hidden');
+          }
           renderChatMessagesOnly();
         });
 
         currentAudio.addEventListener('ended', async () => {
-          // Move queue index forward and trigger next chunk
+          try {
+            URL.revokeObjectURL(playableWavUrl);
+          } catch(e){}
+          
           currentQueueIndex++;
           await playNextQueueItem(bot, bubbleIndex);
         });
 
-        currentAudio.addEventListener('pause', () => {
-          // Handled by standard pause/exit routines
-        });
+        currentAudio.addEventListener('pause', () => {});
 
         currentAudio.addEventListener('error', async (e) => {
           console.error("Audio error on queue chunk, skipping to next:", e);
@@ -2141,7 +2667,6 @@ Roleplay Instructions:
           lastError = err;
           
           const errStr = err.message.toLowerCase();
-          // Catches timeouts, 503/500 congestion errors, rate limits, and network blocks
           if (
             errStr.includes("quota") || 
             errStr.includes("limit") || 
@@ -2156,7 +2681,6 @@ Roleplay Instructions:
           ) {
             continue;
           } else {
-            // Instantly throw unhanded non-failover configuration errors (e.g. invalid API key)
             throw err;
           }
         }
@@ -2210,14 +2734,36 @@ Roleplay Instructions:
         }
       }
 
+      const tintOverlay = document.getElementById('chat-bg-tint-overlay');
+      if (tintOverlay) {
+        const tint = bot.bgTint || 'none';
+        tintOverlay.style.backgroundImage = 'none';
+        tintOverlay.style.backgroundColor = 'transparent';
+        tintOverlay.className = "absolute inset-0 pointer-events-none z-0 opacity-45"; 
+
+        if (tint !== 'none') {
+          let rgb = '0,0,0';
+          if (tint === 'purple') rgb = '168, 85, 247';
+          else if (tint === 'blue') rgb = '59, 130, 246';
+          else if (tint === 'light-blue') rgb = '56, 189, 248';
+          else if (tint === 'green') rgb = '34, 197, 94';
+          else if (tint === 'toxic-green') rgb = '57, 255, 20';
+          else if (tint === 'yellow') rgb = '234, 179, 8';
+          else if (tint === 'orange') rgb = '249, 115, 22';
+          else if (tint === 'red') rgb = '239, 68, 68';
+          else if (tint === 'maroon') rgb = '128, 0, 0';
+          else if (tint === 'pink') rgb = '236, 72, 153';
+
+          tintOverlay.style.backgroundImage = `radial-gradient(circle, rgba(${rgb}, 0) 30%, rgba(${rgb}, 0.8) 100%)`;
+        }
+      }
+
       if (chatHeaderAvatar) chatHeaderAvatar.src = bot.avatarUrl || bot.fullImageUrl;
       if (chatHeaderName) chatHeaderName.innerText = bot.name;
       activeChatHistory = bot.chatHistory || [];
 
-      // Reset menu index on session load
       activeMenuIdx = null;
 
-      // Reset prompt toggle mode to dialogue default when opening chat
       isNarrativeMode = false;
       if (chatModeIcon) chatModeIcon.innerText = "💬";
       if (chatModeBtn) {
@@ -2226,13 +2772,19 @@ Roleplay Instructions:
       }
       if (chatInput) chatInput.placeholder = "Say something...";
 
-      // Reset Hide Chat state when changing/opening chat sessions
-      isChatHidden = false;
-      if (chatMessagesContainer) chatMessagesContainer.classList.remove('opacity-0', 'pointer-events-none');
-      if (chatHideBtn) {
-        chatHideBtn.classList.add('text-neutral-400/90', 'hover:text-white', 'border-neutral-800');
-        chatHideBtn.classList.remove('text-neutral-600', 'border-neutral-900', 'hover:text-neutral-600');
-        chatHideBtn.innerText = "Hide";
+      isChatHidden = !bot.isQuietMode;
+      if (isChatHidden) {
+        if (chatMessagesContainer) chatMessagesContainer.classList.add('opacity-0', 'pointer-events-none');
+        if (chatHideBtn) {
+          chatHideBtn.className = "text-xs font-semibold text-neutral-200 hover:text-white bg-neutral-900/50 px-2.5 py-1.5 rounded-lg border border-neutral-800 transition-all cursor-pointer shadow shrink-0";
+          chatHideBtn.innerText = "Show";
+        }
+      } else {
+        if (chatMessagesContainer) chatMessagesContainer.classList.remove('opacity-0', 'pointer-events-none');
+        if (chatHideBtn) {
+          chatHideBtn.className = "text-xs font-semibold text-neutral-200 hover:text-white bg-neutral-900/50 px-2.5 py-1.5 rounded-lg border border-neutral-800 transition-all cursor-pointer shadow shrink-0";
+          chatHideBtn.innerText = "Hide";
+        }
       }
 
       renderChatMessagesOnly(true); // Scroll to bottom on initial load
@@ -2261,13 +2813,11 @@ Roleplay Instructions:
         isChatHidden = !isChatHidden;
         if (isChatHidden) {
           if (chatMessagesContainer) chatMessagesContainer.classList.add('opacity-0', 'pointer-events-none');
-          chatHideBtn.classList.remove('text-neutral-400/90', 'hover:text-white', 'border-neutral-800');
-          chatHideBtn.classList.add('text-neutral-600', 'border-neutral-900', 'hover:text-neutral-600');
+          chatHideBtn.className = "text-xs font-semibold text-neutral-200 hover:text-white bg-neutral-900/50 px-2.5 py-1.5 rounded-lg border border-neutral-800 transition-all cursor-pointer shadow shrink-0";
           chatHideBtn.innerText = "Show";
         } else {
           if (chatMessagesContainer) chatMessagesContainer.classList.remove('opacity-0', 'pointer-events-none');
-          chatHideBtn.classList.add('text-neutral-400/90', 'hover:text-white', 'border-neutral-800');
-          chatHideBtn.classList.remove('text-neutral-600', 'border-neutral-900', 'hover:text-neutral-600');
+          chatHideBtn.className = "text-xs font-semibold text-neutral-200 hover:text-white bg-neutral-900/50 px-2.5 py-1.5 rounded-lg border border-neutral-800 transition-all cursor-pointer shadow shrink-0";
           chatHideBtn.innerText = "Hide";
         }
       });
@@ -2339,33 +2889,28 @@ Roleplay Instructions:
       const cleanText = modifiedText.trim();
       if (!cleanText) return;
 
-      // Halt any active TTS synthesis
       stopCurrentAudio();
 
       const senderType = activeChatHistory[index].sender;
 
       if (senderType === 'bot') {
-        // Editing a chatbot message preserves subsequent context but replaces the specific reply text
         activeChatHistory = activeChatHistory.slice(0, index + 1);
         activeChatHistory[index].text = cleanText;
         
         saveSessionState(false);
-        renderChatMessagesOnly(true); // Maintain view scroll update
+        renderChatMessagesOnly(true);
       } else {
-        // Slicing user/event message truncates downstream conversation and regenerates fresh response
         activeChatHistory = activeChatHistory.slice(0, index);
         activeChatHistory.push({ sender: senderType, text: cleanText });
         
         saveSessionState(false);
-        renderChatMessagesOnly(true); // Scroll to bottom on edits
+        renderChatMessagesOnly(true);
         
-        // Force response sequence
         await triggerBotResponse();
       }
     };
 
-    // Dynamic, Glassmorphic Chat Bubble Renderer (Supports Markdown parsing, top-aligned 50% larger avatars, and relative snug buttons)
-    // Accept standard parameter to control automatic scrolling logic
+    // Dynamic, Glassmorphic Chat Bubble Renderer
     function renderChatMessagesOnly(shouldScrollToBottom = false) {
       if (!chatMessagesContainer) return;
       chatMessagesContainer.innerHTML = '';
@@ -2385,7 +2930,7 @@ Roleplay Instructions:
           if (isControlsVisible) {
             controlsRow = `
               <div class="flex justify-start mt-1 select-none">
-                <button onclick="event.stopPropagation(); editUserMessage(${idx})" class="bg-neutral-900 hover:bg-neutral-855 border border-neutral-800 px-2 py-0.5 rounded-md flex items-center justify-center gap-1 shadow-md cursor-pointer text-[10px] text-neutral-400" title="Edit text">
+                <button onclick="event.stopPropagation(); editUserMessage(${idx})" class="bg-neutral-955/80 border border-neutral-805/60 px-2 py-0.5 rounded-md flex items-center justify-center gap-1 shadow-md cursor-pointer text-[10px] text-neutral-450" title="Edit text">
                   <span>Edit</span>
                   <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
@@ -2406,15 +2951,12 @@ Roleplay Instructions:
         }
 
         const bubbleWrapper = document.createElement('div');
-        // Align avatar to top-left / top-right of the row using self-start
         bubbleWrapper.className = `flex gap-3 max-w-[85%] ${msg.sender === 'user' ? 'self-end flex-row-reverse' : 'self-start'} z-10 relative`;
 
-        // Speaker Avatars scaled to be 50% larger (w-12 h-12) and top aligned (self-start)
         const avatarMarkup = msg.sender === 'bot' 
           ? `<img class="w-12 h-12 rounded-full object-cover self-start border border-red-955/40 shrink-0 shadow-md" src="${bot.avatarUrl || tempConfig.avatarUrl}" alt="">`
           : `<img class="w-12 h-12 rounded-full object-cover self-start border border-red-955/40 shrink-0 shadow-md" src="${userAvatarSrc}" alt="">`;
 
-        // Adjust bottom padding based on controls open/close state
         const isCurrentlyPlaying = (isAudioPlaying && playingAudioIndex === idx);
         const isControlsVisible = (activeMenuIdx === idx || isCurrentlyPlaying);
         const paddingClass = isControlsVisible ? 'pb-2' : 'pb-2.5';
@@ -2426,11 +2968,10 @@ Roleplay Instructions:
         let actionControlsMarkup = '';
 
         if (isControlsVisible) {
-          // Edit button is left-aligned and available on user, narrative, and chatbot replies
           const editBtnMarkup = `
-            <button onclick="event.stopPropagation(); editUserMessage(${idx})" class="bg-neutral-955/80 hover:bg-neutral-855 border border-neutral-800/60 px-2 py-0.5 rounded-md flex items-center justify-center gap-1 shadow-md cursor-pointer text-[10px] text-neutral-400" title="Edit message">
+            <button onclick="event.stopPropagation(); editUserMessage(${idx})" class="bg-neutral-955/80 hover:bg-neutral-850 border border-neutral-800/60 px-2 py-0.5 rounded-md flex items-center justify-center gap-1 shadow-md cursor-pointer text-[10px] text-neutral-450" title="Edit message">
               <span>Edit</span>
-              <svg class="w-2.5 h-2.5 text-neutral-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <svg class="w-2.5 h-2.5 text-neutral-450" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
               </svg>
             </button>
@@ -2448,13 +2989,12 @@ Roleplay Instructions:
                 </div>
               `;
             } else {
-              // Replaced hover states with definite opacity-100 controls to show up on mobile taps
               const btnStateClass = isAudioPlaying 
                 ? 'pointer-events-none opacity-20' 
                 : 'opacity-100';
 
               const speakerBtnMarkup = bot.voiceName
-                ? `<button onclick="event.stopPropagation(); playBubbleSpeech(${idx})" class="bg-neutral-955/80 hover:bg-neutral-855 border border-neutral-800/60 p-1 rounded-md flex items-center justify-center shadow-md ${btnStateClass} transition-all duration-200 cursor-pointer h-[22px] w-[22px]" title="Speak message">
+                ? `<button onclick="event.stopPropagation(); playBubbleSpeech(${idx})" class="bg-neutral-955/80 hover:bg-neutral-850 border border-neutral-800/60 p-1 rounded-md flex items-center justify-center shadow-md ${btnStateClass} transition-all duration-200 cursor-pointer h-[22px] w-[22px]" title="Speak message">
                     <svg class="w-3 h-3 text-neutral-400 hover:text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z"></path>
                     </svg>
@@ -2462,7 +3002,7 @@ Roleplay Instructions:
                 : '';
 
               const regenBtnMarkup = `
-                <button onclick="event.stopPropagation(); regenerateFrom(${idx})" class="bg-neutral-955/80 hover:bg-neutral-855 border border-neutral-800/60 p-1 rounded-md flex items-center justify-center shadow-md ${btnStateClass} transition-all duration-200 cursor-pointer h-[22px] w-[22px]" title="Regenerate from here">
+                <button onclick="event.stopPropagation(); regenerateFrom(${idx})" class="bg-neutral-955/80 hover:bg-neutral-850 border border-neutral-800/60 p-1 rounded-md flex items-center justify-center shadow-md ${btnStateClass} transition-all duration-200 cursor-pointer h-[22px] w-[22px]" title="Regenerate from here">
                   <svg class="w-3 h-3 text-red-500 hover:text-red-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"></path>
                   </svg>
@@ -2473,7 +3013,6 @@ Roleplay Instructions:
             }
           }
 
-          // Combined Snug Row with Edit on bottom-left, playback controls on bottom-right
           actionControlsMarkup = `
             <div class="flex justify-between items-center mt-1 select-none h-6">
               <div class="flex justify-start">
@@ -2497,7 +3036,6 @@ Roleplay Instructions:
         chatMessagesContainer.appendChild(bubbleWrapper);
       });
 
-      // Conditional viewport alignment
       if (shouldScrollToBottom) {
         chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
       }
@@ -2513,7 +3051,6 @@ Roleplay Instructions:
 
       const activeProfile = getActiveProfile();
 
-      // System Instructions
       const defaultAssembledPrompt = getAssembledSystemPrompt(bot);
       const systemPrompt = bot.customSystemPrompt || defaultAssembledPrompt;
 
@@ -2521,7 +3058,6 @@ Roleplay Instructions:
         let reply = '';
         
         if (activeChatHistory.length === 0) {
-          // Greeting Generator
           const apiMessages = [
             { role: "user", content: `Write a short, engaging opening greeting introducing yourself to your creator (${activeProfile.name}) in character.` }
           ];
@@ -2540,7 +3076,6 @@ Roleplay Instructions:
             if (statusNode) statusNode.innerText = `Connected • ${result.modelUsed}`;
           }
         } else {
-          // Chat Turn Generator
           const apiMessages = activeChatHistory.map(msg => {
             let content = msg.text;
             if (msg.sender === 'event') {
@@ -2570,10 +3105,9 @@ Roleplay Instructions:
         if (typingIndicator) typingIndicator.classList.add('hidden');
         
         activeChatHistory.push({ sender: 'bot', text: reply });
-        renderChatMessagesOnly(true); // Scroll to bottom when bot responds
+        renderChatMessagesOnly(true); 
         saveSessionState(false);
 
-        // Speak generated reply aloud if voice is active and Quiet Mode is off
         if (!bot.isQuietMode) {
           speakMessage(reply, bot, activeChatHistory.length - 1);
         }
@@ -2585,7 +3119,7 @@ Roleplay Instructions:
         
         const errorFallback = `System error: ${err.message}`;
         activeChatHistory.push({ sender: 'bot', text: errorFallback });
-        renderChatMessagesOnly(true); // Maintain view scroll update on exceptions
+        renderChatMessagesOnly(true); 
       }
     }
 
@@ -2593,7 +3127,14 @@ Roleplay Instructions:
       stopCurrentAudio();
       activeChatHistory = activeChatHistory.slice(0, index);
       saveSessionState(false);
-      renderChatMessagesOnly(true); // Align to bottom on regenerations
+      renderChatMessagesOnly(true); 
+
+      // Display loader spinner only when the chat bubbles are hidden
+      if (isChatHidden) {
+        const spinner = document.getElementById('talk-mode-spinner');
+        if (spinner) spinner.classList.remove('hidden');
+      }
+
       await triggerBotResponse();
     };
 
@@ -2604,11 +3145,16 @@ Roleplay Instructions:
       const senderType = isNarrativeMode ? 'event' : 'user';
       activeChatHistory.push({ sender: senderType, text: userMessage });
 
-      // Story / Say input mode is fully persistent across subsequent posts
-      activeMenuIdx = null; // Close control rows
+      activeMenuIdx = null; 
 
-      renderChatMessagesOnly(true); // Scroll to bottom when user posts a message
+      renderChatMessagesOnly(true); 
       if (chatInput) chatInput.value = '';
+
+      // Display loading spinner only when the chat bubbles are hidden
+      if (isChatHidden) {
+        const spinner = document.getElementById('talk-mode-spinner');
+        if (spinner) spinner.classList.remove('hidden');
+      }
 
       await triggerBotResponse();
     }
@@ -2621,24 +3167,13 @@ Roleplay Instructions:
       }
     }
 
-    // Defensive initialization wrappers for advanced prompt editor listeners
-    if (botCustomSystemPrompt) {
-      botCustomSystemPrompt.addEventListener('input', () => {
-        hasManuallyEditedPrompt = true;
-      });
-    }
-    if (botNameInput) botNameInput.addEventListener('input', updateDynamicSystemPrompt);
-    if (botAppearanceInput) botAppearanceInput.addEventListener('input', updateDynamicSystemPrompt);
-    if (botPersonalityInput) botPersonalityInput.addEventListener('input', updateDynamicSystemPrompt);
-    if (botHistoryInput) botHistoryInput.addEventListener('input', updateDynamicSystemPrompt);
-
     // Event listeners
     if (chatExitBtn) {
       chatExitBtn.addEventListener('click', () => {
         stopCurrentAudio();
         if (typeof speechSynthesis !== 'undefined') speechSynthesis.cancel(); 
         saveSessionState(false);
-        currentStage = 5; // Return to selection screen instead of home screen directly
+        currentStage = 5; 
         updateStageUI();
       });
     }
@@ -2653,14 +3188,14 @@ Roleplay Instructions:
       });
     }
 
-    // Exposed dynamic profile swap selection handler
+    // Exposed user profile/persona management functions
     window.selectProfile = function(id) {
+      if (isDraggingProfileList) return; // Prevent selection trigger if dragging / swiping
       activeProfileId = id;
       saveProfilesToLocalStorage();
       renderProfileList();
     };
 
-    // Exposed user profile delete context handler
     window.triggerDeleteProfile = function(id) {
       const p = userProfiles.find(profile => profile.id === id);
       if (!p) return;
@@ -2675,17 +3210,103 @@ Roleplay Instructions:
       }
     };
 
-    // Exposed user profile edit transition handler
     window.triggerEditProfile = function(id) {
       profileEditingId = id;
       currentStage = 4;
       updateStageUI();
     };
 
+    // Swipe-to-Scroll Mouse Grab & Drag Handler (Desktop compatibility)
+    function initProfileListDragScroll() {
+      const slider = document.getElementById('profile-list');
+      if (!slider) return;
+
+      let isDown = false;
+      let startX;
+      let scrollLeft;
+
+      slider.addEventListener('mousedown', (e) => {
+        isDown = true;
+        isDraggingProfileList = false;
+        startX = e.pageX - slider.offsetLeft;
+        scrollLeft = slider.scrollLeft;
+      });
+
+      slider.addEventListener('mouseleave', () => {
+        isDown = false;
+      });
+
+      slider.addEventListener('mouseup', () => {
+        isDown = false;
+        // Brief timeout ensures selection triggers evaluate the flag state properly
+        setTimeout(() => {
+          isDraggingProfileList = false;
+        }, 50);
+      });
+
+      slider.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - slider.offsetLeft;
+        const walk = (x - startX) * 1.5; // Drag sensitivity multiplier
+        if (Math.abs(x - startX) > 5) {
+          isDraggingProfileList = true;
+        }
+        slider.scrollLeft = scrollLeft - walk;
+      });
+    }
+
     // ================= INITIAL ENGINE START =================
 
     window.onload = async function() {
       await loadFromStorage();
+
+      // Bind dynamic Quiet Mode / Talk Mode label switching change events
+      const quietCheckInput = document.getElementById('bot-quiet-mode');
+      if (quietCheckInput) {
+        quietCheckInput.addEventListener('change', updateQuietModeLabel);
+      }
+
+      // Bind functional click listener for the Test Voice process
+      if (testVoiceBtn) {
+        testVoiceBtn.addEventListener('click', async () => {
+          const bVoice = botVoiceInput ? botVoiceInput.value : 'Kore';
+          const bVoicePr = botVoicePrompt ? botVoicePrompt.value.trim() : '';
+          const ttsSelector = document.getElementById('bot-tts-engine');
+          const bTts = ttsSelector ? ttsSelector.value : 'gemini';
+
+          if (!bVoice && bTts === 'gemini') {
+            alert("Please select a prebuilt voice configuration to test.");
+            return;
+          }
+
+          const testPhrase = "System check. Audio synthesis is fully operational. How does this vocal profile sound?";
+
+          const tempBotForVoice = {
+            name: "Test System",
+            voiceName: bVoice,
+            voicePrompt: bVoicePr,
+            ttsEngine: bTts
+          };
+
+          testVoiceBtn.disabled = true;
+          const originalText = testVoiceBtn.innerText;
+          testVoiceBtn.innerText = "Synthesizing...";
+
+          try {
+            await speakMessage(testPhrase, tempBotForVoice, null);
+          } catch (e) {
+            console.error("Test voice synthesis failed:", e);
+          } finally {
+            testVoiceBtn.disabled = false;
+            testVoiceBtn.innerText = originalText;
+          }
+        });
+      }
+
+      // Initialize swipe / drag mechanics for profile selector deck
+      initProfileListDragScroll();
+
       currentStage = 0;
       updateStageUI();
     };
@@ -2693,4 +3314,3 @@ Roleplay Instructions:
   </script>
 </body>
 </html>
-```
