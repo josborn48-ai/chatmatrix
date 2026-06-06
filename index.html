@@ -702,8 +702,8 @@
       <!-- ================= STAGE 8: ADVENTURE ACTIVE CHAT ================= -->
       <section id="stage-8" class="hidden flex-1 flex flex-col h-full bg-black relative overflow-hidden">
         
-        <div class="w-full aspect-video bg-neutral-950 border-b border-red-900/40 relative overflow-hidden shrink-0 shadow-lg select-none">
-          <div id="adventure-scenic-viewport" class="absolute inset-0 bg-cover bg-center origin-center cursor-grab active:cursor-grabbing" style="transform: translate(0px, 0px) scale(1); transition: transform 0.15s ease-out;"></div>
+        <div class="w-full aspect-video bg-neutral-950 border-b border-red-900/40 relative overflow-hidden shrink-0 shadow-lg select-none touch-none">
+          <div id="adventure-scenic-viewport" class="absolute inset-0 bg-contain bg-no-repeat bg-center origin-center cursor-grab active:cursor-grabbing" style="transform: translate(0px, 0px) scale(1); transition: transform 0.15s ease-out;"></div>
           
           <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none"></div>
           
@@ -3056,8 +3056,9 @@ Your Role:
 3. Do not speak on behalf of ${profile.name} or the participating companions.
 
 D&D Action Resolution System:
-If a user prompt contains "[Action Attempt: ...]", you MUST resolve it mechanically as the Dungeon Master BEFORE narrating the outcome.
-Follow this EXACT sequence:
+Check the user's latest prompt. 
+IF AND ONLY IF the prompt starts with "[Action Attempt: ]", you MUST act as the Dungeon Master to resolve it mechanically BEFORE narrating the outcome. 
+Follow this EXACT sequence for Actions:
 1. Identify the acting character and the most relevant stat (STR, DEX, CON, INT, WIS, CHA).
 2. Calculate the Modifier: (Stat - 10) / 2, rounded down.
 3. Set a reasonable Difficulty Class (DC) between 5 and 25 based on the action's difficulty.
@@ -3065,7 +3066,7 @@ Follow this EXACT sequence:
 5. Compare the Total to the DC. Exceeding or failing by 5+ intensifies the effect.
 6. Account for any relevant bonuses from their Inventory.
 
-You MUST begin your response with this exact text block format:
+When resolving an [Action Attempt], you MUST begin your response with this exact text block format:
 
 **ACTION RESOLUTION**
 * **Character:** [Name]
@@ -3076,7 +3077,9 @@ You MUST begin your response with this exact text block format:
 * **Result:** [Success / Failure / Critical Success / Critical Failure]
 ---
 
-After this block, write your vivid 1-paragraph narrative description of what happens.`;
+After this block, write your vivid 1-paragraph narrative description of what happens.
+
+IMPORTANT: If the user's prompt is normal dialogue or starts with "[Story Event: ]", DO NOT roll dice, DO NOT calculate stats, and DO NOT print the **ACTION RESOLUTION** block. Just respond with a normal narrative description.`;
     }
 
     async function triggerAdventureNarratorResponse() {
@@ -3207,8 +3210,9 @@ Roleplay Instructions:
       viewport.addEventListener('touchstart', (e) => {
         if (e.touches.length === 1) startPan(e.touches[0].clientX, e.touches[0].clientY);
         else if (e.touches.length === 2) { isDragging = false; initialPinchDistance = getTouchDistance(e.touches[0], e.touches[1]); initialZoom = advZoom; }
-      });
+      }, { passive: false });
       viewport.addEventListener('touchmove', (e) => {
+        e.preventDefault(); 
         if (e.touches.length === 1 && isDragging) movePan(e.touches[0].clientX, e.touches[0].clientY);
         else if (e.touches.length === 2) {
           const dist = getTouchDistance(e.touches[0], e.touches[1]);
@@ -3216,7 +3220,7 @@ Roleplay Instructions:
             const factor = dist / initialPinchDistance; advZoom = Math.min(5, Math.max(0.5, initialZoom * factor)); updateViewportTransform(true);
           }
         }
-      });
+      }, { passive: false });
       viewport.addEventListener('touchend', () => { isDragging = false; initialPinchDistance = 0; updateViewportTransform(false); });
     }
 
