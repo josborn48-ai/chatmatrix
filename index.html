@@ -13,27 +13,12 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
 
   <style>
-    ::-webkit-scrollbar {
-      width: 4px;
-      height: 4px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #000000;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #991b1b;
-      border-radius: 2px;
-    }
-    .cropper-container {
-      max-height: 240px !important;
-    }
-    .no-scrollbar::-webkit-scrollbar {
-      display: none;
-    }
-    .no-scrollbar {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: #000000; }
+    ::-webkit-scrollbar-thumb { background: #991b1b; border-radius: 2px; }
+    .cropper-container { max-height: 240px !important; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
 </head>
 <body class="bg-black flex justify-center items-center min-h-screen p-0 sm:p-4 text-white font-sans selection:bg-red-800 selection:text-white">
@@ -321,6 +306,17 @@
             </div>
           </div>
 
+          <!-- Dynamic Mood Backgrounds -->
+          <div class="flex flex-col gap-1.5 border-t border-neutral-900 pt-4">
+            <div class="flex justify-between items-center">
+              <label class="text-xs font-bold uppercase tracking-wider text-neutral-400">Mood Backgrounds (Dynamic)</label>
+              <button type="button" onclick="addNewMood()" class="text-[10px] font-bold tracking-wider uppercase bg-neutral-900 hover:bg-neutral-800 text-neutral-300 px-2 py-1 rounded transition-colors border border-neutral-800">Add Mood +</button>
+            </div>
+            <p class="text-[9px] text-neutral-600 leading-tight mb-1">Dynamically switches the chat background if the AI's message contains any of your keywords. Multiple images per mood rotate randomly.</p>
+            <div id="moods-container" class="flex flex-col gap-2"></div>
+            <input type="file" id="mood-img-upload" accept="image/*" class="hidden">
+          </div>
+
           <div class="flex flex-col gap-2 border-t border-neutral-900 pt-4">
             <label class="text-xs font-bold uppercase tracking-wider text-neutral-400">Text-To-Speech (TTS) Voice Configuration</label>
             <div class="flex flex-col gap-3">
@@ -422,7 +418,7 @@
 
       <!-- ================= STAGE 3: ACTIVE CHAT SCREEN ================= -->
       <section id="stage-3" class="hidden flex-1 flex flex-col h-full bg-black relative overflow-hidden">
-        <div id="chat-bg-layer" class="absolute inset-0 bg-cover bg-center pointer-events-none opacity-80 z-0 animate-pulse-slow"></div>
+        <div id="chat-bg-layer" class="absolute inset-0 bg-cover bg-center pointer-events-none opacity-80 z-0 animate-pulse-slow transition-all duration-700"></div>
         <div id="chat-bg-tint-overlay" class="absolute inset-0 pointer-events-none z-0 opacity-45"></div>
         <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-black/10 to-black/50 pointer-none z-0"></div>
 
@@ -641,7 +637,7 @@
           <div class="flex flex-col gap-2">
             <div class="flex items-center gap-2">
               <input type="file" id="adventure-default-bg-input" accept="image/*" class="hidden">
-              <button onclick="document.getElementById('adventure-default-bg-input').click()" class="bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 text-neutral-300 font-semibold py-2.5 px-4 rounded-xl text-xs transition-all active:scale-[0.98] flex items-center justify-center gap-2 flex-1">
+              <button onclick="$('adventure-default-bg-input').click()" class="bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 text-neutral-300 font-semibold py-2.5 px-4 rounded-xl text-xs transition-all active:scale-[0.98] flex items-center justify-center gap-2 flex-1">
                 <svg class="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
                 From Device
               </button>
@@ -703,8 +699,8 @@
       <!-- ================= STAGE 8: ADVENTURE ACTIVE CHAT ================= -->
       <section id="stage-8" class="hidden flex-1 flex flex-col h-full bg-black relative overflow-hidden">
         
-        <div class="w-full aspect-video bg-neutral-950 border-b border-red-900/40 relative overflow-hidden shrink-0 shadow-lg select-none touch-none">
-          <div id="adventure-scenic-viewport" class="absolute inset-0 bg-contain bg-no-repeat bg-center origin-center cursor-grab active:cursor-grabbing" style="transform: translate(0px, 0px) scale(1); transition: transform 0.15s ease-out;"></div>
+        <div id="adventure-scenic-viewport-wrapper" class="w-full aspect-video bg-neutral-950 border-b border-red-900/40 relative overflow-hidden shrink-0 shadow-lg select-none touch-none flex justify-center items-center">
+          <div id="adventure-scenic-viewport" class="pointer-events-auto origin-center absolute bg-cover bg-center" style="transform: translate(0px, 0px) scale(1); transition: transform 0.15s ease-out;"></div>
           
           <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none"></div>
           
@@ -725,7 +721,7 @@
             <a href="https://perchance.org/ai-art-generator-advanced" target="_blank" class="bg-black/80 hover:bg-neutral-900 border border-amber-900/60 text-[10px] text-amber-500 font-extrabold px-3 py-1.5 rounded-lg backdrop-blur-md shadow-md transition-colors cursor-pointer text-center flex items-center" title="Generate with Perchance">
               GENERATE
             </a>
-            <button onclick="document.getElementById('adventure-chat-bg-upload').click()" class="bg-black/80 hover:bg-neutral-900 border border-red-900/60 text-[10px] text-red-400 font-extrabold px-3 py-1.5 rounded-lg backdrop-blur-md shadow-md transition-colors cursor-pointer" title="Load scenery image">
+            <button onclick="$('adventure-chat-bg-upload').click()" class="bg-black/80 hover:bg-neutral-900 border border-red-900/60 text-[10px] text-red-400 font-extrabold px-3 py-1.5 rounded-lg backdrop-blur-md shadow-md transition-colors cursor-pointer" title="Load scenery image">
               UPLOAD
             </button>
           </div>
@@ -766,7 +762,8 @@
     <div class="bg-neutral-950 border border-red-900/50 w-full max-w-sm rounded-3xl p-6 flex flex-col gap-4 shadow-[0_0_50px_rgba(220,38,38,0.15)] max-h-[90vh] overflow-y-auto no-scrollbar relative">
       <div>
         <h3 id="sheet-title" class="text-lg font-black text-neutral-100 uppercase tracking-wider">Character Sheet</h3>
-        <p class="text-[10px] text-neutral-500 mt-0.5">D&D Point Buy (30 pts) and Inventory.</p>
+        <p id="sheet-subtitle" class="text-[10px] text-neutral-500 mt-0.5">D&D Point Buy (30 pts) and Inventory.</p>
+        <p id="sheet-level-display" class="text-xs font-bold text-amber-500 mt-1.5 tracking-wider hidden"></p>
       </div>
 
       <!-- Stats Points Allocator -->
@@ -779,34 +776,46 @@
         <div id="sheet-stats-container" class="grid grid-cols-2 gap-2"></div>
       </div>
 
-      <!-- Equipment Block -->
-      <div class="flex flex-col gap-2 pt-2 mt-2">
-        <h4 class="text-xs font-bold uppercase tracking-wider text-red-500 border-b border-neutral-900 pb-1">Equipment / Inventory</h4>
-        
-        <!-- List View -->
-        <div id="sheet-inventory-view" class="flex flex-col gap-2">
-          <div id="sheet-inventory-list" class="flex flex-col gap-2"></div>
-          <button id="sheet-new-item-btn" onclick="openItemEditor(-1)" class="w-full bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 border-dashed text-neutral-400 font-bold py-2 rounded-xl text-xs transition-colors">
-            New +
-          </button>
+      <!-- Unified Lists Block (Skills, Passives, Inventory) -->
+      <div id="sheet-lists-view" class="flex flex-col gap-3 pt-2 mt-2 border-t border-neutral-900">
+        <div class="flex flex-col gap-1.5">
+          <h4 class="text-[10px] font-black uppercase tracking-wider text-purple-400">Skills</h4>
+          <div id="sheet-list-skills" class="flex flex-col gap-1.5"></div>
+          <button onclick="openSheetEditor('skills', -1)" class="w-full bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 border-dashed text-neutral-400 font-bold py-1.5 rounded-lg text-[10px] transition-colors">New Skill +</button>
         </div>
-
-        <!-- Single Item Editor -->
-        <div id="sheet-item-editor" class="hidden flex-col gap-2 bg-black border border-neutral-800 p-3 rounded-xl relative">
-          <span class="text-[10px] font-bold uppercase text-neutral-400">Edit Item</span>
-          <input id="sheet-eq-name" type="text" class="bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-red-700 text-white" placeholder="Item Name (e.g. Vorpal Sword)">
-          <textarea id="sheet-eq-desc" rows="2" class="bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-red-700 text-white resize-none" placeholder="Description and effects (+2 to attack)"></textarea>
-          <div class="flex gap-2 mt-1">
-            <button onclick="deleteCurrentItem()" id="sheet-eq-delete-btn" class="bg-red-955/40 hover:bg-red-900 text-red-500 px-3 py-1.5 rounded-lg text-[10px] font-bold transition-colors">Delete</button>
-            <button onclick="closeItemEditor()" class="flex-1 bg-neutral-800 hover:bg-neutral-700 text-white px-3 py-1.5 rounded-lg text-[10px] font-bold transition-colors">Cancel</button>
-            <button onclick="saveCurrentItem()" class="flex-1 bg-red-700 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg text-[10px] font-bold transition-colors">Save Item</button>
+        <div class="flex flex-col gap-1.5">
+          <h4 class="text-[10px] font-black uppercase tracking-wider text-blue-400">Passives</h4>
+          <div id="sheet-list-passives" class="flex flex-col gap-1.5"></div>
+          <button onclick="openSheetEditor('passives', -1)" class="w-full bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 border-dashed text-neutral-400 font-bold py-1.5 rounded-lg text-[10px] transition-colors">New Passive +</button>
+        </div>
+        <div class="flex flex-col gap-1.5">
+          <div class="flex justify-between items-center border-b border-neutral-900 pb-1 mb-1">
+              <h4 class="text-[10px] font-black uppercase tracking-wider text-amber-500">Inventory</h4>
+              <div class="flex items-center gap-1.5 bg-yellow-950/20 px-2 py-0.5 rounded border border-yellow-900/30">
+                  <span class="text-[10px] text-yellow-500 font-bold uppercase tracking-wider">Gold:</span>
+                  <input id="sheet-gold-input" type="number" class="bg-transparent text-yellow-400 text-[10px] font-bold w-12 text-right focus:outline-none placeholder:text-yellow-700" value="0">
+              </div>
           </div>
+          <div id="sheet-list-inventory" class="flex flex-col gap-1.5"></div>
+          <button onclick="openSheetEditor('inventory', -1)" class="w-full bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 border-dashed text-neutral-400 font-bold py-1.5 rounded-lg text-[10px] transition-colors">New Item +</button>
+        </div>
+      </div>
+
+      <!-- Unified Generic Item Editor -->
+      <div id="sheet-item-editor" class="hidden flex-col gap-2 bg-black border border-neutral-800 p-3 rounded-xl relative mt-2">
+        <span id="sheet-editor-title" class="text-[10px] font-bold uppercase text-neutral-400">Edit Item</span>
+        <input id="sheet-eq-name" type="text" class="bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-red-700 text-white" placeholder="Name">
+        <textarea id="sheet-eq-desc" rows="2" class="bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-red-700 text-white resize-none" placeholder="Description and mechanical effects"></textarea>
+        <div class="flex gap-2 mt-1">
+          <button onclick="deleteSheetItem()" id="sheet-eq-delete-btn" class="bg-red-955/40 hover:bg-red-900 text-red-500 px-3 py-1.5 rounded-lg text-[10px] font-bold transition-colors">Delete</button>
+          <button onclick="closeSheetEditor()" class="flex-1 bg-neutral-800 hover:bg-neutral-700 text-white px-3 py-1.5 rounded-lg text-[10px] font-bold transition-colors">Cancel</button>
+          <button onclick="saveSheetItem()" class="flex-1 bg-red-700 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg text-[10px] font-bold transition-colors">Save</button>
         </div>
       </div>
 
       <!-- Action Footer -->
       <div class="flex gap-3 mt-4">
-        <button onclick="document.getElementById('character-sheet-modal').classList.add('hidden')" class="flex-1 bg-transparent text-neutral-400 hover:text-white font-semibold py-2.5 rounded-xl text-xs border border-neutral-800 transition-all">
+        <button onclick="$('character-sheet-modal').classList.add('hidden')" class="flex-1 bg-transparent text-neutral-400 hover:text-white font-semibold py-2.5 rounded-xl text-xs border border-neutral-800 transition-all">
           Cancel
         </button>
         <button onclick="saveCharacterSheet()" class="flex-1 bg-red-700 hover:bg-red-600 text-white font-semibold py-2.5 rounded-xl text-xs transition-all shadow-lg">
@@ -869,6 +878,9 @@
 
   <!-- APPLICATION LOGIC & STAGES STATE MACHINE -->
   <script>
+    // DOM Shorthand
+    const $ = id => document.getElementById(id);
+
     let appMode = 'creator'; 
     let chatbots = [];         
     let userProfiles = [];     
@@ -884,11 +896,15 @@
     let isChatHidden = false; 
     let hiddenBotIds = []; 
     let isDraggingProfileList = false; 
-
     let profileFormSourceStage = 0; 
+
+    // Dynamic Mood State
+    let tempMoods = [];
+    let currentMoodUploadIndex = -1;
 
     // Adventure Mode state parameters
     let savedAdventures = [];
+    let lastAdventureState = null;
     let activeAdventureId = null;
     let selectedAdventureProfileId = null;
     let selectedAdventureBotIds = [];
@@ -898,12 +914,13 @@
     let activeAdventureChatHistory = [];
     let adventureBackgrounds = []; 
     let activeAdventureBgIndex = -1;
-    let adventureInputMode = 'dialogue'; // dialogue, event, action
+    let adventureInputMode = 'dialogue'; 
     let activeAdventureMenuIdx = null;
 
-    let advZoom = 1;
-    let advPanX = 0;
-    let advPanY = 0;
+    // Standard D&D 5e EXP Thresholds
+    const EXP_TABLE = [0, 0, 300, 900, 2700, 6500, 14000, 23000, 34000, 48000, 64000, 85000, 100000, 120000, 140000, 165000, 195000, 225000, 265000, 305000, 355000];
+
+    let advZoom = 1; let advPanX = 0; let advPanY = 0; let currentRenderedAdvBg = null;
 
     let currentAudio = null;
     let isAudioPlaying = false;
@@ -922,110 +939,16 @@
     let activeMenuIdx = null;
     let hasManuallyEditedPrompt = false;
 
-    let appSettings = {
-      geminiKey: '',
-      localUrl: 'http://localhost:1234/v1',
-      localModel: 'mistral'
-    };
+    let appSettings = { geminiKey: '', localUrl: 'http://localhost:1234/v1', localModel: 'mistral' };
 
     const defaultProfile = {
-      id: 'default_user',
-      name: 'Creator',
-      appearance: 'Human developer',
-      backstory: 'The creator of this synthetic space.',
+      id: 'default_user', name: 'Creator', appearance: 'Human developer', backstory: 'The creator of this synthetic space.',
+      level: 1, exp: 0, gold: 0, stats: {str: 8, dex: 8, con: 8, int: 8, wis: 8, cha: 8}, inventory: [], skills: [], passives: [],
       avatarUrl: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='%231f2937'><circle cx='50' cy='50' r='40' fill='%23374151'/></svg>"
     };
 
-    let tempConfig = {
-      avatarUrl: '',     
-      fullImageUrl: '',  
-      appearance: '',
-      model: 'gemini',
-      customSystemPrompt: '',
-      bgTint: 'none'
-    };
-
-    let tempProfileConfig = {
-      avatarUrl: ''
-    };
-
-    // DOM Elements Map
-    const stageIndicator = document.getElementById('stage-indicator');
-    const stage0Sec = document.getElementById('stage-0');
-    const stage1Sec = document.getElementById('stage-1');
-    const stage2Sec = document.getElementById('stage-2');
-    const stage3Sec = document.getElementById('stage-3');
-    const stageProfileForm = document.getElementById('stage-profile-form');
-    const stage5Sec = document.getElementById('stage-5');
-    const stage6Sec = document.getElementById('stage-6');
-    const stage7Sec = document.getElementById('stage-7');
-    const stage8Sec = document.getElementById('stage-8');
-
-    const botListContainer = document.getElementById('bot-list');
-    const profileListContainer = document.getElementById('profile-list');
-    const homeNewBotBtn = document.getElementById('home-new-bot-btn');
-    const homeNewProfileBtn = document.getElementById('home-new-profile-btn');
-    const homeSettingsBtn = document.getElementById('home-settings-btn');
-
-    const settingsModal = document.getElementById('settings-modal');
-    const settingsCloseBtn = document.getElementById('settings-close-btn');
-    const settingsSaveBtn = document.getElementById('settings-save-btn');
-    const settingsGeminiKey = document.getElementById('settings-gemini-key');
-    const settingsLocalUrl = document.getElementById('settings-local-url');
-    const settingsLocalModel = document.getElementById('settings-local-model');
-
-    const avatarUpload = document.getElementById('avatar-upload');
-    const uploadTrigger = document.getElementById('upload-trigger');
-    const avatarImg = document.getElementById('avatar-img');
-    const cropperWrapper = document.getElementById('cropper-wrapper');
-    const avatarPlaceholder = document.getElementById('avatar-placeholder');
-    const stage1NextBtn = document.getElementById('stage1-next-btn');
-    const stage1BackHome = document.getElementById('stage1-back-home');
-
-    const stage2Title = document.getElementById('stage2-title');
-    const stage2MiniAvatar = document.getElementById('stage2-mini-avatar');
-    const botModelInput = document.getElementById('bot-model'); 
-    const botNameInput = document.getElementById('bot-name');
-    const botAppearanceInput = document.getElementById('bot-appearance');
-    const botPersonalityInput = document.getElementById('bot-personality');
-    const botHistoryInput = document.getElementById('bot-history');
-    const stage2BackBtn = document.getElementById('stage2-back-btn');
-    const stage2SaveBtn = document.getElementById('stage2-save-btn');
-    const botVoiceInput = document.getElementById('bot-voice'); 
-    const botVoicePrompt = document.getElementById('bot-voice-prompt'); 
-    const testVoiceBtn = document.getElementById('test-voice-btn'); 
-    const botCustomSystemPrompt = document.getElementById('bot-custom-system-prompt'); 
-
-    const customTintTrigger = document.getElementById('custom-tint-trigger');
-    const customTintOptions = document.getElementById('custom-tint-options');
-    const customTintSelectedCircle = document.getElementById('custom-tint-selected-circle');
-    const customTintSelectedName = document.getElementById('custom-tint-selected-name');
-
-    const chatBgLayer = document.getElementById('chat-bg-layer');
-    const chatHeaderAvatar = document.getElementById('chat-header-avatar');
-    const chatHeaderName = document.getElementById('chat-header-name');
-    const chatMessagesContainer = document.getElementById('chat-messages-container');
-    const chatInput = document.getElementById('chat-input');
-    const chatSendBtn = document.getElementById('chat-send-btn');
-    const typingIndicator = document.getElementById('typing-indicator');
-    const typingText = document.getElementById('typing-text');
-    const chatExitBtn = document.getElementById('chat-exit-btn');
-    const chatClearBtn = document.getElementById('chat-clear-btn');
-    const chatHideBtn = document.getElementById('chat-hide-btn'); 
-    const chatModeBtn = document.getElementById('chat-mode-btn');
-    const chatModeIcon = document.getElementById('chat-mode-icon');
-    const chatSaveBtn = document.getElementById('chat-save-btn');
-
-    const profileUploadTrigger = document.getElementById('profile-upload-trigger');
-    const profileAvatarUpload = document.getElementById('profile-avatar-upload');
-    const profileAvatarImg = document.getElementById('profile-avatar-img');
-    const profileCropperWrapper = document.getElementById('profile-cropper-wrapper');
-    const profileAvatarPreview = document.getElementById('profile-avatar-preview');
-    const profileNameInput = document.getElementById('profile-name');
-    const profileAppearanceInput = document.getElementById('profile-appearance');
-    const profileBackstoryInput = document.getElementById('profile-backstory');
-    const profileSaveBtn = document.getElementById('profile-save-btn');
-    const profileBackBtn = document.getElementById('profile-back-btn');
+    let tempConfig = { avatarUrl: '', fullImageUrl: '', appearance: '', model: 'gemini', customSystemPrompt: '', bgTint: 'none' };
+    let tempProfileConfig = { avatarUrl: '' };
 
     const TINT_COLORS_LIST = [
       { value: 'purple', name: 'Purple', rgb: '168, 85, 247' },
@@ -1044,63 +967,61 @@
     let selectedBgTintValue = 'none';
 
     function initCustomTintDropdown() {
-      if (!customTintOptions) return;
-      customTintOptions.innerHTML = '';
+      if (!$('custom-tint-options')) return;
+      $('custom-tint-options').innerHTML = '';
       TINT_COLORS_LIST.forEach(color => {
         const row = document.createElement('div');
         row.className = "flex items-center gap-2.5 px-4 py-2.5 hover:bg-neutral-900 cursor-pointer transition-colors text-xs text-neutral-300";
         row.onclick = () => selectCustomTint(color.value);
         const circleColor = color.rgb === 'transparent' ? 'transparent' : `rgb(${color.rgb})`;
         row.innerHTML = `<span class="w-3.5 h-3.5 rounded-full border border-white shrink-0" style="background-color: ${circleColor}"></span><span>${color.name}</span>`;
-        customTintOptions.appendChild(row);
+        $('custom-tint-options').appendChild(row);
       });
     }
 
     function selectCustomTint(val) {
       selectedBgTintValue = val;
       const matched = TINT_COLORS_LIST.find(c => c.value === val) || TINT_COLORS_LIST[TINT_COLORS_LIST.length - 1];
-      if (customTintSelectedName) customTintSelectedName.innerText = matched.name;
-      if (customTintSelectedCircle) customTintSelectedCircle.style.backgroundColor = matched.rgb === 'transparent' ? 'transparent' : `rgb(${matched.rgb})`;
-      if (customTintOptions) customTintOptions.classList.add('hidden');
+      if ($('custom-tint-selected-name')) $('custom-tint-selected-name').innerText = matched.name;
+      if ($('custom-tint-selected-circle')) $('custom-tint-selected-circle').style.backgroundColor = matched.rgb === 'transparent' ? 'transparent' : `rgb(${matched.rgb})`;
+      if ($('custom-tint-options')) $('custom-tint-options').classList.add('hidden');
     }
 
-    if (customTintTrigger) {
-      customTintTrigger.addEventListener('click', (e) => {
+    if ($('custom-tint-trigger')) {
+      $('custom-tint-trigger').addEventListener('click', (e) => {
         e.stopPropagation();
-        if (customTintOptions) customTintOptions.classList.toggle('hidden');
+        if ($('custom-tint-options')) $('custom-tint-options').classList.toggle('hidden');
       });
     }
 
-    document.addEventListener('click', () => {
-      if (customTintOptions) customTintOptions.classList.add('hidden');
-    });
+    document.addEventListener('click', () => { if ($('custom-tint-options')) $('custom-tint-options').classList.add('hidden'); });
 
     initCustomTintDropdown();
+
+    function updateMicUI(listening) {
+      if ($('chat-mic-icon')) $('chat-mic-icon').innerText = listening ? "🛑" : "🎙️";
+      const btn = $('chat-mic-btn');
+      if (btn) {
+        if (listening) {
+          btn.classList.remove('border-neutral-800', 'text-neutral-400');
+          btn.classList.add('border-red-650', 'text-red-500', 'animate-pulse');
+        } else {
+          btn.classList.remove('border-red-650', 'text-red-500', 'animate-pulse');
+          btn.classList.add('border-neutral-800', 'text-neutral-400');
+        }
+      }
+    }
 
     // ================= SPEECH TO TEXT =================
     function initSpeechRecognition() {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (!SpeechRecognition) return null;
       const rec = new SpeechRecognition();
-      rec.continuous = false; 
-      rec.interimResults = true;
-      rec.lang = 'en-US';
+      rec.continuous = false; rec.interimResults = true; rec.lang = 'en-US';
 
-      rec.onstart = () => {
-        isListening = true;
-        speechResultBuffer = "";
-        const micIcon = document.getElementById('chat-mic-icon');
-        const micBtn = document.getElementById('chat-mic-btn');
-        if (micIcon) micIcon.innerText = "🛑"; 
-        if (micBtn) {
-          micBtn.classList.remove('border-neutral-800', 'text-neutral-400');
-          micBtn.classList.add('border-red-650', 'text-red-500', 'animate-pulse');
-        }
-      };
-
+      rec.onstart = () => { isListening = true; speechResultBuffer = ""; updateMicUI(true); };
       rec.onresult = (event) => {
-        let interimTranscript = '';
-        let finalTranscript = '';
+        let interimTranscript = ''; let finalTranscript = '';
         for (let i = event.resultIndex; i < event.results.length; ++i) {
           if (event.results[i].isFinal) finalTranscript += event.results[i][0].transcript;
           else interimTranscript += event.results[i][0].transcript;
@@ -1108,37 +1029,20 @@
         const currentResult = finalTranscript || interimTranscript;
         if (currentResult) {
           speechResultBuffer = currentResult;
-          if (chatInput) chatInput.value = currentResult;
+          if ($('chat-input')) $('chat-input').value = currentResult;
         }
       };
 
       rec.onend = async () => {
-        isListening = false;
-        const micIcon = document.getElementById('chat-mic-icon');
-        const micBtn = document.getElementById('chat-mic-btn');
-        if (micIcon) micIcon.innerText = "🎙️";
-        if (micBtn) {
-          micBtn.classList.remove('border-red-650', 'text-red-500', 'animate-pulse');
-          micBtn.classList.add('border-neutral-800', 'text-neutral-400');
-        }
+        isListening = false; updateMicUI(false);
         const trimmedResult = speechResultBuffer.trim();
         if (trimmedResult) {
-          if (chatInput) chatInput.value = trimmedResult;
+          if ($('chat-input')) $('chat-input').value = trimmedResult;
           await handleChatMessage();
         }
       };
 
-      rec.onerror = (e) => {
-        console.error("Speech recognition error:", e);
-        isListening = false;
-        const micIcon = document.getElementById('chat-mic-icon');
-        const micBtn = document.getElementById('chat-mic-btn');
-        if (micIcon) micIcon.innerText = "🎙️";
-        if (micBtn) {
-          micBtn.classList.remove('border-red-650', 'text-red-500', 'animate-pulse');
-          micBtn.classList.add('border-neutral-800', 'text-neutral-400');
-        }
-      };
+      rec.onerror = (e) => { console.error("Speech recognition error:", e); isListening = false; updateMicUI(false); };
       return rec;
     }
 
@@ -1146,14 +1050,10 @@
       if (!recognition) recognition = initSpeechRecognition();
       if (!recognition) return alert("Speech recognition is not supported on this device/browser.");
       if (isListening) recognition.stop(); 
-      else {
-        stopCurrentAudio();
-        try { recognition.start(); } catch(e) {}
-      }
+      else { stopCurrentAudio(); try { recognition.start(); } catch(e) {} }
     }
 
-    const chatMicBtn = document.getElementById('chat-mic-btn');
-    if (chatMicBtn) chatMicBtn.addEventListener('click', toggleListening);
+    if ($('chat-mic-btn')) $('chat-mic-btn').addEventListener('click', toggleListening);
 
     // ================= DB & STORAGE =================
     const DB_NAME = 'BotForgeDB';
@@ -1165,14 +1065,8 @@
       return new Promise((resolve) => {
         try {
           const request = indexedDB.open(DB_NAME, DB_VERSION);
-          request.onupgradeneeded = (e) => {
-            const database = e.target.result;
-            if (!database.objectStoreNames.contains('store')) database.createObjectStore('store'); 
-          };
-          request.onsuccess = (e) => {
-            dbConnection = e.target.result;
-            resolve(dbConnection);
-          };
+          request.onupgradeneeded = (e) => { const database = e.target.result; if (!database.objectStoreNames.contains('store')) database.createObjectStore('store'); };
+          request.onsuccess = (e) => { dbConnection = e.target.result; resolve(dbConnection); };
           request.onerror = () => resolve(null);
         } catch (e) { resolve(null); }
       });
@@ -1192,23 +1086,18 @@
 
     function setDBValue(key, val) {
       return new Promise((resolve) => {
-        if (!dbConnection) {
-          memoryFallbackStorage[key] = val;
-          return resolve();
-        }
+        if (!dbConnection) { memoryFallbackStorage[key] = val; return resolve(); }
         try {
           const transaction = dbConnection.transaction('store', 'readwrite');
           const request = transaction.objectStore('store').put(val, key);
-          request.onsuccess = () => resolve();
-          request.onerror = () => resolve();
+          request.onsuccess = () => resolve(); request.onerror = () => resolve();
         } catch (e) { resolve(); }
       });
     }
 
     async function migrateLocalStorageToIndexedDB() {
       try {
-        const migrated = localStorage.getItem('botforge_migrated_to_idb');
-        if (migrated === 'true') return;
+        if (localStorage.getItem('botforge_migrated_to_idb') === 'true') return;
         const legacyBots = localStorage.getItem('botforge_bots');
         const legacySettings = localStorage.getItem('botforge_settings');
         const legacyProfiles = localStorage.getItem('botforge_user_profiles');
@@ -1222,163 +1111,110 @@
     }
 
     async function loadFromStorage() {
-      await initDB();
-      await migrateLocalStorageToIndexedDB();
-
+      await initDB(); await migrateLocalStorageToIndexedDB();
       try { chatbots = await getDBValue('botforge_bots', null) || []; } catch (e) { chatbots = []; }
       try { hiddenBotIds = await getDBValue('botforge_hidden_bots', null) || []; } catch (e) { hiddenBotIds = []; }
-      try {
-        const settingsStored = await getDBValue('botforge_settings', null);
-        if (settingsStored) appSettings = { ...appSettings, ...settingsStored };
-      } catch (e) {}
+      try { const settingsStored = await getDBValue('botforge_settings', null); if (settingsStored) appSettings = { ...appSettings, ...settingsStored }; } catch (e) {}
       try { userProfiles = await getDBValue('botforge_user_profiles', null) || []; } catch (e) { userProfiles = []; }
       try { savedAdventures = await getDBValue('botforge_adventures', null) || []; } catch (e) { savedAdventures = []; }
+      try { lastAdventureState = await getDBValue('botforge_last_adventure', null); } catch (e) { lastAdventureState = null; }
       
       try {
         activeProfileId = await getDBValue('botforge_active_profile', null);
-        const cleanProfiles = userProfiles.filter(p => p !== null && p !== undefined);
-        if (cleanProfiles.length > 0 && (!activeProfileId || !cleanProfiles.some(p => p.id === activeProfileId))) {
-          activeProfileId = cleanProfiles[0].id;
-        }
+        const cleanProfiles = userProfiles.filter(p => p);
+        if (cleanProfiles.length > 0 && (!activeProfileId || !cleanProfiles.some(p => p.id === activeProfileId))) activeProfileId = cleanProfiles[0].id;
       } catch (e) { activeProfileId = defaultProfile.id; }
     }
 
-    function saveToLocalStorage() {
-      setDBValue('botforge_bots', chatbots);
-      setDBValue('botforge_hidden_bots', hiddenBotIds);
-    }
-    function saveToLocalStorageQuiet() {
-      setDBValue('botforge_bots', chatbots);
-      setDBValue('botforge_hidden_bots', hiddenBotIds);
-    }
+    function saveToLocalStorage() { setDBValue('botforge_bots', chatbots); setDBValue('botforge_hidden_bots', hiddenBotIds); }
     function saveSettings() { setDBValue('botforge_settings', appSettings); }
-    function saveProfilesToLocalStorage() {
-      setDBValue('botforge_user_profiles', userProfiles);
-      setDBValue('botforge_active_profile', activeProfileId);
-    }
+    function saveProfilesToLocalStorage() { setDBValue('botforge_user_profiles', userProfiles); setDBValue('botforge_active_profile', activeProfileId); }
     function saveAdventuresToStorage() { setDBValue('botforge_adventures', savedAdventures); }
 
-    if (homeSettingsBtn) {
-      homeSettingsBtn.addEventListener('click', () => {
-        settingsGeminiKey.value = appSettings.geminiKey || '';
-        settingsLocalUrl.value = appSettings.localUrl || 'http://localhost:1234/v1';
-        settingsLocalModel.value = appSettings.localModel || 'mistral';
+    if ($('home-settings-btn')) {
+      $('home-settings-btn').addEventListener('click', () => {
+        $('settings-gemini-key').value = appSettings.geminiKey || '';
+        $('settings-local-url').value = appSettings.localUrl || 'http://localhost:1234/v1';
+        $('settings-local-model').value = appSettings.localModel || 'mistral';
         populateSettingsHiddenBots();
-        settingsModal.classList.remove('hidden');
+        $('settings-modal').classList.remove('hidden');
       });
     }
 
-    if (settingsCloseBtn) settingsCloseBtn.addEventListener('click', () => settingsModal.classList.add('hidden'));
+    if ($('settings-close-btn')) $('settings-close-btn').addEventListener('click', () => $('settings-modal').classList.add('hidden'));
 
-    if (settingsSaveBtn) {
-      settingsSaveBtn.addEventListener('click', () => {
-        appSettings.geminiKey = settingsGeminiKey.value.trim();
-        appSettings.localUrl = settingsLocalUrl.value.trim();
-        appSettings.localModel = settingsLocalModel.value.trim();
-        saveSettings();
-        settingsModal.classList.add('hidden');
+    if ($('settings-save-btn')) {
+      $('settings-save-btn').addEventListener('click', () => {
+        appSettings.geminiKey = $('settings-gemini-key').value.trim(); appSettings.localUrl = $('settings-local-url').value.trim(); appSettings.localModel = $('settings-local-model').value.trim();
+        saveSettings(); $('settings-modal').classList.add('hidden');
       });
+    }
+
+    function destroyCroppers() {
+        if (cropperInstance) { cropperInstance.destroy(); cropperInstance = null; }
+        if (profileCropperInstance) { profileCropperInstance.destroy(); profileCropperInstance = null; }
     }
 
     // ================= STAGE ROUTER =================
     function updateStageUI() {
-      [stage0Sec, stage1Sec, stage2Sec, stage3Sec, stageProfileForm, stage5Sec, stage6Sec, stage7Sec, stage8Sec]
-        .forEach(el => el && el.classList.add('hidden'));
+      [0,1,2,3,4,5,6,7,8].forEach(i => {
+        const id = i === 4 ? 'stage-profile-form' : `stage-${i}`;
+        if ($(id)) $(id).classList.toggle('hidden', currentStage !== i);
+      });
+
+      const ind = $('stage-indicator');
 
       if (currentStage === 0) {
-        if (stage0Sec) stage0Sec.classList.remove('hidden');
-        
+        if (ind) { ind.innerText = "Home"; ind.className = "text-xs text-red-500 font-medium bg-red-955/40 px-2.5 py-1 rounded-full border border-red-955"; }
         if (appMode === 'chat') {
-          document.getElementById('stage0-profiles-title').innerText = "Select Persona";
-          document.getElementById('stage0-bots-title').innerText = "Select Companion";
-          document.getElementById('stage0-profiles-desc').innerText = "Choose who you are roleplaying as.";
-          document.getElementById('stage0-bots-desc').innerText = "Select a companion to chat with.";
-          if (homeNewProfileBtn) homeNewProfileBtn.classList.add('hidden');
-          if (homeNewBotBtn) homeNewBotBtn.classList.add('hidden');
-          if (stageIndicator) {
-            stageIndicator.innerText = "Chat Matrix";
-            stageIndicator.className = "text-xs text-red-500 font-medium bg-red-955/40 px-2.5 py-1 rounded-full border border-red-955";
-          }
+          if ($('stage0-profiles-title')) $('stage0-profiles-title').innerText = "Select Persona";
+          if ($('stage0-bots-title')) $('stage0-bots-title').innerText = "Select Companion";
+          if ($('stage0-profiles-desc')) $('stage0-profiles-desc').innerText = "Choose who you are roleplaying as.";
+          if ($('stage0-bots-desc')) $('stage0-bots-desc').innerText = "Select a companion to chat with.";
+          if ($('home-new-profile-btn')) $('home-new-profile-btn').classList.add('hidden');
+          if ($('home-new-bot-btn')) $('home-new-bot-btn').classList.add('hidden');
         } else {
-          document.getElementById('stage0-profiles-title').innerText = "My Profiles";
-          document.getElementById('stage0-bots-title').innerText = "My Chatbots";
-          document.getElementById('stage0-profiles-desc').innerText = "Select your active roleplay persona or edit it.";
-          document.getElementById('stage0-bots-desc').innerText = "Select a companion to edit or modify.";
-          if (homeNewProfileBtn) homeNewProfileBtn.classList.remove('hidden');
-          if (homeNewBotBtn) homeNewBotBtn.classList.remove('hidden');
-          if (stageIndicator) {
-            stageIndicator.innerText = "Creator Studio";
-            stageIndicator.className = "text-xs text-neutral-400 font-medium bg-neutral-900 px-2.5 py-1 rounded-full border border-neutral-800";
-          }
+          if ($('stage0-profiles-title')) $('stage0-profiles-title').innerText = "My Profiles";
+          if ($('stage0-bots-title')) $('stage0-bots-title').innerText = "My Chatbots";
+          if ($('stage0-profiles-desc')) $('stage0-profiles-desc').innerText = "Select your active roleplay persona or edit it.";
+          if ($('stage0-bots-desc')) $('stage0-bots-desc').innerText = "Select a companion to edit or modify.";
+          if ($('home-new-profile-btn')) $('home-new-profile-btn').classList.remove('hidden');
+          if ($('home-new-bot-btn')) $('home-new-bot-btn').classList.remove('hidden');
         }
-        
-        renderHomeList();
-        renderProfileList();
-      } else if (currentStage === 1) {
-        if (stage1Sec) stage1Sec.classList.remove('hidden');
-        if (stageIndicator) {
-          stageIndicator.innerText = "Stage 1: Headshot Crop";
-          stageIndicator.className = "text-xs text-red-500 font-medium bg-red-955/40 px-2.5 py-1 rounded-full border border-red-955";
-        }
+        renderHomeList(); renderProfileList();
+      } else if (currentStage === 1 && ind) {
+        ind.innerText = "Stage 1: Headshot Crop"; ind.className = "text-xs text-red-500 font-medium bg-red-955/40 px-2.5 py-1 rounded-full border border-red-955";
       } else if (currentStage === 2) {
-        if (stage2Sec) stage2Sec.classList.remove('hidden');
-        if (stageIndicator) {
-          stageIndicator.innerText = isEditing ? "Edit Blueprint" : "Stage 2: Logic";
-          stageIndicator.className = "text-xs text-red-500 font-medium bg-red-955/40 px-2.5 py-1 rounded-full border border-red-955";
-        }
+        if (ind) { ind.innerText = isEditing ? "Edit Blueprint" : "Stage 2: Logic"; ind.className = "text-xs text-red-500 font-medium bg-red-955/40 px-2.5 py-1 rounded-full border border-red-955"; }
         setupStage2Fields();
       } else if (currentStage === 3) {
-        if (stage3Sec) stage3Sec.classList.remove('hidden');
-        if (stageIndicator) {
-          stageIndicator.innerText = "Stage 3: Chat";
-          stageIndicator.className = "text-xs text-emerald-500 font-medium bg-emerald-955/40 px-2.5 py-1 rounded-full border border-neutral-955";
-        }
+        if (ind) { ind.innerText = "Stage 3: Chat"; ind.className = "text-xs text-emerald-500 font-medium bg-emerald-955/40 px-2.5 py-1 rounded-full border border-neutral-955"; }
         initiateChatSession();
       } else if (currentStage === 4) {
-        if (stageProfileForm) stageProfileForm.classList.remove('hidden');
-        if (stageIndicator) {
-          stageIndicator.innerText = (userProfiles.some(p => p.id === profileEditingId)) ? "Edit Profile" : "Create Profile";
-          stageIndicator.className = "text-xs text-red-500 font-medium bg-red-955/40 px-2.5 py-1 rounded-full border border-red-955";
-        }
+        if (ind) { ind.innerText = (userProfiles.some(p => p.id === profileEditingId)) ? "Edit Profile" : "Create Profile"; ind.className = "text-xs text-red-500 font-medium bg-red-955/40 px-2.5 py-1 rounded-full border border-red-955"; }
         setupProfileFormFields();
       } else if (currentStage === 5) {
-        if (stage5Sec) stage5Sec.classList.remove('hidden');
-        if (stageIndicator) {
-          stageIndicator.innerText = "Select Session";
-          stageIndicator.className = "text-xs text-red-500 font-medium bg-red-955/40 px-2.5 py-1 rounded-full border border-red-955";
-        }
+        if (ind) { ind.innerText = "Select Session"; ind.className = "text-xs text-red-500 font-medium bg-red-955/40 px-2.5 py-1 rounded-full border border-red-955"; }
         renderStage5Selector();
       } else if (currentStage === 6) {
-        if (stage6Sec) stage6Sec.classList.remove('hidden');
-        if (stageIndicator) {
-          stageIndicator.innerText = "RPG Party Setup";
-          stageIndicator.className = "text-xs text-amber-500 font-medium bg-amber-955/40 px-2.5 py-1 rounded-full border border-amber-955";
-        }
+        if (ind) { ind.innerText = "Home"; ind.className = "text-xs text-amber-500 font-medium bg-amber-955/40 px-2.5 py-1 rounded-full border border-amber-955"; }
         renderStage6AdventureSetup();
-      } else if (currentStage === 7) {
-        if (stage7Sec) stage7Sec.classList.remove('hidden');
-        if (stageIndicator) {
-          stageIndicator.innerText = "Chronicle Design";
-          stageIndicator.className = "text-xs text-amber-500 font-medium bg-amber-955/40 px-2.5 py-1 rounded-full border border-amber-955";
-        }
+      } else if (currentStage === 7 && ind) {
+        ind.innerText = "Chronicle Design"; ind.className = "text-xs text-amber-500 font-medium bg-amber-955/40 px-2.5 py-1 rounded-full border border-amber-955";
       } else if (currentStage === 8) {
-        if (stage8Sec) stage8Sec.classList.remove('hidden');
-        if (stageIndicator) {
-          stageIndicator.innerText = "RPG Active Chronicle";
-          stageIndicator.className = "text-xs text-rose-500 font-medium bg-rose-955/40 px-2.5 py-1 rounded-full border border-rose-955";
-        }
+        if (ind) { ind.innerText = "RPG Active Chronicle"; ind.className = "text-xs text-rose-500 font-medium bg-rose-955/40 px-2.5 py-1 rounded-full border border-rose-955"; }
         renderStage8AdventureChat();
       }
     }
 
     // ================= STAGE 0 =================
     function renderHomeList() {
-      if (!botListContainer) return;
-      botListContainer.innerHTML = '';
-      const cleanBots = chatbots.filter(b => b !== null && b !== undefined && !hiddenBotIds.includes(b.id));
+      if (!$('bot-list')) return;
+      $('bot-list').innerHTML = '';
+      const cleanBots = chatbots.filter(b => b && !hiddenBotIds.includes(b.id));
 
       if (cleanBots.length === 0) {
-        botListContainer.innerHTML = `
+        $('bot-list').innerHTML = `
           <div class="flex-1 flex flex-col justify-center items-center text-center p-8 text-neutral-600">
             <span class="text-5xl text-neutral-700">🩸</span>
             <p class="font-semibold mt-3 text-sm text-neutral-400">No active entities</p>
@@ -1396,19 +1232,13 @@
         const actionsMarkup = appMode === 'creator' ? `
           <div class="flex items-center gap-1 shrink-0">
             <button onclick="openEdit('${bot.id}')" class="p-2 hover:bg-neutral-900 text-neutral-400 hover:text-white rounded-xl transition-all" title="Edit blueprint">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-              </svg>
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
             </button>
             <button onclick="hideBot('${bot.id}')" class="p-2 hover:bg-neutral-900 text-neutral-400 hover:text-white rounded-xl transition-all" title="Hide chatbot">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.477 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88"></path>
-              </svg>
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.477 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88"></path></svg>
             </button>
             <button onclick="deleteBot('${bot.id}')" class="p-2 hover:bg-red-955/40 text-neutral-500 hover:text-red-400 rounded-xl transition-all" title="Delete bot">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-              </svg>
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
             </button>
           </div>
         ` : `
@@ -1431,40 +1261,31 @@
           </div>
           ${actionsMarkup}
         `;
-        botListContainer.appendChild(item);
+        $('bot-list').appendChild(item);
       });
     }
 
     window.hideBot = function(id) {
       const bot = chatbots.find(b => b.id === id);
       if (!bot) return;
-      if (confirm(`Do you want to hide "${bot.name}"?`)) {
-        hiddenBotIds.push(id);
-        saveToLocalStorage();
-        renderHomeList();
-      }
+      if (confirm(`Do you want to hide "${bot.name}"?`)) { hiddenBotIds.push(id); saveToLocalStorage(); renderHomeList(); }
     };
 
     window.deleteBot = function(id) {
       const bot = chatbots.find(b => b.id === id);
       if (!bot) return;
       if (confirm(`Are you sure you want to permanently delete the chatbot "${bot.name}"?`)) {
-        chatbots = chatbots.filter(b => b.id !== id);
-        if (activeBotId === id) activeBotId = null;
-        saveToLocalStorage();
-        renderHomeList();
+        chatbots = chatbots.filter(b => b.id !== id); if (activeBotId === id) activeBotId = null;
+        saveToLocalStorage(); renderHomeList();
       }
     };
 
     function populateSettingsHiddenBots() {
-      const list = document.getElementById('settings-hidden-bots-list');
+      const list = $('settings-hidden-bots-list');
       if (!list) return;
       list.innerHTML = '';
       const hiddenBots = chatbots.filter(b => b && hiddenBotIds.includes(b.id));
-      if (hiddenBots.length === 0) {
-        list.innerHTML = `<p class="text-[10px] text-neutral-600 text-center py-3">No hidden chatbots</p>`;
-        return;
-      }
+      if (hiddenBots.length === 0) { list.innerHTML = `<p class="text-[10px] text-neutral-600 text-center py-3">No hidden chatbots</p>`; return; }
       hiddenBots.forEach(bot => {
         const row = document.createElement('div');
         row.className = "flex items-center justify-between gap-2 p-1.5 border-b border-neutral-900 last:border-b-0";
@@ -1478,19 +1299,14 @@
 
     window.unhideBot = function(id) {
       hiddenBotIds = hiddenBotIds.filter(hid => hid !== id);
-      saveToLocalStorage();
-      populateSettingsHiddenBots();
-      renderHomeList();
+      saveToLocalStorage(); populateSettingsHiddenBots(); renderHomeList();
     };
 
     function renderProfileList() {
-      if (!profileListContainer) return;
-      profileListContainer.innerHTML = '';
-      let renderList = userProfiles.filter(p => p !== null && p !== undefined);
-      if (renderList.length === 0) {
-        renderList.push(defaultProfile);
-        activeProfileId = defaultProfile.id;
-      }
+      if (!$('profile-list')) return;
+      $('profile-list').innerHTML = '';
+      let renderList = userProfiles.filter(p => p);
+      if (renderList.length === 0) { renderList.push(defaultProfile); activeProfileId = defaultProfile.id; }
 
       renderList.forEach(p => {
         const isActive = p.id === activeProfileId;
@@ -1514,85 +1330,148 @@
           </div>
           ${actionsMarkup}
         `;
-        profileListContainer.appendChild(item);
+        $('profile-list').appendChild(item);
       });
     }
 
-    window.triggerEditProfileFromHome = function(id) {
-      profileFormSourceStage = 0; 
-      window.triggerEditProfile(id);
-    };
+    window.triggerEditProfileFromHome = function(id) { profileFormSourceStage = 0; window.triggerEditProfile(id); };
 
-    if (homeNewBotBtn) {
-      homeNewBotBtn.addEventListener('click', () => {
-        isEditing = false;
-        activeBotId = 'bot_' + Date.now(); 
+    if ($('home-new-bot-btn')) {
+      $('home-new-bot-btn').addEventListener('click', () => {
+        isEditing = false; activeBotId = 'bot_' + Date.now(); 
         tempConfig = { avatarUrl: '', fullImageUrl: '', appearance: '', model: 'gemini', bgTint: 'none' };
-        if (botNameInput) botNameInput.value = '';
-        if (botAppearanceInput) botAppearanceInput.value = '';
-        if (botPersonalityInput) botPersonalityInput.value = '';
-        if (botHistoryInput) botHistoryInput.value = '';
-        if (botModelInput) botModelInput.value = 'gemini';
-        if (botCustomSystemPrompt) botCustomSystemPrompt.value = ''; 
-        selectCustomTint('none');
-        if (cropperInstance) { cropperInstance.destroy(); cropperInstance = null; }
-        if (avatarImg) avatarImg.src = '';
-        if (cropperWrapper) cropperWrapper.classList.add('hidden');
-        if (avatarPlaceholder) avatarPlaceholder.classList.remove('hidden');
-        if (stage1NextBtn) {
-          stage1NextBtn.disabled = true;
-          stage1NextBtn.className = "w-full bg-neutral-855 text-neutral-500 font-semibold py-3 px-4 rounded-xl text-sm transition-all cursor-not-allowed border border-transparent";
+        tempMoods = [];
+        if ($('bot-name')) $('bot-name').value = '';
+        if ($('bot-appearance')) $('bot-appearance').value = '';
+        if ($('bot-personality')) $('bot-personality').value = '';
+        if ($('bot-history')) $('bot-history').value = '';
+        if ($('bot-model')) $('bot-model').value = 'gemini';
+        if ($('bot-custom-system-prompt')) $('bot-custom-system-prompt').value = ''; 
+        selectCustomTint('none'); destroyCroppers();
+        if ($('avatar-img')) $('avatar-img').src = '';
+        if ($('cropper-wrapper')) $('cropper-wrapper').classList.add('hidden');
+        if ($('avatar-placeholder')) $('avatar-placeholder').classList.remove('hidden');
+        if ($('stage1-next-btn')) {
+          $('stage1-next-btn').disabled = true;
+          $('stage1-next-btn').className = "w-full bg-neutral-855 text-neutral-500 font-semibold py-3 px-4 rounded-xl text-sm transition-all cursor-not-allowed border border-transparent";
         }
-        currentStage = 1;
-        updateStageUI();
+        currentStage = 1; updateStageUI();
       });
     }
 
-    if (stage1BackHome) {
-      stage1BackHome.addEventListener('click', () => {
-        if (cropperInstance) { cropperInstance.destroy(); cropperInstance = null; }
-        currentStage = 0;
-        updateStageUI();
-      });
+    if ($('stage1-back-home')) {
+      $('stage1-back-home').addEventListener('click', () => { destroyCroppers(); currentStage = 0; updateStageUI(); });
     }
 
-    if (uploadTrigger) uploadTrigger.addEventListener('click', () => avatarUpload && avatarUpload.click());
+    if ($('upload-trigger')) $('upload-trigger').addEventListener('click', () => $('avatar-upload') && $('avatar-upload').click());
 
-    if (avatarUpload) {
-      avatarUpload.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
+    if ($('avatar-upload')) {
+      $('avatar-upload').addEventListener('change', (e) => {
+        const file = e.target.files[0]; if (!file) return;
         const reader = new FileReader();
         reader.onload = function(event) {
-          tempConfig.fullImageUrl = event.target.result;
-          if (cropperInstance) { cropperInstance.destroy(); cropperInstance = null; }
-          if (avatarImg) avatarImg.src = event.target.result;
-          if (avatarPlaceholder) avatarPlaceholder.classList.add('hidden');
-          if (cropperWrapper) cropperWrapper.classList.remove('hidden');
-          if (avatarImg) {
-            cropperInstance = new Cropper(avatarImg, {
+          tempConfig.fullImageUrl = event.target.result; destroyCroppers();
+          if ($('avatar-img')) $('avatar-img').src = event.target.result;
+          if ($('avatar-placeholder')) $('avatar-placeholder').classList.add('hidden');
+          if ($('cropper-wrapper')) $('cropper-wrapper').classList.remove('hidden');
+          if ($('avatar-img')) {
+            cropperInstance = new Cropper($('avatar-img'), {
               aspectRatio: 1, viewMode: 1, autoCropArea: 0.8, background: false,
               responsive: true, modal: true, guides: true, highlight: false,
               cropBoxMovable: true, cropBoxResizable: true, dragMode: 'move'
             });
           }
-          if (stage1NextBtn) {
-            stage1NextBtn.disabled = false;
-            stage1NextBtn.className = "w-full bg-red-700 hover:bg-red-600 text-white font-semibold py-3 px-4 rounded-xl text-sm transition-all shadow-lg active:scale-[0.98]";
+          if ($('stage1-next-btn')) {
+            $('stage1-next-btn').disabled = false;
+            $('stage1-next-btn').className = "w-full bg-red-700 hover:bg-red-600 text-white font-semibold py-3 px-4 rounded-xl text-sm transition-all shadow-lg active:scale-[0.98]";
           }
         };
         reader.readAsDataURL(file);
       });
     }
 
-    if (stage1NextBtn) {
-      stage1NextBtn.addEventListener('click', () => {
+    if ($('stage1-next-btn')) {
+      $('stage1-next-btn').addEventListener('click', () => {
         if (!cropperInstance) return;
         tempConfig.avatarUrl = cropperInstance.getCroppedCanvas({ width: 300, height: 300 }).toDataURL('image/jpeg', 0.9);
-        cropperInstance.destroy();
-        cropperInstance = null;
-        currentStage = 2;
-        updateStageUI();
+        destroyCroppers(); currentStage = 2; updateStageUI();
+      });
+    }
+
+    // MOOD ENGINE RENDERER
+    window.addNewMood = function() {
+      tempMoods.push({ id: 'mood_' + Date.now(), title: '', keywords: '', imageUrls: [] });
+      renderMoodsList();
+    };
+
+    window.removeMood = function(idx) {
+      tempMoods.splice(idx, 1);
+      renderMoodsList();
+    };
+
+    window.removeMoodImg = function(moodIdx, imgIdx) {
+      if (tempMoods[moodIdx] && tempMoods[moodIdx].imageUrls) {
+        tempMoods[moodIdx].imageUrls.splice(imgIdx, 1);
+        renderMoodsList();
+      }
+    };
+
+    window.triggerMoodUpload = function(idx) {
+      currentMoodUploadIndex = idx;
+      $('mood-img-upload').click();
+    };
+
+    if ($('mood-img-upload')) {
+      $('mood-img-upload').addEventListener('change', (e) => {
+        const file = e.target.files[0]; if (!file || currentMoodUploadIndex === -1) return;
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          if (tempMoods[currentMoodUploadIndex]) {
+            if (!tempMoods[currentMoodUploadIndex].imageUrls) tempMoods[currentMoodUploadIndex].imageUrls = [];
+            tempMoods[currentMoodUploadIndex].imageUrls.push(event.target.result);
+            renderMoodsList();
+          }
+          $('mood-img-upload').value = '';
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    window.updateMoodTitle = function(idx, val) { if (tempMoods[idx]) tempMoods[idx].title = val; };
+    window.updateMoodKeywords = function(idx, val) { if (tempMoods[idx]) tempMoods[idx].keywords = val; };
+
+    function renderMoodsList() {
+      const container = $('moods-container');
+      if (!container) return;
+      container.innerHTML = '';
+      if (tempMoods.length === 0) {
+        container.innerHTML = `<p class="text-[10px] text-neutral-600 italic">No mood backgrounds configured.</p>`;
+        return;
+      }
+      tempMoods.forEach((mood, idx) => {
+        const row = document.createElement('div');
+        row.className = "bg-neutral-900/50 border border-neutral-800 rounded-xl p-3 flex flex-col gap-2";
+        
+        let imgsHtml = '';
+        if (mood.imageUrls && mood.imageUrls.length > 0) {
+          mood.imageUrls.forEach((url, imgIdx) => {
+            imgsHtml += `<div class="relative inline-block group shrink-0">
+              <img src="${url}" class="w-12 h-12 rounded-lg object-cover border border-neutral-700">
+              <button onclick="removeMoodImg(${idx}, ${imgIdx})" class="absolute -top-1 -right-1 bg-red-900 text-white w-4 h-4 rounded-full text-[10px] hidden group-hover:flex items-center justify-center">×</button>
+            </div>`;
+          });
+        }
+        imgsHtml += `<div class="w-12 h-12 rounded-lg border border-neutral-700 border-dashed flex flex-col items-center justify-center cursor-pointer hover:bg-neutral-800 transition-colors shrink-0" onclick="triggerMoodUpload(${idx})" title="Add Image to Mood Pool"><span class="text-[16px]">+</span></div>`;
+
+        row.innerHTML = `
+          <div class="flex items-center justify-between gap-2">
+            <input type="text" value="${mood.title}" oninput="updateMoodTitle(${idx}, this.value)" placeholder="Mood Title (e.g. Angry)" class="bg-black border border-neutral-800 rounded-md px-2 py-1 text-xs focus:outline-none focus:border-red-700 text-white transition-all w-1/3">
+            <input type="text" value="${mood.keywords}" oninput="updateMoodKeywords(${idx}, this.value)" placeholder="Keywords (e.g. mad, furious, yelling)" class="bg-black border border-neutral-800 rounded-md px-2 py-1 text-[10px] focus:outline-none focus:border-red-700 text-white transition-all flex-1">
+            <button onclick="removeMood(${idx})" class="w-6 h-6 rounded-md bg-red-955/20 text-red-500 hover:bg-red-900/80 hover:text-white flex items-center justify-center shrink-0 transition-colors" title="Delete Mood">×</button>
+          </div>
+          <div class="flex gap-2 overflow-x-auto py-1 no-scrollbar">${imgsHtml}</div>
+        `;
+        container.appendChild(row);
       });
     }
 
@@ -1619,17 +1498,10 @@ Roleplay Instructions:
     }
 
     function updateQuietModeLabel() {
-      const quietCheck = document.getElementById('bot-quiet-mode');
-      const labelSpan = document.getElementById('quiet-mode-label');
-      const labelDesc = document.getElementById('quiet-mode-desc');
-      if (quietCheck && labelSpan) {
-        if (quietCheck.checked) {
-          labelSpan.innerText = "Quiet Mode";
-          if (labelDesc) labelDesc.innerText = "Silences voice auto-play and displays chat bubbles normally.";
-        } else {
-          labelSpan.innerText = "Talk Mode";
-          if (labelDesc) labelDesc.innerText = "Auto-plays voice synthesis and hides chat text bubbles by default.";
-        }
+      const quietCheck = $('bot-quiet-mode');
+      if (quietCheck && $('quiet-mode-label')) {
+        $('quiet-mode-label').innerText = quietCheck.checked ? "Quiet Mode" : "Talk Mode";
+        if ($('quiet-mode-desc')) $('quiet-mode-desc').innerText = quietCheck.checked ? "Silences voice auto-play and displays chat bubbles normally." : "Auto-plays voice synthesis and hides chat text bubbles by default.";
       }
     }
 
@@ -1638,80 +1510,80 @@ Roleplay Instructions:
       if (isEditing) {
         const bot = chatbots.find(b => b.id === activeBotId);
         if (bot) {
-          if (stage2Title) stage2Title.innerText = "Edit Blueprint";
-          if (stage2MiniAvatar) stage2MiniAvatar.src = bot.avatarUrl || bot.fullImageUrl;
-          if (botNameInput) botNameInput.value = bot.name;
-          if (botAppearanceInput) botAppearanceInput.value = bot.appearance;
-          if (botPersonalityInput) botPersonalityInput.value = bot.personality;
-          if (botHistoryInput) botHistoryInput.value = bot.history;
-          if (botModelInput) botModelInput.value = bot.model || 'gemini'; 
+          if ($('stage2-title')) $('stage2-title').innerText = "Edit Blueprint";
+          if ($('stage2-mini-avatar')) $('stage2-mini-avatar').src = bot.avatarUrl || bot.fullImageUrl;
+          if ($('bot-name')) $('bot-name').value = bot.name;
+          if ($('bot-appearance')) $('bot-appearance').value = bot.appearance;
+          if ($('bot-personality')) $('bot-personality').value = bot.personality;
+          if ($('bot-history')) $('bot-history').value = bot.history;
+          if ($('bot-model')) $('bot-model').value = bot.model || 'gemini'; 
           selectCustomTint(bot.bgTint || 'none');
-          const quietCheck = document.getElementById('bot-quiet-mode');
-          if (quietCheck) quietCheck.checked = !!bot.isQuietMode;
+          
+          tempMoods = (bot.moods ? JSON.parse(JSON.stringify(bot.moods)) : []).map(m => {
+            if (m.imageUrl && !m.imageUrls) { m.imageUrls = [m.imageUrl]; delete m.imageUrl; }
+            if (!m.imageUrls) m.imageUrls = [];
+            return m;
+          });
+          renderMoodsList();
+
+          if ($('bot-quiet-mode')) $('bot-quiet-mode').checked = !!bot.isQuietMode;
           updateQuietModeLabel();
-          const ttsSelector = document.getElementById('bot-tts-engine');
-          if (ttsSelector) ttsSelector.value = bot.ttsEngine || 'gemini';
-          if (botCustomSystemPrompt) {
-            botCustomSystemPrompt.value = bot.customSystemPrompt || getAssembledSystemPrompt(bot);
+          if ($('bot-tts-engine')) $('bot-tts-engine').value = bot.ttsEngine || 'gemini';
+          if ($('bot-custom-system-prompt')) {
+            $('bot-custom-system-prompt').value = bot.customSystemPrompt || getAssembledSystemPrompt(bot);
             if (bot.customSystemPrompt) hasManuallyEditedPrompt = true;
           }
-          if (stage2SaveBtn) stage2SaveBtn.innerText = "Save Changes";
-          if (botVoiceInput) botVoiceInput.value = bot.voiceName || 'Kore';
-          if (botVoicePrompt) botVoicePrompt.value = bot.voicePrompt || '';
+          if ($('stage2-save-btn')) $('stage2-save-btn').innerText = "Save Changes";
+          if ($('bot-voice')) $('bot-voice').value = bot.voiceName || 'Kore';
+          if ($('bot-voice-prompt')) $('bot-voice-prompt').value = bot.voicePrompt || '';
         }
       } else {
-        if (stage2Title) stage2Title.innerText = "Configure Blueprint";
-        if (stage2MiniAvatar) stage2MiniAvatar.src = tempConfig.avatarUrl;
-        if (botNameInput) botNameInput.value = '';
-        if (botAppearanceInput) botAppearanceInput.value = tempConfig.appearance || '';
-        if (botPersonalityInput) botPersonalityInput.value = '';
-        if (botHistoryInput) botHistoryInput.value = '';
-        if (botModelInput) botModelInput.value = tempConfig.model || 'gemini';
+        if ($('stage2-title')) $('stage2-title').innerText = "Configure Blueprint";
+        if ($('stage2-mini-avatar')) $('stage2-mini-avatar').src = tempConfig.avatarUrl;
+        if ($('bot-name')) $('bot-name').value = '';
+        if ($('bot-appearance')) $('bot-appearance').value = tempConfig.appearance || '';
+        if ($('bot-personality')) $('bot-personality').value = '';
+        if ($('bot-history')) $('bot-history').value = '';
+        if ($('bot-model')) $('bot-model').value = tempConfig.model || 'gemini';
         selectCustomTint(tempConfig.bgTint || 'none');
-        const quietCheck = document.getElementById('bot-quiet-mode');
-        if (quietCheck) quietCheck.checked = false;
+        
+        tempMoods = [];
+        renderMoodsList();
+
+        if ($('bot-quiet-mode')) $('bot-quiet-mode').checked = false;
         updateQuietModeLabel();
-        const ttsSelector = document.getElementById('bot-tts-engine');
-        if (ttsSelector) ttsSelector.value = 'gemini';
-        if (botVoiceInput) botVoiceInput.value = 'Kore';
-        if (botVoicePrompt) botVoicePrompt.value = '';
+        if ($('bot-tts-engine')) $('bot-tts-engine').value = 'gemini';
+        if ($('bot-voice')) $('bot-voice').value = 'Kore';
+        if ($('bot-voice-prompt')) $('bot-voice-prompt').value = '';
         const dummyBot = { name: '', appearance: '', personality: '', history: '' };
-        if (botCustomSystemPrompt) botCustomSystemPrompt.value = getAssembledSystemPrompt(dummyBot);
-        if (stage2SaveBtn) stage2SaveBtn.innerText = "Assemble Bot";
+        if ($('bot-custom-system-prompt')) $('bot-custom-system-prompt').value = getAssembledSystemPrompt(dummyBot);
+        if ($('stage2-save-btn')) $('stage2-save-btn').innerText = "Assemble Bot";
       }
     }
 
     function updateDynamicSystemPrompt() {
       if (hasManuallyEditedPrompt) return;
       const dummyBot = {
-        name: botNameInput ? botNameInput.value.trim() : '',
-        appearance: botAppearanceInput ? botAppearanceInput.value.trim() : '',
-        personality: botPersonalityInput ? botPersonalityInput.value.trim() : '',
-        history: botHistoryInput ? botHistoryInput.value.trim() : ''
+        name: $('bot-name') ? $('bot-name').value.trim() : '',
+        appearance: $('bot-appearance') ? $('bot-appearance').value.trim() : '',
+        personality: $('bot-personality') ? $('bot-personality').value.trim() : '',
+        history: $('bot-history') ? $('bot-history').value.trim() : ''
       };
-      if (botCustomSystemPrompt) botCustomSystemPrompt.value = getAssembledSystemPrompt(dummyBot);
+      if ($('bot-custom-system-prompt')) $('bot-custom-system-prompt').value = getAssembledSystemPrompt(dummyBot);
     }
 
-    if (botCustomSystemPrompt) botCustomSystemPrompt.addEventListener('input', () => hasManuallyEditedPrompt = true);
-    if (botNameInput) botNameInput.addEventListener('input', updateDynamicSystemPrompt);
-    if (botAppearanceInput) botAppearanceInput.addEventListener('input', updateDynamicSystemPrompt);
-    if (botPersonalityInput) botPersonalityInput.addEventListener('input', updateDynamicSystemPrompt);
-    if (botHistoryInput) botHistoryInput.addEventListener('input', updateDynamicSystemPrompt);
+    if ($('bot-custom-system-prompt')) $('bot-custom-system-prompt').addEventListener('input', () => hasManuallyEditedPrompt = true);
+    if ($('bot-name')) $('bot-name').addEventListener('input', updateDynamicSystemPrompt);
+    if ($('bot-appearance')) $('bot-appearance').addEventListener('input', updateDynamicSystemPrompt);
+    if ($('bot-personality')) $('bot-personality').addEventListener('input', updateDynamicSystemPrompt);
+    if ($('bot-history')) $('bot-history').addEventListener('input', updateDynamicSystemPrompt);
 
-    if (stage2BackBtn) {
-      stage2BackBtn.addEventListener('click', () => {
-        currentStage = isEditing ? 0 : 1; 
-        updateStageUI();
-      });
-    }
+    if ($('stage2-back-btn')) { $('stage2-back-btn').addEventListener('click', () => { currentStage = isEditing ? 0 : 1; updateStageUI(); }); }
 
-    const backdropUploadInput = document.getElementById('backdrop-upload-input');
-    const stage2ChangeBgBtn = document.getElementById('stage2-change-bg-btn');
-    if (stage2ChangeBgBtn && backdropUploadInput) stage2ChangeBgBtn.addEventListener('click', () => backdropUploadInput.click());
-    if (backdropUploadInput) {
-      backdropUploadInput.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
+    if ($('stage2-change-bg-btn') && $('backdrop-upload-input')) $('stage2-change-bg-btn').addEventListener('click', () => $('backdrop-upload-input').click());
+    if ($('backdrop-upload-input')) {
+      $('backdrop-upload-input').addEventListener('change', (e) => {
+        const file = e.target.files[0]; if (!file) return;
         const reader = new FileReader();
         reader.onload = function(event) {
           if (isEditing) {
@@ -1724,9 +1596,8 @@ Roleplay Instructions:
       });
     }
 
-    const stage2RecropBtn = document.getElementById('stage2-recrop-btn');
-    if (stage2RecropBtn) {
-      stage2RecropBtn.addEventListener('click', () => {
+    if ($('stage2-recrop-btn')) {
+      $('stage2-recrop-btn').addEventListener('click', () => {
         let imgToRecrop = "";
         if (isEditing) {
           const bot = chatbots.find(b => b.id === activeBotId);
@@ -1735,94 +1606,84 @@ Roleplay Instructions:
 
         if (!imgToRecrop) return alert("No original source image exists to reshoot. Please upload an image first.");
 
-        if (cropperInstance) { cropperInstance.destroy(); cropperInstance = null; }
-        if (avatarImg) avatarImg.src = imgToRecrop;
-        if (avatarPlaceholder) avatarPlaceholder.classList.add('hidden');
-        if (cropperWrapper) cropperWrapper.classList.remove('hidden');
+        destroyCroppers();
+        if ($('avatar-img')) $('avatar-img').src = imgToRecrop;
+        if ($('avatar-placeholder')) $('avatar-placeholder').classList.add('hidden');
+        if ($('cropper-wrapper')) $('cropper-wrapper').classList.remove('hidden');
 
-        if (avatarImg) {
-          cropperInstance = new Cropper(avatarImg, {
+        if ($('avatar-img')) {
+          cropperInstance = new Cropper($('avatar-img'), {
             aspectRatio: 1, viewMode: 1, autoCropArea: 0.8, background: false,
             responsive: true, modal: true, guides: true, highlight: false,
             cropBoxMovable: true, cropBoxResizable: true, dragMode: 'move'
           });
         }
-        if (stage1NextBtn) {
-          stage1NextBtn.disabled = false;
-          stage1NextBtn.className = "w-full bg-red-700 hover:bg-red-600 text-white font-semibold py-3 px-4 rounded-xl text-sm transition-all shadow-lg active:scale-[0.98]";
+        if ($('stage1-next-btn')) {
+          $('stage1-next-btn').disabled = false;
+          $('stage1-next-btn').className = "w-full bg-red-700 hover:bg-red-600 text-white font-semibold py-3 px-4 rounded-xl text-sm transition-all shadow-lg active:scale-[0.98]";
         }
-        currentStage = 1;
-        updateStageUI();
+        currentStage = 1; updateStageUI();
       });
     }
 
-    if (stage2SaveBtn) {
-      stage2SaveBtn.addEventListener('click', () => {
-        const name = botNameInput ? botNameInput.value.trim() : '';
+    if ($('stage2-save-btn')) {
+      $('stage2-save-btn').addEventListener('click', () => {
+        const name = $('bot-name') ? $('bot-name').value.trim() : '';
         if (!name) return alert("The chatbot configuration requires a name.");
-        const isQuiet = document.getElementById('bot-quiet-mode') ? document.getElementById('bot-quiet-mode').checked : false;
+        const isQuiet = $('bot-quiet-mode') ? $('bot-quiet-mode').checked : false;
+
+        const cleanMoods = tempMoods.filter(m => m.title || m.keywords || (m.imageUrls && m.imageUrls.length > 0));
 
         if (isEditing) {
           const index = chatbots.findIndex(b => b.id === activeBotId);
           if (index !== -1) {
             chatbots[index].name = name;
-            chatbots[index].appearance = botAppearanceInput ? botAppearanceInput.value.trim() : '';
-            chatbots[index].personality = botPersonalityInput ? botPersonalityInput.value.trim() : '';
-            chatbots[index].history = botHistoryInput ? botHistoryInput.value.trim() : '';
-            chatbots[index].model = botModelInput ? botModelInput.value : 'gemini'; 
-            chatbots[index].customSystemPrompt = botCustomSystemPrompt ? botCustomSystemPrompt.value.trim() : ''; 
-            chatbots[index].voiceName = botVoiceInput ? botVoiceInput.value : 'Kore';
-            chatbots[index].voicePrompt = botVoicePrompt ? botVoicePrompt.value.trim() : '';
+            chatbots[index].appearance = $('bot-appearance') ? $('bot-appearance').value.trim() : '';
+            chatbots[index].personality = $('bot-personality') ? $('bot-personality').value.trim() : '';
+            chatbots[index].history = $('bot-history') ? $('bot-history').value.trim() : '';
+            chatbots[index].model = $('bot-model') ? $('bot-model').value : 'gemini'; 
+            chatbots[index].customSystemPrompt = $('bot-custom-system-prompt') ? $('bot-custom-system-prompt').value.trim() : ''; 
+            chatbots[index].voiceName = $('bot-voice') ? $('bot-voice').value : 'Kore';
+            chatbots[index].voicePrompt = $('bot-voice-prompt') ? $('bot-voice-prompt').value.trim() : '';
             chatbots[index].isQuietMode = isQuiet;
-            chatbots[index].ttsEngine = document.getElementById('bot-tts-engine') ? document.getElementById('bot-tts-engine').value : 'gemini';
+            chatbots[index].ttsEngine = $('bot-tts-engine') ? $('bot-tts-engine').value : 'gemini';
             chatbots[index].bgTint = selectedBgTintValue;
-            if (tempConfig.avatarUrl) {
-              chatbots[index].avatarUrl = tempConfig.avatarUrl;
-              chatbots[index].fullImageUrl = tempConfig.fullImageUrl;
-            }
+            chatbots[index].moods = cleanMoods;
+            if (tempConfig.avatarUrl) { chatbots[index].avatarUrl = tempConfig.avatarUrl; chatbots[index].fullImageUrl = tempConfig.fullImageUrl; }
             saveToLocalStorage();
           }
         } else {
-          const newBot = {
+          chatbots.push({
             id: activeBotId, name: name,
-            appearance: botAppearanceInput ? botAppearanceInput.value.trim() : '',
-            personality: botPersonalityInput ? botPersonalityInput.value.trim() : '',
-            history: botHistoryInput ? botHistoryInput.value.trim() : '',
-            model: botModelInput ? botModelInput.value : 'gemini', 
-            customSystemPrompt: botCustomSystemPrompt ? botCustomSystemPrompt.value.trim() : '', 
-            voiceName: botVoiceInput ? botVoiceInput.value : 'Kore', 
-            voicePrompt: botVoicePrompt ? botVoicePrompt.value.trim() : '',
-            isQuietMode: isQuiet, 
-            ttsEngine: document.getElementById('bot-tts-engine') ? document.getElementById('bot-tts-engine').value : 'gemini', 
-            bgTint: selectedBgTintValue,
-            avatarUrl: tempConfig.avatarUrl, fullImageUrl: tempConfig.fullImageUrl, 
-            chatHistory: [], savedChats: [], stats: {str: 8, dex: 8, con: 8, int: 8, wis: 8, cha: 8}, inventory: []
-          };
-          chatbots.push(newBot);
+            appearance: $('bot-appearance') ? $('bot-appearance').value.trim() : '',
+            personality: $('bot-personality') ? $('bot-personality').value.trim() : '',
+            history: $('bot-history') ? $('bot-history').value.trim() : '',
+            model: $('bot-model') ? $('bot-model').value : 'gemini', 
+            customSystemPrompt: $('bot-custom-system-prompt') ? $('bot-custom-system-prompt').value.trim() : '', 
+            voiceName: $('bot-voice') ? $('bot-voice').value : 'Kore', 
+            voicePrompt: $('bot-voice-prompt') ? $('bot-voice-prompt').value.trim() : '',
+            isQuietMode: isQuiet, ttsEngine: $('bot-tts-engine') ? $('bot-tts-engine').value : 'gemini', bgTint: selectedBgTintValue,
+            moods: cleanMoods, avatarUrl: tempConfig.avatarUrl, fullImageUrl: tempConfig.fullImageUrl, 
+            chatHistory: [], savedChats: [], stats: {str: 8, dex: 8, con: 8, int: 8, wis: 8, cha: 8}, inventory: [], level: 1, exp: 0, skills: [], passives: []
+          });
           saveToLocalStorage();
         }
-        currentStage = 0; 
-        updateStageUI();
+        currentStage = 0; updateStageUI();
       });
     }
 
-    window.openChat = function(id) {
-      isEditing = false;
-      activeBotId = id;
-      currentStage = 5; 
-      updateStageUI();
-    };
+    window.openChat = function(id) { isEditing = false; activeBotId = id; currentStage = 5; updateStageUI(); };
 
     function renderStage5Selector() {
       const bot = chatbots.find(b => b.id === activeBotId);
       if (!bot) { currentStage = 0; updateStageUI(); return; }
 
-      if (document.getElementById('stage5-bot-name')) document.getElementById('stage5-bot-name').innerText = `Chat with ${bot.name}`;
-      if (document.getElementById('stage5-bot-avatar')) document.getElementById('stage5-bot-avatar').src = bot.avatarUrl || bot.fullImageUrl;
-      if (document.getElementById('stage5-bot-identity')) document.getElementById('stage5-bot-identity').innerText = bot.name;
-      if (document.getElementById('stage5-bot-desc')) document.getElementById('stage5-bot-desc').innerText = bot.personality || 'Neutral designation';
+      if ($('stage5-bot-name')) $('stage5-bot-name').innerText = `Chat with ${bot.name}`;
+      if ($('stage5-bot-avatar')) $('stage5-bot-avatar').src = bot.avatarUrl || bot.fullImageUrl;
+      if ($('stage5-bot-identity')) $('stage5-bot-identity').innerText = bot.name;
+      if ($('stage5-bot-desc')) $('stage5-bot-desc').innerText = bot.personality || 'Neutral designation';
 
-      const savedList = document.getElementById('saved-sessions-list');
+      const savedList = $('saved-sessions-list');
       if (!savedList) return;
       savedList.innerHTML = '';
       const savedChats = bot.savedChats || [];
@@ -1851,23 +1712,20 @@ Roleplay Instructions:
       }
     }
 
-    if (document.getElementById('stage5-back-btn')) document.getElementById('stage5-back-btn').addEventListener('click', () => { currentStage = 0; updateStageUI(); });
-    if (document.getElementById('session-continue-btn')) document.getElementById('session-continue-btn').addEventListener('click', () => { currentStage = 3; updateStageUI(); });
-    if (document.getElementById('session-new-btn')) {
-      document.getElementById('session-new-btn').addEventListener('click', () => {
+    if ($('stage5-back-btn')) $('stage5-back-btn').addEventListener('click', () => { currentStage = 0; updateStageUI(); });
+    if ($('session-continue-btn')) $('session-continue-btn').addEventListener('click', () => { currentStage = 3; updateStageUI(); });
+    if ($('session-new-btn')) {
+      $('session-new-btn').addEventListener('click', () => {
         const bot = chatbots.find(b => b.id === activeBotId);
         if (bot && confirm("Are you sure you want to start a fresh chat session? This will wipe the active session's unsaved progress.")) {
           bot.chatHistory = []; saveToLocalStorage(); activeChatHistory = []; currentStage = 3; updateStageUI();
         }
       });
     }
-    if (document.getElementById('session-edit-btn')) {
-      document.getElementById('session-edit-btn').addEventListener('click', () => {
+    if ($('session-edit-btn')) {
+      $('session-edit-btn').addEventListener('click', () => {
         isEditing = true; const bot = chatbots.find(b => b.id === activeBotId);
-        if (bot) {
-          tempConfig.avatarUrl = bot.avatarUrl; tempConfig.fullImageUrl = bot.fullImageUrl;
-          tempConfig.model = bot.model || 'gemini'; tempConfig.customSystemPrompt = bot.customSystemPrompt || '';
-        }
+        if (bot) { tempConfig.avatarUrl = bot.avatarUrl; tempConfig.fullImageUrl = bot.fullImageUrl; tempConfig.model = bot.model || 'gemini'; tempConfig.customSystemPrompt = bot.customSystemPrompt || ''; }
         currentStage = 2; updateStageUI();
       });
     }
@@ -1887,47 +1745,37 @@ Roleplay Instructions:
     };
     window.openEdit = function(id) {
       isEditing = true; activeBotId = id; const bot = chatbots.find(b => b.id === id);
-      if (bot) {
-        tempConfig.avatarUrl = bot.avatarUrl; tempConfig.fullImageUrl = bot.fullImageUrl;
-        tempConfig.model = bot.model || 'gemini'; tempConfig.customSystemPrompt = bot.customSystemPrompt || '';
-      }
+      if (bot) { tempConfig.avatarUrl = bot.avatarUrl; tempConfig.fullImageUrl = bot.fullImageUrl; tempConfig.model = bot.model || 'gemini'; tempConfig.customSystemPrompt = bot.customSystemPrompt || ''; }
       currentStage = 2; updateStageUI();
     };
 
-    if (homeNewProfileBtn) {
-      homeNewProfileBtn.addEventListener('click', () => {
+    if ($('home-new-profile-btn')) {
+      $('home-new-profile-btn').addEventListener('click', () => {
         profileFormSourceStage = 0; profileEditingId = 'profile_' + Date.now(); tempProfileConfig = { avatarUrl: '' };
-        if (profileNameInput) profileNameInput.value = '';
-        if (profileAppearanceInput) profileAppearanceInput.value = '';
-        if (profileBackstoryInput) profileBackstoryInput.value = '';
-        if (profileCropperInstance) { profileCropperInstance.destroy(); profileCropperInstance = null; }
-        if (profileAvatarImg) profileAvatarImg.src = '';
-        if (profileCropperWrapper) profileCropperWrapper.classList.add('hidden');
-        if (profileAvatarPreview) profileAvatarPreview.classList.add('hidden');
+        if ($('profile-name')) $('profile-name').value = '';
+        if ($('profile-appearance')) $('profile-appearance').value = '';
+        if ($('profile-backstory')) $('profile-backstory').value = '';
+        destroyCroppers();
+        if ($('profile-avatar-img')) $('profile-avatar-img').src = '';
+        if ($('profile-cropper-wrapper')) $('profile-cropper-wrapper').classList.add('hidden');
+        if ($('profile-avatar-preview')) $('profile-avatar-preview').classList.add('hidden');
         currentStage = 4; updateStageUI();
       });
     }
 
-    if (profileBackBtn) {
-      profileBackBtn.addEventListener('click', () => {
-        if (profileCropperInstance) { profileCropperInstance.destroy(); profileCropperInstance = null; }
-        currentStage = profileFormSourceStage; updateStageUI();
-      });
-    }
-
-    if (profileUploadTrigger) profileUploadTrigger.addEventListener('click', () => { if (profileAvatarUpload) profileAvatarUpload.click(); });
-    if (profileAvatarUpload) {
-      profileAvatarUpload.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
+    if ($('profile-back-btn')) { $('profile-back-btn').addEventListener('click', () => { destroyCroppers(); currentStage = profileFormSourceStage; updateStageUI(); }); }
+    if ($('profile-upload-trigger')) $('profile-upload-trigger').addEventListener('click', () => { if ($('profile-avatar-upload')) $('profile-avatar-upload').click(); });
+    if ($('profile-avatar-upload')) {
+      $('profile-avatar-upload').addEventListener('change', (e) => {
+        const file = e.target.files[0]; if (!file) return;
         const reader = new FileReader();
         reader.onload = function(event) {
-          if (profileCropperInstance) { profileCropperInstance.destroy(); profileCropperInstance = null; }
-          if (profileAvatarImg) profileAvatarImg.src = event.target.result;
-          if (profileCropperWrapper) profileCropperWrapper.classList.remove('hidden');
-          if (profileAvatarPreview) profileAvatarPreview.classList.add('hidden');
-          if (profileAvatarImg) {
-            profileCropperInstance = new Cropper(profileAvatarImg, {
+          destroyCroppers();
+          if ($('profile-avatar-img')) $('profile-avatar-img').src = event.target.result;
+          if ($('profile-cropper-wrapper')) $('profile-cropper-wrapper').classList.remove('hidden');
+          if ($('profile-avatar-preview')) $('profile-avatar-preview').classList.add('hidden');
+          if ($('profile-avatar-img')) {
+            profileCropperInstance = new Cropper($('profile-avatar-img'), {
               aspectRatio: 1, viewMode: 1, autoCropArea: 0.8, background: false,
               responsive: true, modal: true, guides: true, highlight: false,
               cropBoxMovable: true, cropBoxResizable: true, dragMode: 'move'
@@ -1939,42 +1787,45 @@ Roleplay Instructions:
     }
 
     function setupProfileFormFields() {
-      if (profileCropperInstance) { profileCropperInstance.destroy(); profileCropperInstance = null; }
-      if (profileCropperWrapper) profileCropperWrapper.classList.add('hidden');
-      if (profileAvatarPreview) profileAvatarPreview.classList.add('hidden');
+      destroyCroppers();
+      if ($('profile-cropper-wrapper')) $('profile-cropper-wrapper').classList.add('hidden');
+      if ($('profile-avatar-preview')) $('profile-avatar-preview').classList.add('hidden');
       tempProfileConfig.avatarUrl = '';
       const p = userProfiles.find(profile => profile.id === profileEditingId);
       if (p) {
-        if (profileNameInput) profileNameInput.value = p.name;
-        if (profileAppearanceInput) profileAppearanceInput.value = p.appearance;
-        if (profileBackstoryInput) profileBackstoryInput.value = p.backstory;
-        if (p.avatarUrl && profileAvatarPreview) {
-          profileAvatarPreview.src = p.avatarUrl; profileAvatarPreview.classList.remove('hidden'); tempProfileConfig.avatarUrl = p.avatarUrl;
+        if ($('profile-name')) $('profile-name').value = p.name;
+        if ($('profile-appearance')) $('profile-appearance').value = p.appearance;
+        if ($('profile-backstory')) $('profile-backstory').value = p.backstory;
+        if (p.avatarUrl && $('profile-avatar-preview')) {
+          $('profile-avatar-preview').src = p.avatarUrl; $('profile-avatar-preview').classList.remove('hidden'); tempProfileConfig.avatarUrl = p.avatarUrl;
         }
       } else {
-        if (profileNameInput) profileNameInput.value = '';
-        if (profileAppearanceInput) profileAppearanceInput.value = '';
-        if (profileBackstoryInput) profileBackstoryInput.value = '';
+        if ($('profile-name')) $('profile-name').value = '';
+        if ($('profile-appearance')) $('profile-appearance').value = '';
+        if ($('profile-backstory')) $('profile-backstory').value = '';
       }
     }
 
-    if (profileSaveBtn) {
-      profileSaveBtn.addEventListener('click', () => {
-        const name = profileNameInput ? profileNameInput.value.trim() : '';
+    if ($('profile-save-btn')) {
+      $('profile-save-btn').addEventListener('click', () => {
+        const name = $('profile-name') ? $('profile-name').value.trim() : '';
         if (!name) return alert("The user profile requires a name.");
         let croppedAvatar = tempProfileConfig.avatarUrl;
         if (profileCropperInstance) {
           croppedAvatar = profileCropperInstance.getCroppedCanvas({ width: 200, height: 200 }).toDataURL('image/jpeg', 0.9);
-          profileCropperInstance.destroy(); profileCropperInstance = null;
+          destroyCroppers();
         }
         const existingIndex = userProfiles.findIndex(profile => profile.id === profileEditingId);
         const profileData = {
-          id: profileEditingId, name: name,
-          appearance: profileAppearanceInput ? profileAppearanceInput.value.trim() : '',
-          backstory: profileBackstoryInput ? profileBackstoryInput.value.trim() : '',
-          avatarUrl: croppedAvatar || defaultProfile.avatarUrl,
+          id: profileEditingId, name: name, appearance: $('profile-appearance') ? $('profile-appearance').value.trim() : '',
+          backstory: $('profile-backstory') ? $('profile-backstory').value.trim() : '', avatarUrl: croppedAvatar || defaultProfile.avatarUrl,
           stats: existingIndex !== -1 && userProfiles[existingIndex].stats ? userProfiles[existingIndex].stats : {str: 8, dex: 8, con: 8, int: 8, wis: 8, cha: 8},
-          inventory: existingIndex !== -1 && userProfiles[existingIndex].inventory ? userProfiles[existingIndex].inventory : []
+          inventory: existingIndex !== -1 && userProfiles[existingIndex].inventory ? userProfiles[existingIndex].inventory : [],
+          level: existingIndex !== -1 && userProfiles[existingIndex].level ? userProfiles[existingIndex].level : 1,
+          exp: existingIndex !== -1 && userProfiles[existingIndex].exp ? userProfiles[existingIndex].exp : 0,
+          gold: existingIndex !== -1 && userProfiles[existingIndex].gold ? userProfiles[existingIndex].gold : 0,
+          skills: existingIndex !== -1 && userProfiles[existingIndex].skills ? userProfiles[existingIndex].skills : [],
+          passives: existingIndex !== -1 && userProfiles[existingIndex].passives ? userProfiles[existingIndex].passives : []
         };
         if (existingIndex !== -1) userProfiles[existingIndex] = profileData;
         else { userProfiles.push(profileData); if (userProfiles.length === 1) activeProfileId = profileData.id; }
@@ -2000,22 +1851,26 @@ Roleplay Instructions:
       return html;
     }
 
+    // ================= COMMON API / FETCH HELPER =================
+    async function handleFetchError(response) {
+      const errText = await response.text(); let errMsg = errText;
+      try { const parsed = JSON.parse(errText); if (parsed.error && parsed.error.message) errMsg = parsed.error.message; } catch(e) {}
+      throw new Error(`[${response.status}] ${errMsg}`);
+    }
+
     // ================= DYNAMIC GEMINI NATIVE TEXT-TO-SPEECH =================
     function convertPcmToWav(rawBase64, sampleRate) {
       const binaryString = atob(rawBase64);
       const len = binaryString.length;
       const bytes = new Uint8Array(len);
       for (let i = 0; i < len; i++) bytes[i] = binaryString.charCodeAt(i);
-      const wavHeader = new ArrayBuffer(44);
-      const view = new DataView(wavHeader);
+      const wavHeader = new ArrayBuffer(44); const view = new DataView(wavHeader);
       view.setUint32(0, 0x52494646, false); view.setUint32(4, 36 + len, true); view.setUint32(8, 0x57415645, false); 
       view.setUint32(12, 0x666d7420, false); view.setUint32(16, 16, true); view.setUint16(20, 1, true); 
       view.setUint16(22, 1, true); view.setUint32(24, sampleRate, true); view.setUint32(28, sampleRate * 1 * 2, true); 
       view.setUint16(32, 1 * 2, true); view.setUint16(34, 16, true); view.setUint32(36, 0x64617461, false); 
       view.setUint32(40, len, true);         
-      const wavBytes = new Uint8Array(44 + len);
-      wavBytes.set(new Uint8Array(wavHeader), 0);
-      wavBytes.set(bytes, 44);
+      const wavBytes = new Uint8Array(44 + len); wavBytes.set(new Uint8Array(wavHeader), 0); wavBytes.set(bytes, 44);
       return URL.createObjectURL(new Blob([wavBytes], { type: 'audio/wav' }));
     }
 
@@ -2027,13 +1882,8 @@ Roleplay Instructions:
         generationConfig: { responseModalities: ["AUDIO"], speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: bot.voiceName || "Kore" } } } }
       };
       const response = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
-      if (!response.ok) {
-        const errText = await response.text(); let errMsg = errText;
-        try { const parsed = JSON.parse(errText); if (parsed.error && parsed.error.message) errMsg = parsed.error.message; } catch(e) {}
-        throw new Error(`[${response.status}] ${errMsg}`);
-      }
-      const data = await response.json();
-      return data.candidates[0].content.parts[0].inlineData.data;
+      if (!response.ok) await handleFetchError(response);
+      const data = await response.json(); return data.candidates[0].content.parts[0].inlineData.data;
     }
 
     const GEMINI_TTS_MODELS = ["gemini-2.5-flash-preview-tts", "gemini-3.1-flash-tts-preview", "gemini-2.5-pro-preview-tts"];
@@ -2041,8 +1891,7 @@ Roleplay Instructions:
     async function callGeminiNativeTTSWithFallback(text, bot, apiKey) {
       let lastError = null;
       for (const model of GEMINI_TTS_MODELS) {
-        try { return await speakGeminiNativeTTS(text, bot, apiKey, model); } 
-        catch (err) { lastError = err; continue; }
+        try { return await speakGeminiNativeTTS(text, bot, apiKey, model); } catch (err) { lastError = err; continue; }
       }
       throw lastError;
     }
@@ -2052,14 +1901,12 @@ Roleplay Instructions:
       else if (currentAudio) { currentAudio.pause(); currentAudio.currentTime = 0; }
       currentAudio = null; isAudioPlaying = false; playingAudioIndex = null;
       speechQueue = []; currentQueueIndex = 0; isQueuePlaying = false; speechAudioCache = {}; 
-      const chatBg = document.getElementById('chat-bg-layer');
-      if (chatBg) chatBg.style.filter = 'brightness(1)';
+      if ($('chat-bg-layer')) $('chat-bg-layer').style.filter = 'brightness(1)';
       if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; }
-      const spinner = document.getElementById('talk-mode-spinner');
-      if (spinner) spinner.classList.add('hidden');
-      if (typingIndicator) typingIndicator.classList.add('hidden');
+      if ($('talk-mode-spinner')) $('talk-mode-spinner').classList.add('hidden');
+      if ($('typing-indicator')) $('typing-indicator').classList.add('hidden');
       renderActiveChat();
-    };
+    }
 
     function renderActiveChat() {
       if (currentStage === 3) renderChatMessagesOnly();
@@ -2076,15 +1923,13 @@ Roleplay Instructions:
         let source;
         if (audioSourceMap.has(audioElement)) source = audioSourceMap.get(audioElement);
         else { source = audioCtx.createMediaElementSource(audioElement); audioSourceMap.set(audioElement, source); }
-        source.disconnect(); source.connect(analyserNode);
-        startBackgroundPulsing();
+        source.disconnect(); source.connect(analyserNode); startBackgroundPulsing();
       } catch (e) {}
     }
 
     function startBackgroundPulsing() {
       if (animationFrameId) cancelAnimationFrame(animationFrameId);
-      const chatBg = document.getElementById('chat-bg-layer');
-      if (!chatBg) return;
+      const chatBg = $('chat-bg-layer'); if (!chatBg) return;
       const bufferLength = analyserNode.frequencyBinCount;
       const dataArray = new Uint8Array(bufferLength);
       function draw() {
@@ -2092,8 +1937,7 @@ Roleplay Instructions:
         animationFrameId = requestAnimationFrame(draw);
         analyserNode.getByteFrequencyData(dataArray);
         let sum = 0; for (let i = 0; i < bufferLength; i++) sum += dataArray[i];
-        const average = sum / bufferLength;
-        chatBg.style.filter = `brightness(${0.7 + (average / 255) * 0.6})`;
+        const average = sum / bufferLength; chatBg.style.filter = `brightness(${0.7 + (average / 255) * 0.6})`;
       }
       draw();
     }
@@ -2113,18 +1957,16 @@ Roleplay Instructions:
       if (!bot) return;
       stopCurrentAudio();
       if (bot.ttsEngine === 'browser') {
-        const utterance = new SpeechSynthesisUtterance(text);
-        currentAudio = speechSynthesis;
+        const utterance = new SpeechSynthesisUtterance(text); currentAudio = speechSynthesis;
         utterance.addEventListener('start', () => {
           isAudioPlaying = true; if (playingAudioIndex === null) playingAudioIndex = index;
-          if (typingIndicator) typingIndicator.classList.add('hidden');
-          const spinner = document.getElementById('talk-mode-spinner'); if (spinner) spinner.classList.add('hidden');
+          if ($('typing-indicator')) $('typing-indicator').classList.add('hidden');
+          if ($('talk-mode-spinner')) $('talk-mode-spinner').classList.add('hidden');
           renderActiveChat();
         });
         utterance.addEventListener('end', () => { isAudioPlaying = false; playingAudioIndex = null; renderActiveChat(); });
         utterance.addEventListener('error', () => { isAudioPlaying = false; playingAudioIndex = null; renderActiveChat(); });
-        speechSynthesis.speak(utterance);
-        return;
+        speechSynthesis.speak(utterance); return;
       }
       if (!appSettings.geminiKey) return;
 
@@ -2132,36 +1974,32 @@ Roleplay Instructions:
         const sentences = txt.match(/[^.!?]+[.!?]+(\s+|$)/g) || [txt];
         const chunks = []; let currentChunkSentences = [];
         for (let i = 0; i < sentences.length; i++) {
-          currentChunkSentences.push(sentences[i]);
-          const combinedText = currentChunkSentences.join(" ").trim();
+          currentChunkSentences.push(sentences[i]); const combinedText = currentChunkSentences.join(" ").trim();
           if (combinedText.split(/\s+/).filter(w => w.length > 0).length >= 30) { chunks.push(combinedText); currentChunkSentences = []; }
         }
         if (currentChunkSentences.length > 0) {
-          const remainderText = currentChunkSentences.join(" ").trim();
-          if (remainderText.length > 0) chunks.push(remainderText);
+          const remainderText = currentChunkSentences.join(" ").trim(); if (remainderText.length > 0) chunks.push(remainderText);
         }
         return chunks.filter(c => c.length > 0);
       };
 
       speechQueue = chunkTextBySentences(text); currentQueueIndex = 0; isQueuePlaying = true; speechAudioCache = {}; 
       if (speechQueue.length === 0) return;
-      preloadQueueItem(bot, 0);
-      await playNextQueueItem(bot, index);
+      preloadQueueItem(bot, 0); await playNextQueueItem(bot, index);
     }
 
     async function playNextQueueItem(bot, bubbleIndex) {
       if (!isQueuePlaying || currentQueueIndex >= speechQueue.length) {
-        isAudioPlaying = false; playingAudioIndex = null; isQueuePlaying = false;
-        speechQueue = []; currentQueueIndex = 0; speechAudioCache = {};
-        const chatBg = document.getElementById('chat-bg-layer'); if (chatBg) chatBg.style.filter = 'brightness(1)';
+        isAudioPlaying = false; playingAudioIndex = null; isQueuePlaying = false; speechQueue = []; currentQueueIndex = 0; speechAudioCache = {};
+        if ($('chat-bg-layer')) $('chat-bg-layer').style.filter = 'brightness(1)';
         renderActiveChat(); return;
       }
 
       if (currentQueueIndex + 1 < speechQueue.length) preloadQueueItem(bot, currentQueueIndex + 1);
 
       if (currentQueueIndex === 0) {
-        if (typingText && typingIndicator) { typingText.innerText = `${bot.name} is vocalizing...`; typingIndicator.classList.remove('hidden'); }
-      } else { if (typingIndicator) typingIndicator.classList.add('hidden'); }
+        if ($('typing-text') && $('typing-indicator')) { $('typing-text').innerText = `${bot.name} is vocalizing...`; $('typing-indicator').classList.remove('hidden'); }
+      } else { if ($('typing-indicator')) $('typing-indicator').classList.add('hidden'); }
 
       if (bubbleIndex !== null) { playingAudioIndex = bubbleIndex; isAudioPlaying = true; renderActiveChat(); }
 
@@ -2174,40 +2012,27 @@ Roleplay Instructions:
         }
 
         if (!playableWavUrl) throw new Error("Speech synthesis returned empty payload.");
-        if (!isQueuePlaying || (bubbleIndex !== null && playingAudioIndex !== bubbleIndex)) {
-          if (typingIndicator) typingIndicator.classList.add('hidden'); return;
-        }
+        if (!isQueuePlaying || (bubbleIndex !== null && playingAudioIndex !== bubbleIndex)) { if ($('typing-indicator')) $('typing-indicator').classList.add('hidden'); return; }
 
-        currentAudio = new Audio(playableWavUrl);
-        setupAudioAnalyser(currentAudio);
+        currentAudio = new Audio(playableWavUrl); setupAudioAnalyser(currentAudio);
         currentAudio.addEventListener('playing', () => {
-          isAudioPlaying = true; if (typingIndicator) typingIndicator.classList.add('hidden');
-          const spinner = document.getElementById('talk-mode-spinner'); if (spinner) spinner.classList.add('hidden');
-          renderActiveChat();
+          isAudioPlaying = true; if ($('typing-indicator')) $('typing-indicator').classList.add('hidden');
+          if ($('talk-mode-spinner')) $('talk-mode-spinner').classList.add('hidden'); renderActiveChat();
         });
-        currentAudio.addEventListener('ended', async () => {
-          try { URL.revokeObjectURL(playableWavUrl); } catch(e){}
-          currentQueueIndex++; await playNextQueueItem(bot, bubbleIndex);
-        });
+        currentAudio.addEventListener('ended', async () => { try { URL.revokeObjectURL(playableWavUrl); } catch(e){} currentQueueIndex++; await playNextQueueItem(bot, bubbleIndex); });
         currentAudio.addEventListener('error', async () => { currentQueueIndex++; await playNextQueueItem(bot, bubbleIndex); });
         await currentAudio.play();
-      } catch (err) {
-        alert(`Voice synthesis failed.\nError: ${err.message}`); stopCurrentAudio();
-      }
+      } catch (err) { alert(`Voice synthesis failed.\nError: ${err.message}`); stopCurrentAudio(); }
     }
 
     window.playBubbleSpeech = function(index) {
-      const bot = chatbots.find(b => b.id === activeBotId);
-      if (!bot) return;
-      const msg = activeChatHistory[index];
-      if (msg) speakMessage(msg.text, bot, index);
+      const bot = chatbots.find(b => b.id === activeBotId); if (!bot) return;
+      const msg = activeChatHistory[index]; if (msg) speakMessage(msg.text, bot, index);
     };
 
     window.toggleAdvancedPrompt = function() {
-      const container = document.getElementById('advanced-prompt-container');
-      const toggleLabel = document.getElementById('advanced-prompt-toggle');
-      if (container && container.classList.contains('hidden')) { container.classList.remove('hidden'); if (toggleLabel) toggleLabel.innerText = "Hide ▴"; }
-      else if (container) { container.classList.add('hidden'); if (toggleLabel) toggleLabel.innerText = "Show ▾"; }
+      if ($('advanced-prompt-container') && $('advanced-prompt-container').classList.contains('hidden')) { $('advanced-prompt-container').classList.remove('hidden'); if ($('advanced-prompt-toggle')) $('advanced-prompt-toggle').innerText = "Hide ▴"; }
+      else if ($('advanced-prompt-container')) { $('advanced-prompt-container').classList.add('hidden'); if ($('advanced-prompt-toggle')) $('advanced-prompt-toggle').innerText = "Show ▾"; }
     };
 
     // ================= DIRECT API CONNECTORS =================
@@ -2215,23 +2040,13 @@ Roleplay Instructions:
       const contents = apiMessages.map(m => ({ role: m.role === 'user' ? 'user' : 'model', parts: [{ text: m.content }] }));
       const payload = {
         contents: contents,
-        safetySettings: [
-          { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
-          { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
-          { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
-          { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" }
-        ]
+        safetySettings: [ { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" }, { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" }, { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" }, { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" } ]
       };
       if (systemPrompt) payload.systemInstruction = { parts: [{ text: systemPrompt }] };
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
       const response = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
-      if (!response.ok) {
-        const errText = await response.text(); let errMsg = errText;
-        try { const parsed = JSON.parse(errText); if (parsed.error && parsed.error.message) errMsg = parsed.error.message; } catch(e) {}
-        throw new Error(`[${response.status}] ${errMsg}`);
-      }
-      const data = await response.json();
-      return data.candidates[0].content.parts[0].text;
+      if (!response.ok) await handleFetchError(response);
+      const data = await response.json(); return data.candidates[0].content.parts[0].text;
     }
 
     const GEMINI_MODELS = ["gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-2.5-pro"];
@@ -2239,10 +2054,8 @@ Roleplay Instructions:
     async function callGeminiWithFallback(apiMessages, systemPrompt, apiKey) {
       let lastError = null;
       for (const model of GEMINI_MODELS) {
-        try {
-          const reply = await callGeminiDirect(apiMessages, systemPrompt, apiKey, model);
-          return { reply, modelUsed: model };
-        } catch (err) {
+        try { const reply = await callGeminiDirect(apiMessages, systemPrompt, apiKey, model); return { reply, modelUsed: model }; } 
+        catch (err) {
           lastError = err; const errStr = err.message.toLowerCase();
           if (errStr.includes("quota") || errStr.includes("limit") || errStr.includes("429") || errStr.includes("rate") || errStr.includes("timeout") || errStr.includes("fetch") || errStr.includes("503") || errStr.includes("500") || errStr.includes("server") || errStr.includes("unavailable")) continue;
           else throw err;
@@ -2254,93 +2067,104 @@ Roleplay Instructions:
     async function callLocalLLM(apiMessages, systemPrompt, endpoint, modelName) {
       const messages = [ { role: "system", content: systemPrompt }, ...apiMessages ];
       const cleanEndpoint = endpoint.replace(/\/+$/, '');
-      const response = await fetch(`${cleanEndpoint}/chat/completions`, {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ model: modelName || "local-model", messages: messages })
-      });
+      const response = await fetch(`${cleanEndpoint}/chat/completions`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ model: modelName || "local-model", messages: messages }) });
       if (!response.ok) throw new Error(`Local LLM offline.`);
-      const data = await response.json();
-      return data.choices[0].message.content;
+      const data = await response.json(); return data.choices[0].message.content;
     }
 
     // ================= STAGE 3: ACTIVE CONVERSATION =================
+    function updateChatBackground() {
+      const bot = chatbots.find(b => b.id === activeBotId);
+      if (!bot) return;
+      
+      let bgUrl = bot.fullImageUrl || bot.avatarUrl || 'none';
+      
+      // Parse active moods from the last response
+      const lastBotMsg = [...activeChatHistory].reverse().find(m => m.sender === 'bot');
+      if (lastBotMsg && bot.moods && bot.moods.length > 0) {
+        const text = lastBotMsg.text.toLowerCase();
+        let matched = null;
+        for (let m of bot.moods) {
+          const kws = (m.keywords || '').split(',').map(k => k.trim().toLowerCase()).filter(k => k);
+          if (kws.some(k => text.includes(k))) { matched = m; break; }
+        }
+        if (matched && matched.imageUrls && matched.imageUrls.length > 0) {
+            const rand = Math.floor(Math.random() * matched.imageUrls.length);
+            bgUrl = matched.imageUrls[rand];
+        }
+      }
+      
+      if ($('chat-bg-layer')) $('chat-bg-layer').style.backgroundImage = bgUrl !== 'none' ? `url('${bgUrl}')` : 'none';
+    }
+
     async function initiateChatSession() {
       const bot = chatbots.find(b => b.id === activeBotId);
       if (!bot) { currentStage = 0; updateStageUI(); return; }
-      if (chatBgLayer) chatBgLayer.style.backgroundImage = bot.fullImageUrl ? `url('${bot.fullImageUrl}')` : (bot.avatarUrl ? `url('${bot.avatarUrl}')` : 'none');
-      const tintOverlay = document.getElementById('chat-bg-tint-overlay');
+      
+      const tintOverlay = $('chat-bg-tint-overlay');
       if (tintOverlay) {
         const tint = bot.bgTint || 'none';
         tintOverlay.style.backgroundImage = 'none'; tintOverlay.style.backgroundColor = 'transparent'; tintOverlay.className = "absolute inset-0 pointer-events-none z-0 opacity-45"; 
         if (tint !== 'none') {
-          let rgb = '0,0,0';
-          if (tint === 'purple') rgb = '168, 85, 247'; else if (tint === 'blue') rgb = '59, 130, 246'; else if (tint === 'light-blue') rgb = '56, 189, 248'; else if (tint === 'green') rgb = '34, 197, 94'; else if (tint === 'toxic-green') rgb = '57, 255, 20'; else if (tint === 'yellow') rgb = '234, 179, 8'; else if (tint === 'orange') rgb = '249, 115, 22'; else if (tint === 'red') rgb = '239, 68, 68'; else if (tint === 'maroon') rgb = '128, 0, 0'; else if (tint === 'pink') rgb = '236, 72, 153';
+          const matched = TINT_COLORS_LIST.find(c => c.value === tint);
+          const rgb = matched ? matched.rgb : '0,0,0';
           tintOverlay.style.backgroundImage = `radial-gradient(circle, rgba(${rgb}, 0) 30%, rgba(${rgb}, 0.8) 100%)`;
         }
       }
 
-      if (chatHeaderAvatar) chatHeaderAvatar.src = bot.avatarUrl || bot.fullImageUrl;
-      if (chatHeaderName) chatHeaderName.innerText = bot.name;
+      if ($('chat-header-avatar')) $('chat-header-avatar').src = bot.avatarUrl || bot.fullImageUrl;
+      if ($('chat-header-name')) $('chat-header-name').innerText = bot.name;
       activeChatHistory = bot.chatHistory || []; activeMenuIdx = null; isNarrativeMode = false;
       
-      if (chatModeIcon) chatModeIcon.innerText = "💬";
-      if (chatModeBtn) { chatModeBtn.classList.add('border-neutral-800', 'text-neutral-400'); chatModeBtn.classList.remove('border-red-800', 'text-red-500', 'shadow-[0_0_10px_rgba(220,38,38,0.2)]'); }
-      if (chatInput) chatInput.placeholder = "Say something...";
+      if ($('chat-mode-icon')) $('chat-mode-icon').innerText = "💬";
+      if ($('chat-mode-btn')) { $('chat-mode-btn').classList.add('border-neutral-800', 'text-neutral-400'); $('chat-mode-btn').classList.remove('border-red-800', 'text-red-500', 'shadow-[0_0_10px_rgba(220,38,38,0.2)]'); }
+      if ($('chat-input')) $('chat-input').placeholder = "Say something...";
       
       isChatHidden = !bot.isQuietMode;
-      if (isChatHidden) {
-        if (chatMessagesContainer) chatMessagesContainer.classList.add('opacity-0', 'pointer-events-none');
-        if (chatHideBtn) { chatHideBtn.className = "text-xs font-semibold text-neutral-200 hover:text-white bg-neutral-900/50 px-2.5 py-1.5 rounded-lg border border-neutral-800 transition-all cursor-pointer shadow shrink-0"; chatHideBtn.innerText = "Show"; }
-      } else {
-        if (chatMessagesContainer) chatMessagesContainer.classList.remove('opacity-0', 'pointer-events-none');
-        if (chatHideBtn) { chatHideBtn.className = "text-xs font-semibold text-neutral-200 hover:text-white bg-neutral-900/50 px-2.5 py-1.5 rounded-lg border border-neutral-800 transition-all cursor-pointer shadow shrink-0"; chatHideBtn.innerText = "Hide"; }
-      }
+      if ($('chat-messages-container')) $('chat-messages-container').classList.toggle('opacity-0', isChatHidden);
+      if ($('chat-messages-container')) $('chat-messages-container').classList.toggle('pointer-events-none', isChatHidden);
+      if ($('chat-hide-btn')) $('chat-hide-btn').innerText = isChatHidden ? "Show" : "Hide";
+
       renderChatMessagesOnly(true); 
       if (activeChatHistory.length === 0) await triggerBotResponse();
     }
 
-    if (chatClearBtn) {
-      chatClearBtn.addEventListener('click', async () => {
+    if ($('chat-clear-btn')) {
+      $('chat-clear-btn').addEventListener('click', async () => {
         if (confirm("Are you sure you want to completely clear the chat history and start fresh?")) {
           stopCurrentAudio(); activeChatHistory = []; saveSessionState(false); renderChatMessagesOnly(true); await triggerBotResponse();
         }
       });
     }
 
-    if (chatHideBtn) {
-      chatHideBtn.addEventListener('click', () => {
+    if ($('chat-hide-btn')) {
+      $('chat-hide-btn').addEventListener('click', () => {
         isChatHidden = !isChatHidden;
-        if (isChatHidden) {
-          if (chatMessagesContainer) chatMessagesContainer.classList.add('opacity-0', 'pointer-events-none');
-          chatHideBtn.className = "text-xs font-semibold text-neutral-200 hover:text-white bg-neutral-900/50 px-2.5 py-1.5 rounded-lg border border-neutral-800 transition-all cursor-pointer shadow shrink-0";
-          chatHideBtn.innerText = "Show";
-        } else {
-          if (chatMessagesContainer) chatMessagesContainer.classList.remove('opacity-0', 'pointer-events-none');
-          chatHideBtn.className = "text-xs font-semibold text-neutral-200 hover:text-white bg-neutral-900/50 px-2.5 py-1.5 rounded-lg border border-neutral-800 transition-all cursor-pointer shadow shrink-0";
-          chatHideBtn.innerText = "Hide";
-        }
+        if ($('chat-messages-container')) $('chat-messages-container').classList.toggle('opacity-0', isChatHidden);
+        if ($('chat-messages-container')) $('chat-messages-container').classList.toggle('pointer-events-none', isChatHidden);
+        if ($('chat-hide-btn')) $('chat-hide-btn').innerText = isChatHidden ? "Show" : "Hide";
       });
     }
 
-    if (chatModeBtn) {
-      chatModeBtn.addEventListener('click', () => {
+    if ($('chat-mode-btn')) {
+      $('chat-mode-btn').addEventListener('click', () => {
         isNarrativeMode = !isNarrativeMode;
         if (isNarrativeMode) {
-          if (chatModeIcon) chatModeIcon.innerText = "📖";
-          chatModeBtn.classList.remove('border-neutral-800', 'text-neutral-400');
-          chatModeBtn.classList.add('border-red-800', 'text-red-500', 'shadow-[0_0_10px_rgba(220,38,38,0.2)]');
-          if (chatInput) chatInput.placeholder = "Describe an event or environmental shift...";
+          if ($('chat-mode-icon')) $('chat-mode-icon').innerText = "📖";
+          $('chat-mode-btn').classList.remove('border-neutral-800', 'text-neutral-400');
+          $('chat-mode-btn').classList.add('border-red-800', 'text-red-500', 'shadow-[0_0_10px_rgba(220,38,38,0.2)]');
+          if ($('chat-input')) $('chat-input').placeholder = "Describe an event or environmental shift...";
         } else {
-          if (chatModeIcon) chatModeIcon.innerText = "💬";
-          chatModeBtn.classList.add('border-neutral-800', 'text-neutral-400');
-          chatModeBtn.classList.remove('border-red-800', 'text-red-500', 'shadow-[0_0_10px_rgba(220,38,38,0.2)]');
-          if (chatInput) chatInput.placeholder = "Say something...";
+          if ($('chat-mode-icon')) $('chat-mode-icon').innerText = "💬";
+          $('chat-mode-btn').classList.add('border-neutral-800', 'text-neutral-400');
+          $('chat-mode-btn').classList.remove('border-red-800', 'text-red-500', 'shadow-[0_0_10px_rgba(220,38,38,0.2)]');
+          if ($('chat-input')) $('chat-input').placeholder = "Say something...";
         }
       });
     }
 
-    if (chatSaveBtn) {
-      chatSaveBtn.addEventListener('click', () => {
+    if ($('chat-save-btn')) {
+      $('chat-save-btn').addEventListener('click', () => {
         if (activeChatHistory.length === 0) return alert("No chat elements to save yet! Type something first.");
         const defaultLabel = "Session " + new Date().toLocaleString([], {year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute:'2-digit'});
         const nameInput = prompt("Save active conversation as:", defaultLabel);
@@ -2374,10 +2198,9 @@ Roleplay Instructions:
     };
 
     function renderChatMessagesOnly(shouldScrollToBottom = false) {
-      if (!chatMessagesContainer) return;
-      chatMessagesContainer.innerHTML = '';
-      const bot = chatbots.find(b => b.id === activeBotId);
-      if (!bot) return;
+      if (!$('chat-messages-container')) return;
+      $('chat-messages-container').innerHTML = '';
+      const bot = chatbots.find(b => b.id === activeBotId); if (!bot) return;
 
       const activeProfile = getActiveProfile();
       const userAvatarSrc = activeProfile.avatarUrl || defaultProfile.avatarUrl;
@@ -2403,7 +2226,7 @@ Roleplay Instructions:
               <div>${parseMarkdown(msg.text)}</div>${controlsRow}
             </div>
           `;
-          chatMessagesContainer.appendChild(bubbleWrapper);
+          $('chat-messages-container').appendChild(bubbleWrapper);
           return;
         }
 
@@ -2437,7 +2260,7 @@ Roleplay Instructions:
             } else {
               const btnStateClass = isAudioPlaying ? 'pointer-events-none opacity-20' : 'opacity-100';
               const speakerBtnMarkup = bot.voiceName
-                ? `<button onclick="event.stopPropagation(); playBubbleSpeech(${idx})" class="bg-neutral-955/80 hover:bg-neutral-850 border border-neutral-800/60 p-1 rounded-md flex items-center justify-center shadow-md ${btnStateClass} transition-all duration-200 cursor-pointer h-[22px] w-[22px]" title="Speak message">
+                ? `<button onclick="event.stopPropagation(); playBubbleSpeech(${idx})" class="bg-neutral-955/80 hover:bg-neutral-855 border border-neutral-800/60 p-1 rounded-md flex items-center justify-center shadow-md ${btnStateClass} transition-all duration-200 cursor-pointer h-[22px] w-[22px]" title="Speak message">
                     <svg class="w-3 h-3 text-neutral-400 hover:text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z"></path></svg>
                    </button>` : '';
               const regenBtnMarkup = `
@@ -2451,16 +2274,17 @@ Roleplay Instructions:
           actionControlsMarkup = `<div class="flex justify-between items-center mt-1 select-none h-6"><div class="flex justify-start">${editBtnMarkup}</div><div class="flex justify-end gap-1.5 items-center">${rightSideMarkup}</div></div>`;
         }
         bubbleWrapper.innerHTML = `${avatarMarkup}<div onclick="toggleBubbleControls(${idx})" class="text-sm ${bubbleColor} leading-relaxed whitespace-pre-wrap flex flex-col justify-between"><div>${parseMarkdown(msg.text)}</div>${actionControlsMarkup}</div>`;
-        chatMessagesContainer.appendChild(bubbleWrapper);
+        $('chat-messages-container').appendChild(bubbleWrapper);
       });
-      if (shouldScrollToBottom) chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
+      updateChatBackground(); 
+      if (shouldScrollToBottom) $('chat-messages-container').scrollTop = $('chat-messages-container').scrollHeight;
     }
 
     async function triggerBotResponse() {
       const bot = chatbots.find(b => b.id === activeBotId);
       if (!bot) return;
-      if (typingText) typingText.innerText = `${bot.name} is thinking...`;
-      if (typingIndicator) typingIndicator.classList.remove('hidden');
+      if ($('typing-text')) $('typing-text').innerText = `${bot.name} is thinking...`;
+      if ($('typing-indicator')) $('typing-indicator').classList.remove('hidden');
 
       const systemPrompt = bot.customSystemPrompt || getAssembledSystemPrompt(bot);
 
@@ -2470,12 +2294,12 @@ Roleplay Instructions:
           const apiMessages = [{ role: "user", content: `Write a short, engaging opening greeting introducing yourself to your creator (${getActiveProfile().name}) in character.` }];
           if (bot.model === 'local') {
             reply = await callLocalLLM(apiMessages, systemPrompt, appSettings.localUrl, appSettings.localModel);
-            if (document.getElementById('chat-connected-status')) document.getElementById('chat-connected-status').innerText = `Connected • Local`;
+            if ($('chat-connected-status')) $('chat-connected-status').innerText = `Connected • Local`;
           } else {
             if (!appSettings.geminiKey) throw new Error("Missing Gemini API Key. Open settings on the Home Screen to configure it.");
             const result = await callGeminiWithFallback(apiMessages, systemPrompt, appSettings.geminiKey);
             reply = result.reply;
-            if (document.getElementById('chat-connected-status')) document.getElementById('chat-connected-status').innerText = `Connected • ${result.modelUsed}`;
+            if ($('chat-connected-status')) $('chat-connected-status').innerText = `Connected • ${result.modelUsed}`;
           }
         } else {
           const apiMessages = activeChatHistory.map(msg => ({
@@ -2484,15 +2308,15 @@ Roleplay Instructions:
           }));
           if (bot.model === 'local') {
             reply = await callLocalLLM(apiMessages, systemPrompt, appSettings.localUrl, appSettings.localModel);
-            if (document.getElementById('chat-connected-status')) document.getElementById('chat-connected-status').innerText = `Connected • Local`;
+            if ($('chat-connected-status')) $('chat-connected-status').innerText = `Connected • Local`;
           } else {
             if (!appSettings.geminiKey) throw new Error("Missing Gemini API Key. Open settings on the Home Screen to configure it.");
             const result = await callGeminiWithFallback(apiMessages, systemPrompt, appSettings.geminiKey);
             reply = result.reply;
-            if (document.getElementById('chat-connected-status')) document.getElementById('chat-connected-status').innerText = `Connected • ${result.modelUsed}`;
+            if ($('chat-connected-status')) $('chat-connected-status').innerText = `Connected • ${result.modelUsed}`;
           }
         }
-        if (typingIndicator) typingIndicator.classList.add('hidden');
+        if ($('typing-indicator')) $('typing-indicator').classList.add('hidden');
         
         const nameRegex = new RegExp(`^(${bot.name}|${bot.id}):\\s*`, "gi");
         reply = reply.replace(nameRegex, '').replace(nameRegex, '');
@@ -2501,7 +2325,7 @@ Roleplay Instructions:
         renderChatMessagesOnly(true); saveSessionState(false);
         if (!bot.isQuietMode) speakMessage(reply, bot, activeChatHistory.length - 1);
       } catch (err) {
-        if (typingIndicator) typingIndicator.classList.add('hidden');
+        if ($('typing-indicator')) $('typing-indicator').classList.add('hidden');
         alert(err.message);
         activeChatHistory.push({ sender: 'bot', text: `System error: ${err.message}` });
         renderChatMessagesOnly(true); 
@@ -2510,31 +2334,31 @@ Roleplay Instructions:
 
     window.regenerateFrom = async function(index) {
       stopCurrentAudio(); activeChatHistory = activeChatHistory.slice(0, index); saveSessionState(false); renderChatMessagesOnly(true); 
-      if (isChatHidden) { const spinner = document.getElementById('talk-mode-spinner'); if (spinner) spinner.classList.remove('hidden'); }
+      if (isChatHidden && $('talk-mode-spinner')) $('talk-mode-spinner').classList.remove('hidden');
       await triggerBotResponse();
     };
 
     async function handleChatMessage() {
-      const userMessage = chatInput ? chatInput.value.trim() : '';
+      const userMessage = $('chat-input') ? $('chat-input').value.trim() : '';
       if (!userMessage) return;
       activeChatHistory.push({ sender: isNarrativeMode ? 'event' : 'user', text: userMessage });
       activeMenuIdx = null; renderChatMessagesOnly(true); 
-      if (chatInput) chatInput.value = '';
-      if (isChatHidden) { const spinner = document.getElementById('talk-mode-spinner'); if (spinner) spinner.classList.remove('hidden'); }
+      if ($('chat-input')) $('chat-input').value = '';
+      if (isChatHidden && $('talk-mode-spinner')) $('talk-mode-spinner').classList.remove('hidden');
       await triggerBotResponse();
     }
 
     function saveSessionState(showFeedback = false) {
       const index = chatbots.findIndex(b => b.id === activeBotId);
-      if (index !== -1) { chatbots[index].chatHistory = activeChatHistory; saveToLocalStorageQuiet(); }
+      if (index !== -1) { chatbots[index].chatHistory = activeChatHistory; saveToLocalStorage(); }
     }
 
-    if (chatExitBtn) chatExitBtn.addEventListener('click', () => {
+    if ($('chat-exit-btn')) $('chat-exit-btn').addEventListener('click', () => {
       stopCurrentAudio(); if (typeof speechSynthesis !== 'undefined') speechSynthesis.cancel(); 
       saveSessionState(false); currentStage = 5; updateStageUI();
     });
-    if (chatSendBtn) chatSendBtn.addEventListener('click', handleChatMessage);
-    if (chatInput) chatInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleChatMessage(); });
+    if ($('chat-send-btn')) $('chat-send-btn').addEventListener('click', handleChatMessage);
+    if ($('chat-input')) $('chat-input').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleChatMessage(); });
 
     // ================= GLOBAL HELPER / EVENT HANDLERS =================
     window.selectProfile = function(id) {
@@ -2542,8 +2366,7 @@ Roleplay Instructions:
     };
 
     window.triggerDeleteProfile = function(id) {
-      const p = userProfiles.find(profile => profile.id === id);
-      if (!p) return;
+      const p = userProfiles.find(profile => profile.id === id); if (!p) return;
       if (confirm(`Are you sure you want to permanently delete your profile "${p.name}"?`)) {
         userProfiles = userProfiles.filter(profile => profile.id !== id);
         if (activeProfileId === id) activeProfileId = userProfiles.length > 0 ? userProfiles[0].id : defaultProfile.id;
@@ -2554,7 +2377,7 @@ Roleplay Instructions:
     window.triggerEditProfile = function(id) { profileEditingId = id; currentStage = 4; updateStageUI(); };
 
     function initProfileListDragScroll() {
-      const slider = document.getElementById('profile-list');
+      const slider = $('profile-list');
       if (!slider) return;
       let isDown = false; let startX; let scrollLeft;
       slider.addEventListener('mousedown', (e) => { isDown = true; isDraggingProfileList = false; startX = e.pageX - slider.offsetLeft; scrollLeft = slider.scrollLeft; });
@@ -2569,45 +2392,71 @@ Roleplay Instructions:
     }
 
     window.selectChatMode = function(mode) {
-      if (mode === 'chat') {
-        const overlay = document.getElementById('gateway-overlay');
-        if (overlay) overlay.classList.add('opacity-0', 'pointer-events-none', 'scale-105');
-        appMode = 'chat';
-        currentStage = 0; updateStageUI();
-      } else if (mode === 'creator') {
-        const overlay = document.getElementById('gateway-overlay');
-        if (overlay) overlay.classList.add('opacity-0', 'pointer-events-none', 'scale-105');
-        appMode = 'creator';
-        currentStage = 0; updateStageUI();
+      if (mode === 'chat' || mode === 'creator') {
+        if ($('gateway-overlay')) $('gateway-overlay').classList.add('opacity-0', 'pointer-events-none', 'scale-105');
+        appMode = mode; currentStage = 0; updateStageUI();
       } else if (mode === 'adventure') {
-        const overlay = document.getElementById('gateway-overlay');
-        if (overlay) overlay.classList.add('opacity-0', 'pointer-events-none', 'scale-105');
-        appMode = 'adventure';
-        activeAdventureId = null; selectedAdventureProfileId = activeProfileId || defaultProfile.id;
+        if ($('gateway-overlay')) $('gateway-overlay').classList.add('opacity-0', 'pointer-events-none', 'scale-105');
+        appMode = 'adventure'; activeAdventureId = null; selectedAdventureProfileId = activeProfileId || defaultProfile.id;
         selectedAdventureBotIds = []; adventureTempBgUrl = ''; adventureStoryTitle = ''; adventureStartingPrompt = '';
         activeAdventureChatHistory = []; adventureBackgrounds = []; activeAdventureBgIndex = -1;
-        adventureInputMode = 'dialogue'; activeAdventureMenuIdx = null;
-        advZoom = 1; advPanX = 0; advPanY = 0; updateViewportTransform();
-        if (document.getElementById('adventure-default-bg-filename')) document.getElementById('adventure-default-bg-filename').innerText = "No image loaded (Defaults to black)";
+        adventureInputMode = 'dialogue'; activeAdventureMenuIdx = null; advZoom = 1; advPanX = 0; advPanY = 0; currentRenderedAdvBg = null; updateViewportTransform();
+        if ($('adventure-default-bg-filename')) $('adventure-default-bg-filename').innerText = "No image loaded (Defaults to black)";
         currentStage = 6; updateStageUI();
       } else alert(`${mode.toUpperCase()} MODE is currently locked. Secure operational clearance required.`);
     };
 
+    // ================= ADVENTURE STATE AUTOSAVE =================
+    function autoSaveAdventure(customName = null) {
+      if (activeAdventureChatHistory.length === 0 && adventureBackgrounds.length === 0) return;
+      const existingAdv = savedAdventures.find(a => a.id === activeAdventureId);
+      const defaultName = adventureStoryTitle || "Session " + new Date().toLocaleString([], {year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute:'2-digit'});
+      const finalName = customName || (existingAdv ? existingAdv.name : defaultName);
+      
+      const advData = {
+        id: activeAdventureId || 'adv_' + Date.now(),
+        name: finalName,
+        timestamp: Date.now(),
+        profileId: selectedAdventureProfileId,
+        botIds: [...selectedAdventureBotIds],
+        storyTitle: adventureStoryTitle,
+        startingPrompt: adventureStartingPrompt,
+        chatHistory: [...activeAdventureChatHistory],
+        backgrounds: [...adventureBackgrounds],
+        activeBgIndex: activeAdventureBgIndex
+      };
+
+      if (existingAdv) {
+        Object.assign(existingAdv, advData);
+      } else {
+        savedAdventures.push(advData);
+        activeAdventureId = advData.id;
+      }
+      
+      lastAdventureState = advData;
+      setDBValue('botforge_last_adventure', advData);
+      saveAdventuresToStorage();
+    }
+
     // ================= STAGE 6: ADVENTURE SETUP RENDERERS =================
     function renderStage6AdventureSetup() {
-      const continueContainer = document.getElementById('adventure-continue-container');
-      const continueBtn = document.getElementById('adventure-continue-btn');
-      if (savedAdventures.length > 0) {
+      const continueContainer = $('adventure-continue-container');
+      const continueBtn = $('adventure-continue-btn');
+      
+      if (lastAdventureState) {
+        if (continueContainer) continueContainer.classList.remove('hidden');
+        if (continueBtn) continueBtn.onclick = () => loadAdventure(lastAdventureState.id, true);
+      } else if (savedAdventures.length > 0) {
         const sortedAdventures = [...savedAdventures].sort((a, b) => b.timestamp - a.timestamp);
         const lastAdv = sortedAdventures[0];
         if (continueContainer) continueContainer.classList.remove('hidden');
         if (continueBtn) continueBtn.onclick = () => loadAdventure(lastAdv.id);
       } else { if (continueContainer) continueContainer.classList.add('hidden'); }
 
-      const pSlider = document.getElementById('adventure-profile-selection-list');
+      const pSlider = $('adventure-profile-selection-list');
       if (pSlider) {
         pSlider.innerHTML = '';
-        let list = userProfiles.filter(p => p !== null && p !== undefined);
+        let list = userProfiles.filter(p => p);
         if (list.length === 0) list.push(defaultProfile);
         list.forEach(p => {
           const isSel = p.id === selectedAdventureProfileId;
@@ -2627,10 +2476,10 @@ Roleplay Instructions:
         });
       }
 
-      const bList = document.getElementById('adventure-bot-selection-list');
+      const bList = $('adventure-bot-selection-list');
       if (bList) {
         bList.innerHTML = '';
-        const cleanBots = chatbots.filter(b => b !== null && b !== undefined && !hiddenBotIds.includes(b.id));
+        const cleanBots = chatbots.filter(b => b && !hiddenBotIds.includes(b.id));
         if (cleanBots.length === 0) bList.innerHTML = `<p class="text-[10px] text-neutral-500 text-center py-4">No companion chatbots registered. Create them in Creator Mode first.</p>`;
         else {
           cleanBots.forEach(bot => {
@@ -2655,7 +2504,7 @@ Roleplay Instructions:
         }
       }
 
-      const savedList = document.getElementById('adventure-saved-list');
+      const savedList = $('adventure-saved-list');
       if (savedList) {
         savedList.innerHTML = '';
         if (savedAdventures.length === 0) savedList.innerHTML = `<p class="text-[10px] text-neutral-500 text-center py-2">No saved chronicles.</p>`;
@@ -2680,13 +2529,14 @@ Roleplay Instructions:
       }
     }
 
-    window.loadAdventure = function(id) {
-      const adv = savedAdventures.find(a => a.id === id);
+    window.loadAdventure = function(id, fromAutoSave = false) {
+      let adv = savedAdventures.find(a => a.id === id);
+      if (fromAutoSave && lastAdventureState) adv = lastAdventureState;
       if (!adv) return;
       activeAdventureId = adv.id; selectedAdventureProfileId = adv.profileId; selectedAdventureBotIds = [...adv.botIds];
       adventureStoryTitle = adv.storyTitle; adventureStartingPrompt = adv.startingPrompt;
       activeAdventureChatHistory = [...adv.chatHistory]; adventureBackgrounds = [...adv.backgrounds]; activeAdventureBgIndex = adv.activeBgIndex;
-      advZoom = 1; advPanX = 0; advPanY = 0; updateViewportTransform();
+      advZoom = 1; advPanX = 0; advPanY = 0; currentRenderedAdvBg = null; updateViewportTransform();
       currentStage = 8; updateStageUI();
     };
 
@@ -2695,6 +2545,7 @@ Roleplay Instructions:
       if (confirm("Are you sure you want to permanently delete this saved chronicle?")) {
         savedAdventures = savedAdventures.filter(a => a.id !== id);
         if (activeAdventureId === id) activeAdventureId = null;
+        if (lastAdventureState && lastAdventureState.id === id) { lastAdventureState = null; setDBValue('botforge_last_adventure', null); }
         saveAdventuresToStorage(); renderStage6AdventureSetup();
       }
     };
@@ -2709,37 +2560,30 @@ Roleplay Instructions:
 
     window.triggerEditProfileFromAdventure = function(id) { profileFormSourceStage = 6; profileEditingId = id; currentStage = 4; updateStageUI(); };
 
-    const advDefaultBgInput = document.getElementById('adventure-default-bg-input');
-    if (advDefaultBgInput) {
-      advDefaultBgInput.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
+    if ($('adventure-default-bg-input')) {
+      $('adventure-default-bg-input').addEventListener('change', (e) => {
+        const file = e.target.files[0]; if (!file) return;
         const reader = new FileReader();
         reader.onload = function(event) {
           adventureTempBgUrl = event.target.result;
-          const label = document.getElementById('adventure-default-bg-filename');
-          if (label) label.innerText = file.name;
+          if ($('adventure-default-bg-filename')) $('adventure-default-bg-filename').innerText = file.name;
         };
         reader.readAsDataURL(file);
       });
     }
 
-    const advSetupContinueBtn = document.getElementById('adventure-setup-continue-btn');
-    if (advSetupContinueBtn) advSetupContinueBtn.addEventListener('click', () => { currentStage = 7; updateStageUI(); });
+    if ($('adventure-setup-continue-btn')) $('adventure-setup-continue-btn').addEventListener('click', () => { currentStage = 7; updateStageUI(); });
+    if ($('stage7-back-btn')) $('stage7-back-btn').addEventListener('click', () => { currentStage = 6; updateStageUI(); });
 
-    const stage7BackBtn = document.getElementById('stage7-back-btn');
-    if (stage7BackBtn) stage7BackBtn.addEventListener('click', () => { currentStage = 6; updateStageUI(); });
-
-    const advStartStoryBtn = document.getElementById('adventure-start-story-btn');
-    if (advStartStoryBtn) {
-      advStartStoryBtn.addEventListener('click', async () => {
-        const title = document.getElementById('adventure-story-title-input').value.trim();
-        const promptText = document.getElementById('adventure-starting-prompt-input').value.trim();
+    if ($('adventure-start-story-btn')) {
+      $('adventure-start-story-btn').addEventListener('click', async () => {
+        const title = $('adventure-story-title-input').value.trim();
+        const promptText = $('adventure-starting-prompt-input').value.trim();
         if (!title || !promptText) return alert("Both an adventure Title and an Opening Scene scenario prompt are required to establish the chronicle.");
         
         activeAdventureId = null; adventureStoryTitle = title; adventureStartingPrompt = promptText;
         activeAdventureChatHistory = []; adventureBackgrounds = []; activeAdventureBgIndex = -1; activeAdventureMenuIdx = null;
-        advZoom = 1; advPanX = 0; advPanY = 0; updateViewportTransform();
+        advZoom = 1; advPanX = 0; advPanY = 0; currentRenderedAdvBg = null; updateViewportTransform();
         if (adventureTempBgUrl) { adventureBackgrounds.push(adventureTempBgUrl); activeAdventureBgIndex = 0; }
         
         currentStage = 8; updateStageUI();
@@ -2749,18 +2593,12 @@ Roleplay Instructions:
 
     // ================= STAGE 8: ADVENTURE ENGINE & RENDERING =================
     
-    // Character Sheet Logic
-    let activeSheetId = null;
-    let activeSheetType = null;
-    let tempSheetStats = { str: 8, dex: 8, con: 8, int: 8, wis: 8, cha: 8 };
-    let tempInventory = [];
-    let editingItemIndex = -1;
-
+    // Character Sheet Logic (Expanded with EXP, Level, Skills, Passives)
+    let activeSheetId = null; let activeSheetType = null; let activeListType = null;
+    let tempSheetObj = {}; let editingItemIndex = -1;
+    
     const STAT_COSTS = { 8:0, 9:1, 10:2, 11:3, 12:4, 13:5, 14:7, 15:9, 16:12, 17:15, 18:19, 19:23, 20:27 };
-        
-    function getSpentPoints() {
-      return Object.values(tempSheetStats).reduce((sum, val) => sum + STAT_COSTS[val], 0);
-    }
+    function getSpentPoints() { return Object.values(tempSheetObj.stats).reduce((sum, val) => sum + STAT_COSTS[val], 0); }
 
     window.openCharacterSheet = function(id, type) {
       activeSheetId = id; activeSheetType = type;
@@ -2768,43 +2606,54 @@ Roleplay Instructions:
       if (!targetObj && type === 'user') targetObj = defaultProfile; // fallback
       if (!targetObj) return;
 
-      document.getElementById('sheet-title').innerText = targetObj.name + "'s Sheet";
-      tempSheetStats = targetObj.stats ? { ...targetObj.stats } : { str: 8, dex: 8, con: 8, int: 8, wis: 8, cha: 8 };
+      $('sheet-title').innerText = targetObj.name + "'s Sheet";
       
-      if (targetObj.inventory) {
-        tempInventory = JSON.parse(JSON.stringify(targetObj.inventory));
-      } else if (targetObj.equipment && targetObj.equipment.name) {
-        tempInventory = [{ name: targetObj.equipment.name, description: targetObj.equipment.description }];
-      } else {
-        tempInventory = [];
+      tempSheetObj = JSON.parse(JSON.stringify(targetObj));
+      if (!tempSheetObj.stats) tempSheetObj.stats = { str: 8, dex: 8, con: 8, int: 8, wis: 8, cha: 8 };
+      if (!tempSheetObj.skills) tempSheetObj.skills = [];
+      if (!tempSheetObj.passives) tempSheetObj.passives = [];
+      if (!tempSheetObj.inventory) tempSheetObj.inventory = [];
+      if (!tempSheetObj.level) tempSheetObj.level = 1;
+      if (!tempSheetObj.exp) tempSheetObj.exp = 0;
+      if (tempSheetObj.gold === undefined) tempSheetObj.gold = 0;
+
+      if (tempSheetObj.inventory.length === 0 && tempSheetObj.equipment && tempSheetObj.equipment.name) {
+        tempSheetObj.inventory = [{ name: tempSheetObj.equipment.name, description: tempSheetObj.equipment.description }];
       }
       
-      closeItemEditor(); // updates sheet ui inside
-      document.getElementById('character-sheet-modal').classList.remove('hidden');
+      $('sheet-gold-input').value = tempSheetObj.gold;
+      
+      closeSheetEditor();
+      $('character-sheet-modal').classList.remove('hidden');
     };
 
     window.adjStat = function(stat, dir) {
-      const current = tempSheetStats[stat];
+      const current = tempSheetObj.stats[stat];
       if (dir === 1 && current < 20) {
         const costDiff = STAT_COSTS[current + 1] - STAT_COSTS[current];
-        if (getSpentPoints() + costDiff <= 30) tempSheetStats[stat]++;
-      } else if (dir === -1 && current > 8) tempSheetStats[stat]--;
+        if (getSpentPoints() + costDiff <= 30) tempSheetObj.stats[stat]++;
+      } else if (dir === -1 && current > 8) tempSheetObj.stats[stat]--;
       updateSheetUI();
     };
 
     function updateSheetUI() {
-      const container = document.getElementById('sheet-stats-container');
-      const spent = getSpentPoints();
-      const remaining = 30 - spent;
-      document.getElementById('sheet-points-remaining').innerText = remaining;
+      const container = $('sheet-stats-container');
+      const spent = getSpentPoints(); const remaining = 30 - spent;
+      $('sheet-points-remaining').innerText = remaining;
+
+      const lvlDisp = $('sheet-level-display');
+      if (lvlDisp) {
+        lvlDisp.classList.remove('hidden');
+        const nextThreshold = EXP_TABLE[tempSheetObj.level + 1] || 'MAX';
+        lvlDisp.innerText = `LEVEL ${tempSheetObj.level} | EXP: ${tempSheetObj.exp} / ${nextThreshold}`;
+      }
 
       container.innerHTML = '';
       const stats = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
       stats.forEach(s => {
-        const current = tempSheetStats[s];
+        const current = tempSheetObj.stats[s];
         const nextCost = current < 20 ? (STAT_COSTS[current + 1] - STAT_COSTS[current]) : 99;
-        const canIncrease = (remaining >= nextCost) && current < 20;
-        const canDecrease = current > 8;
+        const canIncrease = (remaining >= nextCost) && current < 20; const canDecrease = current > 8;
 
         const row = document.createElement('div');
         row.className = "flex items-center justify-between bg-neutral-900 border border-neutral-800 p-2 rounded-xl";
@@ -2820,80 +2669,161 @@ Roleplay Instructions:
       });
     }
 
-    window.renderInventoryList = function() {
-      const list = document.getElementById('sheet-inventory-list');
-      const newBtn = document.getElementById('sheet-new-item-btn');
-      list.innerHTML = '';
-      tempInventory.forEach((item, idx) => {
-        const btn = document.createElement('button');
-        btn.className = "w-full bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 text-neutral-200 font-bold py-2 px-3 rounded-xl text-xs transition-colors text-left flex justify-between items-center";
-        btn.innerHTML = `<span class="truncate pr-2">${item.name}</span><span class="text-[9px] text-neutral-500 shrink-0">Edit ✎</span>`;
-        btn.onclick = () => openItemEditor(idx);
-        list.appendChild(btn);
+    function renderSheetLists() {
+      const types = ['skills', 'passives', 'inventory'];
+      types.forEach(type => {
+        const listDiv = $(`sheet-list-${type}`);
+        if (!listDiv) return;
+        listDiv.innerHTML = '';
+        tempSheetObj[type].forEach((item, idx) => {
+          const btn = document.createElement('button');
+          btn.className = "w-full bg-neutral-950 hover:bg-neutral-800 border border-neutral-800 text-neutral-300 font-medium py-1.5 px-3 rounded-lg text-xs transition-colors text-left flex justify-between items-center";
+          btn.innerHTML = `<span class="truncate pr-2">${item.name}</span><span class="text-[9px] text-neutral-500 shrink-0">Edit ✎</span>`;
+          btn.onclick = () => openSheetEditor(type, idx);
+          listDiv.appendChild(btn);
+        });
       });
-      if (tempInventory.length >= 10) newBtn.classList.add('hidden');
-      else newBtn.classList.remove('hidden');
-    };
+    }
 
-    window.openItemEditor = function(idx) {
-      editingItemIndex = idx;
-      document.getElementById('sheet-inventory-view').classList.add('hidden');
-      document.getElementById('sheet-item-editor').classList.remove('hidden');
-      document.getElementById('sheet-eq-delete-btn').classList.toggle('hidden', idx === -1);
+    window.openSheetEditor = function(type, idx) {
+      activeListType = type; editingItemIndex = idx;
+      $('sheet-lists-view').classList.add('hidden');
+      $('sheet-item-editor').classList.remove('hidden');
+      $('sheet-editor-title').innerText = `Edit ${type.substring(0, type.length-1).toUpperCase()}`;
+      $('sheet-eq-delete-btn').classList.toggle('hidden', idx === -1);
       
-      if (idx !== -1) {
-        document.getElementById('sheet-eq-name').value = tempInventory[idx].name;
-        document.getElementById('sheet-eq-desc').value = tempInventory[idx].description;
-      } else {
-        document.getElementById('sheet-eq-name').value = '';
-        document.getElementById('sheet-eq-desc').value = '';
-      }
+      if (idx !== -1) { $('sheet-eq-name').value = tempSheetObj[type][idx].name; $('sheet-eq-desc').value = tempSheetObj[type][idx].description; } 
+      else { $('sheet-eq-name').value = ''; $('sheet-eq-desc').value = ''; }
     };
 
-    window.closeItemEditor = function() {
-      document.getElementById('sheet-inventory-view').classList.remove('hidden');
-      document.getElementById('sheet-item-editor').classList.add('hidden');
-      updateSheetUI();
-      renderInventoryList();
+    window.closeSheetEditor = function() {
+      $('sheet-lists-view').classList.remove('hidden');
+      $('sheet-item-editor').classList.add('hidden');
+      updateSheetUI(); renderSheetLists();
     };
 
-    window.saveCurrentItem = function() {
-      const name = document.getElementById('sheet-eq-name').value.trim();
-      const desc = document.getElementById('sheet-eq-desc').value.trim();
-      if (!name) return alert("Item requires a name.");
-      if (editingItemIndex === -1) {
-        tempInventory.push({ name, description: desc });
-      } else {
-        tempInventory[editingItemIndex] = { name, description: desc };
-      }
-      closeItemEditor();
+    window.saveSheetItem = function() {
+      const name = $('sheet-eq-name').value.trim(); const desc = $('sheet-eq-desc').value.trim();
+      if (!name) return alert("Requires a name.");
+      if (editingItemIndex === -1) tempSheetObj[activeListType].push({ name, description: desc });
+      else tempSheetObj[activeListType][editingItemIndex] = { name, description: desc };
+      closeSheetEditor();
     };
 
-    window.deleteCurrentItem = function() {
-      if (editingItemIndex !== -1) tempInventory.splice(editingItemIndex, 1);
-      closeItemEditor();
+    window.deleteSheetItem = function() {
+      if (editingItemIndex !== -1) tempSheetObj[activeListType].splice(editingItemIndex, 1);
+      closeSheetEditor();
     };
 
     window.saveCharacterSheet = function() {
       let targetObj = activeSheetType === 'user' ? userProfiles.find(p => p.id === activeSheetId) : chatbots.find(b => b.id === activeSheetId);
       if (!targetObj && activeSheetType === 'user' && activeSheetId === defaultProfile.id) targetObj = defaultProfile;
       if (targetObj) {
-        targetObj.stats = { ...tempSheetStats };
-        targetObj.inventory = JSON.parse(JSON.stringify(tempInventory));
-        if (activeSheetType === 'user') saveProfilesToLocalStorage();
-        else saveToLocalStorage();
+        targetObj.stats = { ...tempSheetObj.stats }; 
+        targetObj.inventory = [...tempSheetObj.inventory];
+        targetObj.skills = [...tempSheetObj.skills];
+        targetObj.passives = [...tempSheetObj.passives];
+        targetObj.gold = parseInt($('sheet-gold-input').value, 10) || 0;
+        if (activeSheetType === 'user') saveProfilesToLocalStorage(); else saveToLocalStorage();
       }
-      document.getElementById('character-sheet-modal').classList.add('hidden');
+      $('character-sheet-modal').classList.add('hidden');
     };
 
-    function renderStage8AdventureChat() {
-      const viewport = document.getElementById('adventure-scenic-viewport');
-      if (viewport) {
-        if (activeAdventureBgIndex >= 0 && adventureBackgrounds[activeAdventureBgIndex]) viewport.style.backgroundImage = `url('${adventureBackgrounds[activeAdventureBgIndex]}')`;
-        else viewport.style.backgroundImage = 'none';
+    // LOOT GENERATOR FUNCTIONS
+    window.generateLootItem = async function(msgIndex) {
+        const typingInd = $('adventure-typing-indicator');
+        const typingLbl = $('adventure-typing-text');
+        if (typingInd) typingInd.classList.remove('hidden');
+        if (typingLbl) typingLbl.innerText = "System is materializing an item...";
+
+        try {
+            const activeProfile = getActiveProfile();
+            const historyDump = activeAdventureChatHistory.slice(Math.max(activeAdventureChatHistory.length - 10, 0)).map(m => m.text).join('\n');
+            const prompt = `The player ${activeProfile.name} (Level ${activeProfile.level || 1}) just found loot. Context:\n${historyDump}\n\nCreate a thematic D&D item. Include bonuses, penalties, passive effects, activated skills, or curses in the description. Return strictly JSON: {"name": "Item Name", "description": "Detailed mechanical description"}`;
+            
+            const res = await callGeminiWithFallback([{role: "user", content: prompt}], "You are a backend game engine data generator.", appSettings.geminiKey);
+            let jsonStr = res.reply.replace(/```json/gi, '').replace(/```/g, '').trim();
+            const data = JSON.parse(jsonStr);
+
+            if (!activeProfile.inventory) activeProfile.inventory = [];
+            activeProfile.inventory.push({ name: data.name, description: data.description });
+            saveProfilesToLocalStorage();
+
+            activeAdventureChatHistory[msgIndex] = { sender: 'narrator', text: `**LOOT ACQUIRED!**\n${activeProfile.name} obtained **${data.name}**!\n*${data.description}*` };
+            
+            autoSaveAdventure();
+            renderStage8AdventureChat();
+        } catch(e) {
+            alert("Failed to materialize item. Check your API key. Proceeding with generic loot...");
+            const activeProfile = getActiveProfile();
+            if (!activeProfile.inventory) activeProfile.inventory = [];
+            activeProfile.inventory.push({ name: "Mystery Potion", description: "Unknown effects." });
+            saveProfilesToLocalStorage();
+            activeAdventureChatHistory[msgIndex] = { sender: 'narrator', text: `**LOOT ACQUIRED!**\n${activeProfile.name} obtained a **Mystery Potion**.` };
+            autoSaveAdventure();
+            renderStage8AdventureChat();
+        } finally {
+            if (typingInd) typingInd.classList.add('hidden');
+        }
+    };
+
+    window.generateLootGold = function(msgIndex) {
+        const activeProfile = getActiveProfile();
+        const amount = Math.floor(Math.random() * 50 * (activeProfile.level || 1)) + 10;
+        
+        if (activeProfile.gold === undefined) activeProfile.gold = 0;
+        activeProfile.gold += amount;
+        saveProfilesToLocalStorage();
+
+        activeAdventureChatHistory[msgIndex] = { sender: 'narrator', text: `**LOOT ACQUIRED!**\n${activeProfile.name} collected **${amount} Gold**.` };
+        autoSaveAdventure();
+        renderStage8AdventureChat();
+    };
+
+    window.declineLoot = function(msgIndex) {
+        activeAdventureChatHistory[msgIndex] = { sender: 'narrator', text: `*The loot was left untouched.*` };
+        autoSaveAdventure();
+        renderStage8AdventureChat();
+    };
+
+    function getAdventureSpeakerName(senderId) {
+      if (senderId === 'narrator') return 'Narrator';
+      if (senderId === 'system_loot') return 'System';
+      if (senderId === 'user') return getActiveProfile().name;
+      return chatbots.find(b => b.id === senderId)?.name || 'Companion';
+    }
+    
+    function renderAdventureViewportImage(bgUrl) {
+      const viewport = $('adventure-scenic-viewport');
+      const wrapper = $('adventure-scenic-viewport-wrapper');
+      if (!viewport || !wrapper) return;
+
+      if (!bgUrl) {
+        viewport.style.backgroundImage = 'none';
+        viewport.style.width = '100%'; viewport.style.height = '100%';
+        return;
       }
 
-      const carousel = document.getElementById('adventure-bg-history-carousel');
+      const img = new Image();
+      img.onload = () => {
+        const wr = wrapper.getBoundingClientRect();
+        if (wr.width === 0) return;
+        const scale = Math.max(wr.width / img.width, wr.height / img.height);
+        viewport.style.width = (img.width * scale) + 'px';
+        viewport.style.height = (img.height * scale) + 'px';
+        viewport.style.backgroundImage = `url('${bgUrl}')`;
+      };
+      img.src = bgUrl;
+    }
+
+    function renderStage8AdventureChat() {
+      const targetBg = (activeAdventureBgIndex >= 0 && adventureBackgrounds[activeAdventureBgIndex]) ? adventureBackgrounds[activeAdventureBgIndex] : null;
+      if (currentRenderedAdvBg !== targetBg) {
+          currentRenderedAdvBg = targetBg;
+          renderAdventureViewportImage(targetBg);
+      }
+
+      const carousel = $('adventure-bg-history-carousel');
       if (carousel) {
         carousel.innerHTML = '';
         if (adventureBackgrounds.length === 0) carousel.innerHTML = `<span class="text-[9px] text-neutral-600 block pl-1">Tap 'UPLOAD' or 'GENERATE' to add environmental graphics.</span>`;
@@ -2908,14 +2838,13 @@ Roleplay Instructions:
             thumb.onclick = () => selectAdventureBackdrop(idx);
             const delBtn = document.createElement('button');
             delBtn.className = "absolute -top-1 -right-1 bg-black border border-red-900 text-red-500 hover:text-white rounded-full w-4 h-4 text-[9px] font-black flex items-center justify-center cursor-pointer shadow-md select-none";
-            delBtn.innerText = "×";
-            delBtn.onclick = (e) => deleteAdventureBackdrop(e, idx);
+            delBtn.innerText = "×"; delBtn.onclick = (e) => deleteAdventureBackdrop(e, idx);
             container.appendChild(thumb); container.appendChild(delBtn); carousel.appendChild(container);
           });
         }
       }
 
-      const container = document.getElementById('adventure-messages-container');
+      const container = $('adventure-messages-container');
       if (!container) return;
       container.innerHTML = '';
 
@@ -2923,6 +2852,25 @@ Roleplay Instructions:
 
       activeAdventureChatHistory.forEach((msg, idx) => {
         const wrapper = document.createElement('div');
+        
+        if (msg.sender === 'system_loot') {
+            wrapper.className = `w-full flex justify-center py-2 z-10`;
+            const bubble = document.createElement('div');
+            bubble.className = `bg-neutral-900 border border-amber-500/50 rounded-2xl p-4 shadow-[0_0_15px_rgba(245,158,11,0.15)] backdrop-blur-md w-[85%] text-sm flex flex-col gap-3 items-center`;
+            bubble.innerHTML = `
+                <span class="text-xs font-black uppercase tracking-widest text-amber-500 text-center">Reward Discovered</span>
+                <p class="text-neutral-300 text-center italic text-[11px]">The context indicates you've found a reward. Would you like to receive an Item or Gold?</p>
+                <div class="flex gap-2 w-full justify-center mt-1">
+                    <button onclick="generateLootItem(${idx})" class="bg-amber-600 hover:bg-amber-500 text-black font-bold py-1.5 px-3 rounded-lg text-[10px] transition-colors shadow">Take Item</button>
+                    <button onclick="generateLootGold(${idx})" class="bg-yellow-500 hover:bg-yellow-400 text-black font-bold py-1.5 px-3 rounded-lg text-[10px] transition-colors shadow">Take Gold</button>
+                    <button onclick="declineLoot(${idx})" class="bg-neutral-700 hover:bg-neutral-600 text-white font-bold py-1.5 px-3 rounded-lg text-[10px] transition-colors shadow">Leave It</button>
+                </div>
+            `;
+            wrapper.appendChild(bubble);
+            container.appendChild(wrapper);
+            return;
+        }
+
         const isNarrator = msg.sender === 'narrator';
         const isUser = msg.sender === 'user';
         const isCurrentlyPlaying = (isAudioPlaying && playingAudioIndex === idx);
@@ -2948,16 +2896,10 @@ Roleplay Instructions:
           
           const senderId = isUser ? activeProfile.id : msg.sender;
           const senderType = isUser ? 'user' : 'bot';
-          let avatarSrc = defaultProfile.avatarUrl;
-          let name = "Unknown";
+          let avatarSrc = defaultProfile.avatarUrl; let name = "Unknown";
           
-          if (isUser) {
-            avatarSrc = activeProfile.avatarUrl || defaultProfile.avatarUrl;
-            name = activeProfile.name;
-          } else {
-            const botObj = chatbots.find(b => b.id === msg.sender);
-            if (botObj) { avatarSrc = botObj.avatarUrl || botObj.fullImageUrl; name = botObj.name; }
-          }
+          if (isUser) { avatarSrc = activeProfile.avatarUrl || defaultProfile.avatarUrl; name = activeProfile.name; } 
+          else { const botObj = chatbots.find(b => b.id === msg.sender); if (botObj) { avatarSrc = botObj.avatarUrl || botObj.fullImageUrl; name = botObj.name; } }
 
           const avatarColor = isUser ? 'border-amber-600/50' : 'border-neutral-600/50';
           const avatarMarkup = `<img onclick="event.stopPropagation(); openCharacterSheet('${senderId}', '${senderType}')" class="w-12 h-12 rounded-full object-cover self-start border ${avatarColor} shrink-0 shadow-md cursor-pointer hover:scale-105 transition-transform" src="${avatarSrc}" alt="" title="View ${name}'s Character Sheet">`;
@@ -2971,11 +2913,8 @@ Roleplay Instructions:
             const editBtnMarkup = `<button onclick="event.stopPropagation(); editAdventureMessage(${idx})" class="bg-neutral-955/80 hover:bg-neutral-850 border border-neutral-800/60 px-2 py-0.5 rounded-md flex items-center justify-center gap-1 shadow-md cursor-pointer text-[10px] text-neutral-450"><span>Edit</span></button>`;
             let rightSideMarkup = '';
             if (!isUser) {
-              if (isCurrentlyPlaying) {
-                rightSideMarkup = `<div onclick="event.stopPropagation(); stopCurrentAudio();" class="w-[60px] h-[22px] bg-red-600 text-black font-black text-[10px] rounded-md flex items-center justify-center cursor-pointer shadow">STOP</div>`;
-              } else {
-                rightSideMarkup = `<button onclick="event.stopPropagation(); playAdventureBubbleSpeech(${idx})" class="bg-neutral-955/80 border border-neutral-800/60 p-1 rounded-md flex items-center shadow h-[22px] w-[22px]"><svg class="w-3 h-3 text-neutral-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z"></path></svg></button>`;
-              }
+              if (isCurrentlyPlaying) rightSideMarkup = `<div onclick="event.stopPropagation(); stopCurrentAudio();" class="w-[60px] h-[22px] bg-red-600 text-black font-black text-[10px] rounded-md flex items-center justify-center cursor-pointer shadow">STOP</div>`;
+              else rightSideMarkup = `<button onclick="event.stopPropagation(); playAdventureBubbleSpeech(${idx})" class="bg-neutral-955/80 border border-neutral-800/60 p-1 rounded-md flex items-center shadow h-[22px] w-[22px]"><svg class="w-3 h-3 text-neutral-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z"></path></svg></button>`;
             }
             actionControlsMarkup = `<div class="flex justify-between items-center mt-2 border-t border-neutral-900/60 pt-2 select-none h-6"><div class="flex justify-start">${editBtnMarkup}</div><div class="flex justify-end gap-1.5 items-center">${rightSideMarkup}</div></div>`;
           }
@@ -2990,7 +2929,6 @@ Roleplay Instructions:
         }
         container.appendChild(wrapper);
       });
-
       container.scrollTop = container.scrollHeight;
     }
 
@@ -3002,14 +2940,11 @@ Roleplay Instructions:
     window.editAdventureMessage = async function(index) {
       const modifiedText = prompt("Edit message text:", activeAdventureChatHistory[index].text);
       if (modifiedText === null || !modifiedText.trim()) return;
-      stopCurrentAudio();
-      activeAdventureChatHistory[index].text = modifiedText.trim();
-      renderStage8AdventureChat();
+      stopCurrentAudio(); activeAdventureChatHistory[index].text = modifiedText.trim(); renderStage8AdventureChat(); autoSaveAdventure();
     };
 
     window.playAdventureBubbleSpeech = function(index) {
-      const msg = activeAdventureChatHistory[index];
-      if (!msg) return;
+      const msg = activeAdventureChatHistory[index]; if (!msg) return;
       let botObj = null;
       if (msg.sender === 'narrator') botObj = { name: "Narrator", voiceName: "Charon", voicePrompt: "Steady, authoritative, even paced", ttsEngine: "gemini" };
       else if (msg.sender === 'user') return; 
@@ -3023,70 +2958,59 @@ Roleplay Instructions:
         adventureBackgrounds.splice(index, 1);
         if (activeAdventureBgIndex === index) activeAdventureBgIndex = adventureBackgrounds.length > 0 ? 0 : -1;
         else if (activeAdventureBgIndex > index) activeAdventureBgIndex--;
-        renderStage8AdventureChat();
+        renderStage8AdventureChat(); autoSaveAdventure();
       }
     };
 
-    window.selectAdventureBackdrop = function(index) {
-      activeAdventureBgIndex = index;
-      renderStage8AdventureChat();
-    };
+    window.selectAdventureBackdrop = function(index) { activeAdventureBgIndex = index; renderStage8AdventureChat(); autoSaveAdventure(); };
 
-    const advChatBgUpload = document.getElementById('adventure-chat-bg-upload');
-    if (advChatBgUpload) {
-      advChatBgUpload.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
+    if ($('adventure-chat-bg-upload')) {
+      $('adventure-chat-bg-upload').addEventListener('change', (e) => {
+        const file = e.target.files[0]; if (!file) return;
         const reader = new FileReader();
         reader.onload = function(event) {
-          adventureBackgrounds.push(event.target.result);
-          activeAdventureBgIndex = adventureBackgrounds.length - 1;
-          renderStage8AdventureChat();
+          adventureBackgrounds.push(event.target.result); activeAdventureBgIndex = adventureBackgrounds.length - 1; renderStage8AdventureChat();
+          autoSaveAdventure();
         };
         reader.readAsDataURL(file);
       });
     }
-
-    const advModeBtn = document.getElementById('adventure-mode-btn');
-    const advModeIcon = document.getElementById('adventure-mode-icon');
-    const advChatInput = document.getElementById('adventure-chat-input');
     
-    if (advModeBtn) {
-      advModeBtn.addEventListener('click', () => {
+    if ($('adventure-mode-btn')) {
+      $('adventure-mode-btn').addEventListener('click', () => {
+        const advModeIcon = $('adventure-mode-icon');
+        const advChatInput = $('adventure-chat-input');
         if (adventureInputMode === 'dialogue') {
-          adventureInputMode = 'event';
-          advModeIcon.innerText = "📖";
-          advModeBtn.className = "bg-black/55 border border-amber-500/80 text-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.2)] p-3 rounded-xl transition-all shrink-0 flex items-center justify-center cursor-pointer";
+          adventureInputMode = 'event'; advModeIcon.innerText = "📖";
+          $('adventure-mode-btn').className = "bg-black/55 border border-amber-500/80 text-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.2)] p-3 rounded-xl transition-all shrink-0 flex items-center justify-center cursor-pointer";
           advChatInput.placeholder = "Describe a story event...";
         } else if (adventureInputMode === 'event') {
-          adventureInputMode = 'action';
-          advModeIcon.innerText = "🎲";
-          advModeBtn.className = "bg-black/55 border border-purple-500/80 text-purple-400 shadow-[0_0_10px_rgba(168,85,247,0.2)] p-3 rounded-xl transition-all shrink-0 flex items-center justify-center cursor-pointer";
+          adventureInputMode = 'action'; advModeIcon.innerText = "🎲";
+          $('adventure-mode-btn').className = "bg-black/55 border border-purple-500/80 text-purple-400 shadow-[0_0_10px_rgba(168,85,247,0.2)] p-3 rounded-xl transition-all shrink-0 flex items-center justify-center cursor-pointer";
           advChatInput.placeholder = "Describe an action to roll for...";
         } else {
-          adventureInputMode = 'dialogue';
-          advModeIcon.innerText = "💬";
-          advModeBtn.className = "bg-black/55 border border-red-900/40 text-red-500 hover:text-red-400 p-3 rounded-xl transition-all shrink-0 flex items-center justify-center cursor-pointer shadow";
+          adventureInputMode = 'dialogue'; advModeIcon.innerText = "💬";
+          $('adventure-mode-btn').className = "bg-black/55 border border-red-900/40 text-red-500 hover:text-red-400 p-3 rounded-xl transition-all shrink-0 flex items-center justify-center cursor-pointer shadow";
           advChatInput.placeholder = "Type your dialogue...";
         }
       });
     }
 
     function getAdventureSentenceConstraint() {
-      const numBots = selectedAdventureBotIds.length;
-      let maxSentences = Math.max(1, 4 - numBots); 
+      const numBots = selectedAdventureBotIds.length; let maxSentences = Math.max(1, 4 - numBots); 
       return `Limit your response to exactly 1 paragraph. Your response MUST not exceed ${maxSentences} sentence${maxSentences > 1 ? 's' : ''}.`;
     }
 
     function formatCharContext(obj) {
-      let s = obj.stats || {str:8, dex:8, con:8, int:8, wis:8, cha:8};
+      let s = obj.stats || {str:8, dex:8, con:8, int:8, wis:8, cha:8}; 
       let inv = obj.inventory || [];
-      if (inv.length === 0 && obj.equipment && obj.equipment.name) {
-        inv = [{ name: obj.equipment.name, description: obj.equipment.description }];
-      }
-      let eqStrs = inv.map(i => `${i.name} (${i.description})`).join(', ');
-      if (!eqStrs) eqStrs = 'None';
-      return `STR:${s.str} DEX:${s.dex} CON:${s.con} INT:${s.int} WIS:${s.wis} CHA:${s.cha} | Inventory: ${eqStrs}`;
+      if (inv.length === 0 && obj.equipment && obj.equipment.name) inv = [{ name: obj.equipment.name, description: obj.equipment.description }];
+      let eqStrs = inv.map(i => `${i.name} (${i.description})`).join(', '); if (!eqStrs) eqStrs = 'None';
+      
+      let skStrs = (obj.skills || []).map(i => i.name).join(', '); if (!skStrs) skStrs = 'None';
+      let psStrs = (obj.passives || []).map(i => i.name).join(', '); if (!psStrs) psStrs = 'None';
+      
+      return `Level:${obj.level || 1} (EXP:${obj.exp || 0}) | Gold:${obj.gold || 0} | STR:${s.str} DEX:${s.dex} CON:${s.con} INT:${s.int} WIS:${s.wis} CHA:${s.cha} | Skills: ${skStrs} | Passives: ${psStrs} | Inv: ${eqStrs}`;
     }
 
     function getNarratorSystemPrompt() {
@@ -3098,15 +3022,20 @@ Starting Premise: ${adventureStartingPrompt}
 Participating Party & Stats:
 - ${profile.name} (Player) | ${formatCharContext(profile)}
 ${selectedAdventureBotIds.map(id => {
-  const bot = chatbots.find(b => b.id === id);
-  return bot ? `- ${bot.name} (${bot.personality}) | ${formatCharContext(bot)}` : '';
+  const bot = chatbots.find(b => b.id === id); return bot ? `- ${bot.name} (Companion) | ${formatCharContext(bot)}` : '';
 }).join('\n')}
 
-Your Role:
-1. Describe scenery, actions, environment, and events vividly but concisely (exactly 1 paragraph of 3-4 sentences).
-2. Manage NPCs, hazards, enemies, and dialogue for secondary characters.
-3. Do not speak on behalf of ${profile.name} or the participating companions.
-4. DO NOT start your response with your name (e.g. "Narrator:"). Just write your dialogue or actions directly.
+Roleplay Log Format:
+The chat history is presented to you with messages prefixed as "Name: Message".
+- "Narrator: ..." represents your previous world descriptions or NPC actions.
+- "${profile.name}: ..." represents the player's direct dialogue or actions.
+- Companion names represent dialogue or first-person actions from those party members.
+
+Your Strict Boundaries:
+1. Speak ONLY as "Narrator". Focus entirely on environmental changes, hazard resolutions, and generic NPCs.
+2. NEVER speak, write dialogue, or take actions on behalf of the player (${profile.name}) or any of the companions.
+3. Do not assume what the companions do next. Describe the outcome of their previous turn and wait for their input.
+4. Keep your output to exactly 1 descriptive paragraph. Do not prefix your output with "Narrator:" or "NARRATOR:". Just write your narrative directly.
 
 D&D Action Resolution System:
 Check the user's latest prompt. 
@@ -3114,30 +3043,94 @@ IF AND ONLY IF the prompt starts with "[Action Attempt: ]", you MUST act as the 
 Follow this EXACT sequence for Actions:
 1. Identify the acting character and the most relevant stat (STR, DEX, CON, INT, WIS, CHA).
 2. Calculate the Modifier: (Stat - 10) / 2, rounded down.
-3. Set a reasonable Difficulty Class (DC) between 5 and 25 based on the action's difficulty.
-4. "Roll" a d20 (pick a number 1-20) and add the modifier. (Nat 1 and Nat 20 are NOT auto-fail/success).
-5. Compare the Total to the DC. Exceeding or failing by 5+ intensifies the effect.
-6. Account for any relevant bonuses from their Inventory.
+3. Set a realistic Difficulty Class (DC): 5 (Very Easy/Mundane, like picking up a rock), 10 (Easy), 15 (Medium), 20 (Hard), 25 (Very Hard).
+4. "Roll" a d20 (pick a random number 1-20). 
+5. Add the Roll + Modifier + Inventory/Skill Bonuses to get the Total.
+6. STRICT MATH CHECK: If Total >= DC, it is a Success. If Total < DC, it is a Failure. NEVER output a Success if the Total is lower than the DC!
+7. EXP: Only award EXP on a Success (DC * 10). If Failure, award 0.
 
-When resolving an [Action Attempt], you MUST begin your response with this exact text block format:
+When resolving an [Action Attempt], you MUST begin your response with this exact text block format to prove the math:
 
 **ACTION RESOLUTION**
 * **Character:** [Name]
 * **Stat Used:** [Stat Name] ([Modifier])
-* **Inventory Bonus:** [Any item modifiers applied, or 'None']
+* **Bonuses Applied:** [Any skill/passive/item modifiers applied, or '0']
 * **DC:** [DC Number]
-* **Roll:** 1d20 ([1-20]) + [Modifier] = [Total]
+* **Roll Math:** [Roll] + [Modifier] + [Bonuses] = [Total]
 * **Result:** [Success / Failure / Critical Success / Critical Failure]
+* **EXP Awarded:** [Number]
 ---
 
-After this block, write your vivid 1-paragraph narrative description of what happens.
+After this block, write your vivid narrative description of what happens.
 
-IMPORTANT: If the user's prompt is normal dialogue or starts with "[Story Event: ]", DO NOT roll dice, DO NOT calculate stats, and DO NOT print the **ACTION RESOLUTION** block. Just respond with a normal narrative description.`;
+IMPORTANT: If the narrative involves ANY character acquiring a new item, picking up ANY object (even mundane items like flint, rocks, or herbs), finding loot, looting a defeated enemy, or receiving a reward, you MUST append the exact string [LOOT_PROMPT] at the very end of your response. This signals the system to generate the interactive loot UI. Do not assume the item is automatically in their inventory.`;
+    }
+
+    async function handleExpAndLevelUp(narratorText) {
+      const expMatch = narratorText.match(/\*\*EXP Awarded:\*\*\s*(\d+)/i);
+      const charMatch = narratorText.match(/\*\*Character:\*\*\s*([^\n\*]+)/i);
+      if (!expMatch || !charMatch) return;
+
+      const expGained = parseInt(expMatch[1], 10);
+      const charName = charMatch[1].trim().toLowerCase();
+
+      const activeProfile = getActiveProfile();
+      let targetObj = null; let isUser = false;
+
+      if (activeProfile.name.toLowerCase() === charName) { targetObj = activeProfile; isUser = true; } 
+      else { targetObj = chatbots.find(b => b.name.toLowerCase() === charName); }
+
+      if (!targetObj) return;
+
+      if (!targetObj.exp) targetObj.exp = 0;
+      if (!targetObj.level) targetObj.level = 1;
+      
+      targetObj.exp += expGained;
+      const nextThreshold = EXP_TABLE[targetObj.level + 1];
+
+      if (nextThreshold && targetObj.exp >= nextThreshold) {
+        targetObj.level++;
+        
+        if (appSettings.geminiKey) {
+            try {
+              const typingLbl = $('adventure-typing-text');
+              if (typingLbl) typingLbl.innerText = "System is weaving a new narrative perk...";
+              
+              const perkPrompt = `The character ${targetObj.name} just leveled up to Level ${targetObj.level} in our text adventure. Based on their progression, create a highly thematic but balanced new Skill OR Passive for them. Respond with EXACTLY this JSON format and nothing else:
+{"type": "Skill" or "Passive", "name": "Name of Perk", "description": "Brief description of the mechanical or narrative effect"}`;
+              
+              const historyDump = activeAdventureChatHistory.slice(-10).map(m => m.text).join('\n');
+              const apiMessages = [{role: "user", content: `Recent context:\n${historyDump}\n\nTask: ${perkPrompt}`}];
+              
+              const perkRes = await callGeminiWithFallback(apiMessages, "You are a backend game engine data generator.", appSettings.geminiKey);
+              let perkJsonStr = perkRes.reply.replace(/```json/gi, '').replace(/```/g, '').trim();
+              const perkData = JSON.parse(perkJsonStr);
+
+              if (perkData.type.toLowerCase() === 'skill') {
+                  if (!targetObj.skills) targetObj.skills = [];
+                  targetObj.skills.push({name: perkData.name, description: perkData.description});
+              } else {
+                  if (!targetObj.passives) targetObj.passives = [];
+                  targetObj.passives.push({name: perkData.name, description: perkData.description});
+              }
+
+              const levelUpMsg = `**LEVEL UP!**\n${targetObj.name} reached Level ${targetObj.level}!\n\n**New ${perkData.type} Learned:** ${perkData.name}\n*${perkData.description}*`;
+              activeAdventureChatHistory.push({ sender: 'narrator', text: levelUpMsg });
+            } catch(e) {
+              console.error("Failed to generate perk:", e);
+              activeAdventureChatHistory.push({ sender: 'narrator', text: `**LEVEL UP!**\n${targetObj.name} reached Level ${targetObj.level}!` });
+            }
+        } else {
+           activeAdventureChatHistory.push({ sender: 'narrator', text: `**LEVEL UP!**\n${targetObj.name} reached Level ${targetObj.level}!\n*(API required for dynamic perk generation)*` });
+        }
+      }
+      
+      if (isUser) saveProfilesToLocalStorage(); else saveToLocalStorage();
     }
 
     async function triggerAdventureNarratorResponse() {
-      const typingInd = document.getElementById('adventure-typing-indicator');
-      const typingLbl = document.getElementById('adventure-typing-text');
+      const typingInd = $('adventure-typing-indicator');
+      const typingLbl = $('adventure-typing-text');
       if (typingInd) typingInd.classList.remove('hidden');
       if (typingLbl) typingLbl.innerText = "The Narrator is setting the scene...";
 
@@ -3148,117 +3141,126 @@ IMPORTANT: If the user's prompt is normal dialogue or starts with "[Story Event:
         if (activeAdventureChatHistory.length === 0) {
           const apiMessages = [{ role: "user", content: `Establish the opening scenario of the chronicle. Describe the scene, set the atmosphere, and invite ${getActiveProfile().name} and their companions to take action.` }];
           if (appSettings.geminiKey) {
-            const result = await callGeminiWithFallback(apiMessages, systemPrompt, appSettings.geminiKey);
-            reply = result.reply;
+            const result = await callGeminiWithFallback(apiMessages, systemPrompt, appSettings.geminiKey); reply = result.reply;
           } else reply = `The air is thick with anticipation. Under the dark archway of ${adventureStoryTitle || 'The Unknown Sector'}, your party stands ready. The path forward remains unclear. What do you do?`;
         } else {
-          const apiMessages = activeAdventureChatHistory.map(msg => ({ role: msg.sender === 'narrator' ? 'assistant' : 'user', content: `${msg.sender.toUpperCase()}: ${msg.text}` }));
+          // Filter out the system_loot messages so the AI doesn't get confused by UI payload text
+          const apiMessages = activeAdventureChatHistory.filter(m => m.sender !== 'system_loot').map(msg => {
+            return { role: msg.sender === 'narrator' ? 'assistant' : 'user', content: `${getAdventureSpeakerName(msg.sender)}: ${msg.text}` };
+          });
           if (appSettings.geminiKey) {
-            const result = await callGeminiWithFallback(apiMessages, systemPrompt, appSettings.geminiKey);
-            reply = result.reply;
+            const result = await callGeminiWithFallback(apiMessages, systemPrompt, appSettings.geminiKey); reply = result.reply;
           } else reply = "You push forward cautiously. The shadows stretch longer as your footsteps echo through the corridors.";
         }
 
+        const nameRegex = new RegExp(`^(Narrator):\\s*`, "gi"); reply = reply.replace(nameRegex, '').replace(nameRegex, '');
+        
+        // Detect Loot Prompt
+        let hasLoot = false;
+        if (reply.includes('[LOOT_PROMPT]')) {
+            hasLoot = true;
+            reply = reply.replace(/\[LOOT_PROMPT\]/g, '').trim();
+        }
+
+        activeAdventureChatHistory.push({ sender: 'narrator', text: reply }); 
+        await handleExpAndLevelUp(reply);
+
+        if (hasLoot) {
+            activeAdventureChatHistory.push({ sender: 'system_loot', text: 'System UI Payload' });
+        }
+
         if (typingInd) typingInd.classList.add('hidden');
-
-        // Regex strip to prevent narrator from hallucinating its own name prefix
-        const nameRegex = new RegExp(`^(Narrator):\\s*`, "gi");
-        reply = reply.replace(nameRegex, '').replace(nameRegex, '');
-
-        activeAdventureChatHistory.push({ sender: 'narrator', text: reply });
-        renderStage8AdventureChat();
+        renderStage8AdventureChat(); autoSaveAdventure();
       } catch (err) {
-        if (typingInd) typingInd.classList.add('hidden');
-        alert("Narrator generation error: " + err.message);
+        if (typingInd) typingInd.classList.add('hidden'); alert("Narrator generation error: " + err.message);
       }
     }
 
     async function triggerAdventureBotResponse(bot) {
-      const typingInd = document.getElementById('adventure-typing-indicator');
-      const typingLbl = document.getElementById('adventure-typing-text');
+      const typingInd = $('adventure-typing-indicator');
+      const typingLbl = $('adventure-typing-text');
       if (typingInd) typingInd.classList.remove('hidden');
       if (typingLbl) typingLbl.innerText = `${bot.name} is preparing actions...`;
 
       const activeProfile = getActiveProfile();
       const sentenceConstraint = getAdventureSentenceConstraint();
-      const botSystemPrompt = `You are ${bot.name}.
+      const botSystemPrompt = `You are the party companion named ${bot.name}.
 Physical Appearance: ${bot.appearance || 'Not specified'}
 Personality: ${bot.personality || 'Not specified'}
 Backstory/History: ${bot.history || 'Not specified'}
 
-You are currently participating in an interactive text adventure:
+You are in a party participating in an interactive text adventure:
 Adventure Title: ${adventureStoryTitle}
 Premise: ${adventureStartingPrompt}
 
-Your companions:
-- ${activeProfile.name} (Player)
-${selectedAdventureBotIds.filter(id => id !== bot.id).map(id => {
-  const otherBot = chatbots.find(b => b.id === id);
-  return `- ${otherBot ? otherBot.name : 'Companion'}`;
-}).join('\n')}
+Roleplay Log Format:
+The chat history is presented to you with messages prefixed as "Name: Message".
+- "Narrator: ..." represents world descriptions or scene outcomes narrated by the game master.
+- "${activeProfile.name}: ..." represents your human player.
+- Other companion names represent your fellow party members.
 
-Roleplay Instructions:
-1. Maintain your unique tone and character.
-2. React to the latest environment updates described by the Narrator and the actions of your companions.
-3. ${sentenceConstraint}
-4. Never speak on behalf of other characters or describe their actions. Write only your own dialogue and physical reactions.
-5. DO NOT start your response with your name (e.g. "${bot.name}:"). Just write your dialogue or actions directly.`;
+Your Strict Boundaries:
+1. Speak and act ONLY as ${bot.name}. You are a first-person companion.
+2. NEVER assume the role of the Narrator. Do not describe scenic transitions, environmental updates, door openings, or physical resolutions of attacks.
+3. NEVER roll dice, state stats, or resolve actions. If an action is attempted, react with your intent (e.g., "I prepare to dive out of the way") and wait for the Narrator to describe what actually happens.
+4. ${sentenceConstraint}
+5. Do not prefix your output with "${bot.name}:". Write your dialogue or actions directly.`;
 
-      const apiMessages = activeAdventureChatHistory.map(msg => ({ role: msg.sender === bot.id ? 'assistant' : 'user', content: `${msg.sender.toUpperCase()}: ${msg.text}` }));
+      const apiMessages = activeAdventureChatHistory.filter(m => m.sender !== 'system_loot').map(msg => {
+        return { role: msg.sender === bot.id ? 'assistant' : 'user', content: `${getAdventureSpeakerName(msg.sender)}: ${msg.text}` };
+      });
 
       try {
         let reply = '';
         if (appSettings.geminiKey) {
-          const result = await callGeminiWithFallback(apiMessages, botSystemPrompt, appSettings.geminiKey);
-          reply = result.reply;
+          const result = await callGeminiWithFallback(apiMessages, botSystemPrompt, appSettings.geminiKey); reply = result.reply;
         } else reply = `Let's watch our flank. I don't trust these shadows one bit.`;
 
         if (typingInd) typingInd.classList.add('hidden');
-
-        // Regex strip to prevent the bot from hallucinating its own name prefix
-        const nameRegex = new RegExp(`^(${bot.name}|${bot.id}):\\s*`, "gi");
-        reply = reply.replace(nameRegex, '').replace(nameRegex, '');
-
-        activeAdventureChatHistory.push({ sender: bot.id, text: reply });
-        renderStage8AdventureChat();
+        const nameRegex = new RegExp(`^(${bot.name}|${bot.id}):\\s*`, "gi"); reply = reply.replace(nameRegex, '').replace(nameRegex, '');
+        activeAdventureChatHistory.push({ sender: bot.id, text: reply }); renderStage8AdventureChat(); autoSaveAdventure();
       } catch (err) {
         if (typingInd) typingInd.classList.add('hidden');
-        activeAdventureChatHistory.push({ sender: bot.id, text: `[Action Error: ${bot.name} is briefly incapacitated]` });
-        renderStage8AdventureChat();
+        activeAdventureChatHistory.push({ sender: bot.id, text: `[Action Error: ${bot.name} is briefly incapacitated]` }); renderStage8AdventureChat(); autoSaveAdventure();
       }
     }
 
     async function executeAdventureRound() {
-      const input = document.getElementById('adventure-chat-input');
+      const input = $('adventure-chat-input');
       const text = input ? input.value.trim() : '';
       if (!text) return;
 
+      const modeUsed = adventureInputMode;
       let sentText = text;
-      if(adventureInputMode === 'event') sentText = `[Story Event: ${text}]`;
-      if(adventureInputMode === 'action') sentText = `[Action Attempt: ${text}]`;
+      if (modeUsed === 'event') sentText = `[Story Event: ${text}]`;
+      if (modeUsed === 'action') sentText = `[Action Attempt: ${text}]`;
 
       activeAdventureChatHistory.push({ sender: 'user', text: sentText });
-      if (input) input.value = '';
-      renderStage8AdventureChat();
+      if (input) input.value = ''; renderStage8AdventureChat(); autoSaveAdventure();
 
       let pendingParticipants = [...selectedAdventureBotIds];
 
-      async function runNextAdventureTurn() {
+      async function runBots() {
         if (pendingParticipants.length > 0) {
           const nextBotId = pendingParticipants.shift();
           const bot = chatbots.find(b => b.id === nextBotId);
-          if (bot) {
-            await triggerAdventureBotResponse(bot);
-            setTimeout(runNextAdventureTurn, 400); 
-          } else runNextAdventureTurn();
-        } else await triggerAdventureNarratorResponse();
+          if (bot) { 
+            await triggerAdventureBotResponse(bot); 
+            setTimeout(runBots, 400); 
+          } else runBots();
+        }
       }
 
-      await runNextAdventureTurn();
+      if (modeUsed === 'dialogue') {
+        await runBots();
+      } else {
+        await triggerAdventureNarratorResponse();
+        await runBots();
+      }
     }
 
     function initAdventureViewportGestures() {
-      const viewport = document.getElementById('adventure-scenic-viewport');
+      const viewport = $('adventure-scenic-viewport');
       if (!viewport) return;
       let isDragging = false; let startX, startY; let initialPinchDistance = 0; let initialZoom = 1;
 
@@ -3280,9 +3282,7 @@ Roleplay Instructions:
         if (e.touches.length === 1 && isDragging) movePan(e.touches[0].clientX, e.touches[0].clientY);
         else if (e.touches.length === 2) {
           const dist = getTouchDistance(e.touches[0], e.touches[1]);
-          if (initialPinchDistance > 0) {
-            const factor = dist / initialPinchDistance; advZoom = Math.min(5, Math.max(0.5, initialZoom * factor)); updateViewportTransform(true);
-          }
+          if (initialPinchDistance > 0) { const factor = dist / initialPinchDistance; advZoom = Math.min(5, Math.max(0.5, initialZoom * factor)); updateViewportTransform(true); }
         }
       }, { passive: false });
       viewport.addEventListener('touchend', () => { isDragging = false; initialPinchDistance = 0; updateViewportTransform(false); });
@@ -3293,88 +3293,64 @@ Roleplay Instructions:
     }
 
     function updateViewportTransform(disableTransition = false) {
-      const viewport = document.getElementById('adventure-scenic-viewport');
+      const viewport = $('adventure-scenic-viewport');
       if (viewport) {
         viewport.style.transition = disableTransition ? 'none' : 'transform 0.15s ease-out';
         viewport.style.transform = `translate(${advPanX}px, ${advPanY}px) scale(${advZoom})`;
       }
     }
 
-    const advChatSendBtn = document.getElementById('adventure-chat-send-btn');
-    if (advChatSendBtn) advChatSendBtn.addEventListener('click', executeAdventureRound);
-    const advChatInputEl = document.getElementById('adventure-chat-input');
-    if (advChatInputEl) advChatInputEl.addEventListener('keydown', (e) => { if (e.key === 'Enter') executeAdventureRound(); });
+    if ($('adventure-chat-send-btn')) $('adventure-chat-send-btn').addEventListener('click', executeAdventureRound);
+    if ($('adventure-chat-input')) $('adventure-chat-input').addEventListener('keydown', (e) => { if (e.key === 'Enter') executeAdventureRound(); });
 
-    const advChatClearBtn = document.getElementById('adv-chat-clear-btn');
-    if (advChatClearBtn) {
-      advChatClearBtn.addEventListener('click', async () => {
+    if ($('adv-chat-clear-btn')) {
+      $('adv-chat-clear-btn').addEventListener('click', async () => {
         if (confirm("Are you sure you want to completely clear the adventure history and start fresh?")) {
-          stopCurrentAudio(); activeAdventureChatHistory = []; renderStage8AdventureChat(); await triggerAdventureNarratorResponse();
+          stopCurrentAudio(); activeAdventureChatHistory = []; renderStage8AdventureChat(); autoSaveAdventure(); await triggerAdventureNarratorResponse();
         }
       });
     }
 
-    const advChatSaveBtn = document.getElementById('adv-chat-save-btn');
-    if (advChatSaveBtn) {
-      advChatSaveBtn.addEventListener('click', () => {
+    if ($('adv-chat-save-btn')) {
+      $('adv-chat-save-btn').addEventListener('click', () => {
         if (activeAdventureChatHistory.length === 0) return alert("Nothing to save yet.");
-        const defaultName = adventureStoryTitle || "Session " + new Date().toLocaleString([], {year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute:'2-digit'});
+        const currentName = savedAdventures.find(a => a.id === activeAdventureId)?.name;
+        const defaultName = currentName || adventureStoryTitle || "Session " + new Date().toLocaleString([], {year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute:'2-digit'});
         const nameInput = prompt("Save adventure as:", defaultName);
         if (nameInput === null) return;
-
-        const nameToSave = nameInput.trim() || defaultName;
-        const advData = {
-          id: activeAdventureId || 'adv_' + Date.now(),
-          name: nameToSave, timestamp: Date.now(), profileId: selectedAdventureProfileId, botIds: [...selectedAdventureBotIds],
-          storyTitle: adventureStoryTitle, startingPrompt: adventureStartingPrompt, chatHistory: [...activeAdventureChatHistory],
-          backgrounds: [...adventureBackgrounds], activeBgIndex: activeAdventureBgIndex
-        };
-
-        const existingIdx = savedAdventures.findIndex(a => a.id === advData.id);
-        if (existingIdx !== -1) savedAdventures[existingIdx] = advData;
-        else { savedAdventures.push(advData); activeAdventureId = advData.id; }
-        saveAdventuresToStorage(); alert("Chronicle successfully saved!");
+        autoSaveAdventure(nameInput.trim() || defaultName); alert("Chronicle successfully saved!");
       });
     }
 
-    const advChatExitBtn = document.getElementById('adv-chat-exit-btn');
-    if (advChatExitBtn) advChatExitBtn.addEventListener('click', () => { stopCurrentAudio(); currentStage = 6; updateStageUI(); });
+    if ($('adv-chat-exit-btn')) $('adv-chat-exit-btn').addEventListener('click', () => { stopCurrentAudio(); autoSaveAdventure(); currentStage = 6; updateStageUI(); });
 
-    const headerBackToOverlay = document.getElementById('header-back-to-overlay');
-    if (headerBackToOverlay) {
-      headerBackToOverlay.addEventListener('click', () => {
-        stopCurrentAudio();
-        const overlay = document.getElementById('gateway-overlay');
-        if (overlay) overlay.classList.remove('opacity-0', 'pointer-events-none', 'scale-105');
+    if ($('header-back-to-overlay')) {
+      $('header-back-to-overlay').addEventListener('click', () => {
+        stopCurrentAudio(); if ($('gateway-overlay')) $('gateway-overlay').classList.remove('opacity-0', 'pointer-events-none', 'scale-105');
       });
     }
 
     window.onload = async function() {
       await loadFromStorage();
 
-      const quietCheckInput = document.getElementById('bot-quiet-mode');
-      if (quietCheckInput) quietCheckInput.addEventListener('change', updateQuietModeLabel);
+      if ($('bot-quiet-mode')) $('bot-quiet-mode').addEventListener('change', updateQuietModeLabel);
 
-      if (testVoiceBtn) {
-        testVoiceBtn.addEventListener('click', async () => {
-          const bVoice = botVoiceInput ? botVoiceInput.value : 'Kore';
-          const bVoicePr = botVoicePrompt ? botVoicePrompt.value.trim() : '';
-          const ttsSelector = document.getElementById('bot-tts-engine');
-          const bTts = ttsSelector ? ttsSelector.value : 'gemini';
+      if ($('test-voice-btn')) {
+        $('test-voice-btn').addEventListener('click', async () => {
+          const bVoice = $('bot-voice') ? $('bot-voice').value : 'Kore';
+          const bVoicePr = $('bot-voice-prompt') ? $('bot-voice-prompt').value.trim() : '';
+          const bTts = $('bot-tts-engine') ? $('bot-tts-engine').value : 'gemini';
           if (!bVoice && bTts === 'gemini') return alert("Please select a prebuilt voice configuration to test.");
 
           const tempBotForVoice = { name: "Test System", voiceName: bVoice, voicePrompt: bVoicePr, ttsEngine: bTts };
-          testVoiceBtn.disabled = true; const originalText = testVoiceBtn.innerText; testVoiceBtn.innerText = "Synthesizing...";
+          $('test-voice-btn').disabled = true; const originalText = $('test-voice-btn').innerText; $('test-voice-btn').innerText = "Synthesizing...";
           try { await speakMessage("System check. Audio synthesis is fully operational.", tempBotForVoice, null); } 
-          catch (e) {} finally { testVoiceBtn.disabled = false; testVoiceBtn.innerText = originalText; }
+          catch (e) {} finally { $('test-voice-btn').disabled = false; $('test-voice-btn').innerText = originalText; }
         });
       }
 
-      initProfileListDragScroll();
-      initAdventureViewportGestures();
-      currentStage = 0; updateStageUI();
+      initProfileListDragScroll(); initAdventureViewportGestures(); currentStage = 0; updateStageUI();
     };
-
   </script>
 </body>
 </html>
