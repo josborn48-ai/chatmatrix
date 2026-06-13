@@ -5,6 +5,24 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Chatbot Creator Studio</title>
   
+  <!-- Tailwind Configuration for custom colors -->
+  <script>
+    tailwind = {
+      config: {
+        theme: {
+          extend: {
+            colors: {
+              red: { 650: '#dc2626', 750: '#b91c1c', 850: '#991b1b', 955: '#3f0000' },
+              neutral: { 450: '#a3a3a3', 650: '#525252', 805: '#222222', 850: '#1f1f1f', 855: '#1a1a1a', 955: '#050505' },
+              amber: { 955: '#2a1a00' },
+              emerald: { 955: '#002211' },
+              rose: { 955: '#330011' }
+            }
+          }
+        }
+      }
+    }
+  </script>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   
@@ -420,7 +438,7 @@
       <section id="stage-3" class="hidden flex-1 flex flex-col h-full bg-black relative overflow-hidden">
         <div id="chat-bg-layer" class="absolute inset-0 bg-cover bg-center pointer-events-none opacity-80 z-0 animate-pulse-slow transition-all duration-700"></div>
         <div id="chat-bg-tint-overlay" class="absolute inset-0 pointer-events-none z-0 opacity-45"></div>
-        <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-black/10 to-black/50 pointer-none z-0"></div>
+        <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-black/10 to-black/50 pointer-events-none z-0"></div>
 
         <div id="talk-mode-spinner" class="hidden absolute inset-0 flex items-center justify-center bg-black/40 z-20 pointer-events-none">
           <div class="w-48 h-48 border-[12px] border-red-900/30 border-t-red-600 rounded-full animate-spin"></div>
@@ -529,7 +547,7 @@
               <label class="text-xs font-bold uppercase tracking-wider text-neutral-400">Your Appearance</label>
               <textarea id="profile-appearance" rows="2" 
                 class="bg-black border border-neutral-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-red-700 transition-all resize-none placeholder:text-neutral-700 text-white"
-                placeholder="e.g., Tall, brown hair, wearing a block leather jacket."></textarea>
+                placeholder="e.g., Tall, brown hair, wearing a black leather jacket."></textarea>
             </div>
 
             <div class="flex flex-col gap-1.5">
@@ -737,7 +755,13 @@
           <span class="text-xs text-red-500 font-bold tracking-wider uppercase animate-pulse" id="adventure-typing-text">The Narrator is thinking...</span>
         </div>
 
-        <div class="p-4 bg-black/80 border-t border-red-900/30 flex gap-2 items-center">
+        <div class="p-4 bg-black/80 border-t border-red-900/30 flex gap-2 items-center relative">
+          <!-- Active Skills Menu -->
+          <div id="skills-floating-menu" class="hidden absolute bottom-[72px] left-4 bg-neutral-900 border border-purple-500/50 p-2 rounded-xl shadow-lg z-50 flex-col gap-1 w-64 max-h-[200px] overflow-y-auto"></div>
+
+          <button id="adventure-skills-btn" class="bg-black/55 border border-purple-900/40 text-purple-400 hover:text-purple-300 p-3 rounded-xl transition-all shrink-0 flex items-center justify-center cursor-pointer shadow" title="Use Skill">
+            <span class="text-sm">⚡</span>
+          </button>
           <button id="adventure-mode-btn" class="bg-black/55 border border-red-900/40 text-red-500 hover:text-red-400 p-3 rounded-xl transition-all shrink-0 flex items-center justify-center cursor-pointer shadow" title="Toggle Input Mode">
             <span id="adventure-mode-icon" class="text-sm">💬</span>
           </button>
@@ -776,7 +800,7 @@
         <div id="sheet-stats-container" class="grid grid-cols-2 gap-2"></div>
       </div>
 
-      <!-- Unified Lists Block (Skills, Passives, Inventory) -->
+      <!-- Unified Lists Block (Skills, Passives) -->
       <div id="sheet-lists-view" class="flex flex-col gap-3 pt-2 mt-2 border-t border-neutral-900">
         <div class="flex flex-col gap-1.5">
           <h4 class="text-[10px] font-black uppercase tracking-wider text-purple-400">Skills</h4>
@@ -788,24 +812,99 @@
           <div id="sheet-list-passives" class="flex flex-col gap-1.5"></div>
           <button onclick="openSheetEditor('passives', -1)" class="w-full bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 border-dashed text-neutral-400 font-bold py-1.5 rounded-lg text-[10px] transition-colors">New Passive +</button>
         </div>
-        <div class="flex flex-col gap-1.5">
-          <div class="flex justify-between items-center border-b border-neutral-900 pb-1 mb-1">
-              <h4 class="text-[10px] font-black uppercase tracking-wider text-amber-500">Inventory</h4>
-              <div class="flex items-center gap-1.5 bg-yellow-950/20 px-2 py-0.5 rounded border border-yellow-900/30">
-                  <span class="text-[10px] text-yellow-500 font-bold uppercase tracking-wider">Gold:</span>
-                  <input id="sheet-gold-input" type="number" class="bg-transparent text-yellow-400 text-[10px] font-bold w-12 text-right focus:outline-none placeholder:text-yellow-700" value="0">
-              </div>
-          </div>
-          <div id="sheet-list-inventory" class="flex flex-col gap-1.5"></div>
-          <button onclick="openSheetEditor('inventory', -1)" class="w-full bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 border-dashed text-neutral-400 font-bold py-1.5 rounded-lg text-[10px] transition-colors">New Item +</button>
-        </div>
       </div>
 
-      <!-- Unified Generic Item Editor -->
+      <!-- NEW INVENTORY SYSTEM -->
+      <div class="flex flex-col border border-neutral-900 p-2 rounded-xl bg-neutral-950 mt-3" id="inventory-section">
+          <!-- DEFAULT VIEW -->
+          <div id="inv-list-view" class="flex flex-col gap-1.5">
+              <div class="flex justify-between items-center pb-1 border-b border-neutral-800 mb-1">
+                  <h4 class="text-[10px] font-black uppercase tracking-wider text-amber-500">Inventory</h4>
+                  <div class="flex items-center gap-1.5 bg-yellow-950/20 px-2 py-0.5 rounded border border-yellow-900/30">
+                      <span class="text-[10px] text-yellow-500 font-bold uppercase tracking-wider">Gold:</span>
+                      <input id="sheet-gold-input" type="number" class="bg-transparent text-yellow-400 text-[10px] font-bold w-12 text-right focus:outline-none placeholder:text-yellow-700" value="0">
+                  </div>
+              </div>
+              
+              <select id="inv-category-select" class="w-full bg-black border border-neutral-800 rounded-lg px-2 py-1.5 text-[10px] focus:outline-none focus:border-amber-500 text-white" onchange="renderInventoryCategory()">
+                  <option value="All Items">All Items</option>
+                  <option value="Weapons">Weapons</option>
+                  <option value="Armor">Armor</option>
+                  <option value="Consumables">Consumables</option>
+                  <option value="Utility">Utility</option>
+                  <option value="Items">Items</option>
+                  <option value="Quest Items">Quest Items</option>
+              </select>
+              
+              <div id="inv-items-container" class="flex-1 flex flex-col gap-1.5 max-h-[140px] overflow-y-auto no-scrollbar py-1">
+                  <!-- Items list renders here -->
+              </div>
+              
+              <button onclick="openInventoryItemEditor(-1)" class="w-full bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 border-dashed text-neutral-400 font-bold py-1.5 rounded-lg text-[10px] transition-colors mt-1">New Item +</button>
+          </div>
+          
+          <!-- EDITOR VIEW -->
+          <div id="inv-item-overlay" class="hidden flex-col gap-2 pt-1">
+              <div class="flex justify-between items-start border-b border-neutral-800 pb-2">
+                  <div class="flex gap-2 items-start w-full pr-1">
+                      <div class="w-12 h-12 rounded-lg border border-neutral-700 bg-neutral-900 overflow-hidden flex items-center justify-center shrink-0 cursor-pointer hover:border-amber-500 transition-colors relative group" onclick="$('inv-editor-img-input').click()">
+                          <span class="text-[10px] text-neutral-600 font-bold" id="inv-editor-img-placeholder">IMG</span>
+                          <img id="inv-editor-img" class="w-full h-full object-cover hidden">
+                          <div class="absolute inset-0 bg-black/60 hidden group-hover:flex items-center justify-center text-[14px]">📷</div>
+                      </div>
+                      <input type="file" id="inv-editor-img-input" accept="image/*" class="hidden">
+                      
+                      <div class="flex-1 flex flex-col gap-1">
+                          <input id="inv-editor-name" type="text" class="w-full bg-black border border-neutral-800 rounded-lg px-2 py-1 text-[11px] focus:outline-none focus:border-amber-500 text-white font-bold" placeholder="Item Name">
+                          <div class="flex gap-1">
+                              <select id="inv-editor-category" class="w-1/2 bg-black border border-neutral-800 rounded-lg px-1 py-1 text-[9px] focus:outline-none focus:border-amber-500 text-white">
+                                  <option value="Weapons">Weapons</option>
+                                  <option value="Armor">Armor</option>
+                                  <option value="Consumables">Consumables</option>
+                                  <option value="Utility">Utility</option>
+                                  <option value="Items">Items</option>
+                                  <option value="Quest Items">Quest Items</option>
+                              </select>
+                              <input id="inv-editor-tags" type="text" class="w-1/2 bg-black border border-neutral-800 rounded-lg px-1 py-1 text-[9px] focus:outline-none focus:border-amber-500 text-white" placeholder="Custom Tags">
+                          </div>
+                      </div>
+                  </div>
+                  <button onclick="closeInventoryItemEditor()" class="text-neutral-400 hover:text-red-500 font-bold text-sm bg-neutral-900 rounded border border-neutral-800 hover:border-red-500 h-6 w-6 flex items-center justify-center transition-colors shrink-0">×</button>
+              </div>
+              
+              <div class="flex-1 overflow-y-auto flex flex-col gap-2.5 no-scrollbar pb-2 mt-1">
+                  <div class="flex flex-col gap-1">
+                      <label class="text-[9px] uppercase tracking-wider font-bold text-neutral-400 pl-1">Description</label>
+                      <textarea id="inv-editor-desc" rows="3" class="bg-black border border-neutral-800 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-amber-500 text-white resize-none leading-relaxed" placeholder="Item description..."></textarea>
+                  </div>
+                  <div class="flex flex-col gap-1">
+                      <label class="text-[9px] uppercase tracking-wider font-bold text-purple-400 pl-1">Active Skills</label>
+                      <textarea id="inv-editor-skills" rows="3" class="bg-black border border-neutral-800 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-purple-500 text-white resize-none leading-relaxed" placeholder="e.g. Cleave"></textarea>
+                  </div>
+                  <div class="flex flex-col gap-1">
+                      <label class="text-[9px] uppercase tracking-wider font-bold text-blue-400 pl-1">Passive Bonuses</label>
+                      <textarea id="inv-editor-bonuses" rows="3" class="bg-black border border-neutral-800 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-blue-500 text-white resize-none leading-relaxed" placeholder="e.g. +1 ATK"></textarea>
+                  </div>
+                  <div class="flex flex-col gap-1">
+                      <label class="text-[9px] uppercase tracking-wider font-bold text-red-500 pl-1">Curses / Penalties</label>
+                      <textarea id="inv-editor-curses" rows="3" class="bg-black border border-neutral-800 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-red-500 text-white resize-none leading-relaxed" placeholder="e.g. -2 Movement Speed"></textarea>
+                  </div>
+              </div>
+              
+              <div class="flex gap-2 mt-1">
+                  <button id="inv-editor-delete-btn" onclick="deleteInventoryItem()" class="bg-red-955/40 hover:bg-red-900 border border-red-900/50 text-red-500 px-3 py-1.5 rounded-lg text-[10px] font-bold transition-colors">Del</button>
+                  <button onclick="saveInventoryItem()" class="flex-1 bg-amber-700 hover:bg-amber-600 text-black px-3 py-1.5 rounded-lg text-[10px] font-bold transition-colors shadow tracking-wider">SAVE ITEM</button>
+              </div>
+          </div>
+      </div>
+
+      <!-- Unified Generic Item Editor for Passives and Skills -->
       <div id="sheet-item-editor" class="hidden flex-col gap-2 bg-black border border-neutral-800 p-3 rounded-xl relative mt-2">
         <span id="sheet-editor-title" class="text-[10px] font-bold uppercase text-neutral-400">Edit Item</span>
-        <input id="sheet-eq-name" type="text" class="bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-red-700 text-white" placeholder="Name">
-        <textarea id="sheet-eq-desc" rows="2" class="bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-red-700 text-white resize-none" placeholder="Description and mechanical effects"></textarea>
+        
+        <input id="sheet-eq-name" type="text" class="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-red-700 text-white" placeholder="Name">
+        <textarea id="sheet-eq-desc" rows="3" class="bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-red-700 text-white resize-none" placeholder="Description"></textarea>
+
         <div class="flex gap-2 mt-1">
           <button onclick="deleteSheetItem()" id="sheet-eq-delete-btn" class="bg-red-955/40 hover:bg-red-900 text-red-500 px-3 py-1.5 rounded-lg text-[10px] font-bold transition-colors">Delete</button>
           <button onclick="closeSheetEditor()" class="flex-1 bg-neutral-800 hover:bg-neutral-700 text-white px-3 py-1.5 rounded-lg text-[10px] font-bold transition-colors">Cancel</button>
@@ -863,6 +962,18 @@
           <div id="settings-hidden-bots-list" class="flex flex-col gap-2 max-h-[120px] overflow-y-auto bg-black border border-neutral-900 rounded-xl p-2 no-scrollbar">
           </div>
         </div>
+
+        <div class="flex items-center justify-between bg-black border border-neutral-800 rounded-xl px-4 py-3 transition-all mt-2">
+          <div class="flex flex-col gap-0.5 pr-3">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Adventure Sandbox Mode</span>
+            <p class="text-[9px] text-neutral-600 leading-tight">If enabled, Narrator accepts all forced story events (God Mode). If disabled, acts as a strict DM.</p>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer select-none shrink-0">
+            <input id="settings-sandbox-mode" type="checkbox" class="sr-only peer">
+            <div class="w-9 h-5 bg-neutral-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-[16px] after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-neutral-400 peer-checked:after:bg-red-600 after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-red-955/20 border border-neutral-700 peer-checked:border-red-700"></div>
+          </label>
+        </div>
+
       </div>
 
       <div class="flex gap-3 mt-2">
@@ -919,6 +1030,7 @@
 
     // Standard D&D 5e EXP Thresholds
     const EXP_TABLE = [0, 0, 300, 900, 2700, 6500, 14000, 23000, 34000, 48000, 64000, 85000, 100000, 120000, 140000, 165000, 195000, 225000, 265000, 305000, 355000];
+    const ITEM_CATEGORIES = ['Weapons', 'Armor', 'Consumables', 'Utility', 'Items', 'Quest Items'];
 
     let advZoom = 1; let advPanX = 0; let advPanY = 0; let currentRenderedAdvBg = null;
 
@@ -939,7 +1051,7 @@
     let activeMenuIdx = null;
     let hasManuallyEditedPrompt = false;
 
-    let appSettings = { geminiKey: '', localUrl: 'http://localhost:1234/v1', localModel: 'mistral' };
+    let appSettings = { geminiKey: '', localUrl: 'http://localhost:1234/v1', localModel: 'mistral', sandboxMode: false };
 
     const defaultProfile = {
       id: 'default_user', name: 'Creator', appearance: 'Human developer', backstory: 'The creator of this synthetic space.',
@@ -1122,8 +1234,18 @@
       try {
         activeProfileId = await getDBValue('botforge_active_profile', null);
         const cleanProfiles = userProfiles.filter(p => p);
-        if (cleanProfiles.length > 0 && (!activeProfileId || !cleanProfiles.some(p => p.id === activeProfileId))) activeProfileId = cleanProfiles[0].id;
-      } catch (e) { activeProfileId = defaultProfile.id; }
+        if (cleanProfiles.length === 0) {
+          userProfiles.push(defaultProfile);
+          activeProfileId = defaultProfile.id;
+          saveProfilesToLocalStorage();
+        } else if (!activeProfileId || !cleanProfiles.some(p => p.id === activeProfileId)) {
+          activeProfileId = cleanProfiles[0].id;
+        }
+      } catch (e) { 
+        userProfiles = [defaultProfile];
+        activeProfileId = defaultProfile.id; 
+        saveProfilesToLocalStorage();
+      }
     }
 
     function saveToLocalStorage() { setDBValue('botforge_bots', chatbots); setDBValue('botforge_hidden_bots', hiddenBotIds); }
@@ -1136,6 +1258,7 @@
         $('settings-gemini-key').value = appSettings.geminiKey || '';
         $('settings-local-url').value = appSettings.localUrl || 'http://localhost:1234/v1';
         $('settings-local-model').value = appSettings.localModel || 'mistral';
+        if ($('settings-sandbox-mode')) $('settings-sandbox-mode').checked = !!appSettings.sandboxMode;
         populateSettingsHiddenBots();
         $('settings-modal').classList.remove('hidden');
       });
@@ -1145,7 +1268,10 @@
 
     if ($('settings-save-btn')) {
       $('settings-save-btn').addEventListener('click', () => {
-        appSettings.geminiKey = $('settings-gemini-key').value.trim(); appSettings.localUrl = $('settings-local-url').value.trim(); appSettings.localModel = $('settings-local-model').value.trim();
+        appSettings.geminiKey = $('settings-gemini-key').value.trim(); 
+        appSettings.localUrl = $('settings-local-url').value.trim(); 
+        appSettings.localModel = $('settings-local-model').value.trim();
+        appSettings.sandboxMode = $('settings-sandbox-mode') ? $('settings-sandbox-mode').checked : false;
         saveSettings(); $('settings-modal').classList.add('hidden');
       });
     }
@@ -1385,6 +1511,7 @@
             $('stage1-next-btn').disabled = false;
             $('stage1-next-btn').className = "w-full bg-red-700 hover:bg-red-600 text-white font-semibold py-3 px-4 rounded-xl text-sm transition-all shadow-lg active:scale-[0.98]";
           }
+          e.target.value = '';
         };
         reader.readAsDataURL(file);
       });
@@ -1431,7 +1558,7 @@
             tempMoods[currentMoodUploadIndex].imageUrls.push(event.target.result);
             renderMoodsList();
           }
-          $('mood-img-upload').value = '';
+          e.target.value = '';
         };
         reader.readAsDataURL(file);
       });
@@ -1591,6 +1718,7 @@ Roleplay Instructions:
             if (bot) { bot.fullImageUrl = event.target.result; saveToLocalStorage(); }
           } else tempConfig.fullImageUrl = event.target.result;
           alert("Chat backdrop image updated successfully.");
+          e.target.value = '';
         };
         reader.readAsDataURL(file);
       });
@@ -1781,6 +1909,7 @@ Roleplay Instructions:
               cropBoxMovable: true, cropBoxResizable: true, dragMode: 'move'
             });
           }
+          e.target.value = '';
         };
         reader.readAsDataURL(file);
       });
@@ -1898,7 +2027,13 @@ Roleplay Instructions:
 
     window.stopCurrentAudio = function() {
       if (currentAudio === speechSynthesis) speechSynthesis.cancel();
-      else if (currentAudio) { currentAudio.pause(); currentAudio.currentTime = 0; }
+      else if (currentAudio) { 
+        currentAudio.pause(); 
+        currentAudio.currentTime = 0;
+        if (currentAudio.blobUrl) {
+          try { URL.revokeObjectURL(currentAudio.blobUrl); } catch(e){}
+        }
+      }
       currentAudio = null; isAudioPlaying = false; playingAudioIndex = null;
       speechQueue = []; currentQueueIndex = 0; isQueuePlaying = false; speechAudioCache = {}; 
       if ($('chat-bg-layer')) $('chat-bg-layer').style.filter = 'brightness(1)';
@@ -2014,7 +2149,9 @@ Roleplay Instructions:
         if (!playableWavUrl) throw new Error("Speech synthesis returned empty payload.");
         if (!isQueuePlaying || (bubbleIndex !== null && playingAudioIndex !== bubbleIndex)) { if ($('typing-indicator')) $('typing-indicator').classList.add('hidden'); return; }
 
-        currentAudio = new Audio(playableWavUrl); setupAudioAnalyser(currentAudio);
+        currentAudio = new Audio(playableWavUrl);
+        currentAudio.blobUrl = playableWavUrl;
+        setupAudioAnalyser(currentAudio);
         currentAudio.addEventListener('playing', () => {
           isAudioPlaying = true; if ($('typing-indicator')) $('typing-indicator').classList.add('hidden');
           if ($('talk-mode-spinner')) $('talk-mode-spinner').classList.add('hidden'); renderActiveChat();
@@ -2406,7 +2543,19 @@ Roleplay Instructions:
       } else alert(`${mode.toUpperCase()} MODE is currently locked. Secure operational clearance required.`);
     };
 
-    // ================= ADVENTURE STATE AUTOSAVE =================
+    // ================= ADVENTURE STATE AUTOSAVE & INIT =================
+    function getNewAdventureCharactersSnapshot() {
+      const snapshot = {};
+      const profile = userProfiles.find(p => p.id === selectedAdventureProfileId) || defaultProfile;
+      snapshot[selectedAdventureProfileId] = JSON.parse(JSON.stringify(profile));
+      
+      selectedAdventureBotIds.forEach(botId => {
+        const bot = chatbots.find(b => b.id === botId);
+        if (bot) snapshot[botId] = JSON.parse(JSON.stringify(bot));
+      });
+      return snapshot;
+    }
+
     function autoSaveAdventure(customName = null) {
       if (activeAdventureChatHistory.length === 0 && adventureBackgrounds.length === 0) return;
       const existingAdv = savedAdventures.find(a => a.id === activeAdventureId);
@@ -2423,7 +2572,8 @@ Roleplay Instructions:
         startingPrompt: adventureStartingPrompt,
         chatHistory: [...activeAdventureChatHistory],
         backgrounds: [...adventureBackgrounds],
-        activeBgIndex: activeAdventureBgIndex
+        activeBgIndex: activeAdventureBgIndex,
+        characters: lastAdventureState && lastAdventureState.id === activeAdventureId ? lastAdventureState.characters : getNewAdventureCharactersSnapshot()
       };
 
       if (existingAdv) {
@@ -2464,7 +2614,7 @@ Roleplay Instructions:
           card.className = `flex items-center justify-between p-2 rounded-xl shrink-0 border transition-all min-w-[160px] max-w-[180px] ${isSel ? 'border-amber-500 bg-amber-955/15' : 'border-neutral-800 bg-neutral-950/40'}`;
           card.innerHTML = `
             <div class="flex items-center gap-2 overflow-hidden flex-1 cursor-pointer" onclick="selectAdventureProfile('${p.id}')">
-              <img src="${p.avatarUrl || defaultProfile.avatarUrl}" class="w-8 h-8 rounded-full object-cover shrink-0 cursor-pointer hover:scale-110 transition-transform" onclick="event.stopPropagation(); openCharacterSheet('${p.id}', 'user')" title="Edit Character Sheet">
+              <img src="${p.avatarUrl || defaultProfile.avatarUrl}" class="w-8 h-8 rounded-full object-cover shrink-0 cursor-pointer hover:scale-110 transition-transform" onclick="event.stopPropagation(); openCharacterSheet('${p.id}', 'user')" title="Edit Base Template">
               <div class="text-left overflow-hidden flex-1">
                 <h4 class="text-xs font-bold truncate text-neutral-200">${p.name}</h4>
                 <span class="text-[8px] uppercase tracking-wider font-bold ${isSel ? 'text-amber-500' : 'text-neutral-500'}">${isSel ? 'Selected' : 'Select'}</span>
@@ -2489,7 +2639,7 @@ Roleplay Instructions:
             row.onclick = () => toggleAdventureBot(bot.id);
             row.innerHTML = `
               <div class="flex items-center gap-2.5 overflow-hidden flex-1">
-                <img src="${bot.avatarUrl || bot.fullImageUrl}" class="w-7 h-7 rounded-lg object-cover border border-neutral-800 shrink-0 cursor-pointer hover:scale-110 transition-transform" onclick="event.stopPropagation(); openCharacterSheet('${bot.id}', 'bot')" title="Edit Character Sheet">
+                <img src="${bot.avatarUrl || bot.fullImageUrl}" class="w-7 h-7 rounded-lg object-cover border border-neutral-800 shrink-0 cursor-pointer hover:scale-110 transition-transform" onclick="event.stopPropagation(); openCharacterSheet('${bot.id}', 'bot')" title="Edit Base Template">
                 <div class="overflow-hidden flex-1 text-left">
                   <h4 class="text-xs font-bold text-neutral-200 truncate">${bot.name}</h4>
                   <p class="text-[9px] text-neutral-500 truncate">${bot.personality || 'Standard Companion'}</p>
@@ -2536,6 +2686,8 @@ Roleplay Instructions:
       activeAdventureId = adv.id; selectedAdventureProfileId = adv.profileId; selectedAdventureBotIds = [...adv.botIds];
       adventureStoryTitle = adv.storyTitle; adventureStartingPrompt = adv.startingPrompt;
       activeAdventureChatHistory = [...adv.chatHistory]; adventureBackgrounds = [...adv.backgrounds]; activeAdventureBgIndex = adv.activeBgIndex;
+      lastAdventureState = adv; // Set active local state
+      
       advZoom = 1; advPanX = 0; advPanY = 0; currentRenderedAdvBg = null; updateViewportTransform();
       currentStage = 8; updateStageUI();
     };
@@ -2567,6 +2719,7 @@ Roleplay Instructions:
         reader.onload = function(event) {
           adventureTempBgUrl = event.target.result;
           if ($('adventure-default-bg-filename')) $('adventure-default-bg-filename').innerText = file.name;
+          e.target.value = '';
         };
         reader.readAsDataURL(file);
       });
@@ -2586,6 +2739,13 @@ Roleplay Instructions:
         advZoom = 1; advPanX = 0; advPanY = 0; currentRenderedAdvBg = null; updateViewportTransform();
         if (adventureTempBgUrl) { adventureBackgrounds.push(adventureTempBgUrl); activeAdventureBgIndex = 0; }
         
+        // Generate initial snapshot for this new adventure
+        lastAdventureState = {
+            id: 'adv_' + Date.now(),
+            name: title,
+            characters: getNewAdventureCharactersSnapshot()
+        };
+
         currentStage = 8; updateStageUI();
         await triggerAdventureNarratorResponse();
       });
@@ -2593,7 +2753,7 @@ Roleplay Instructions:
 
     // ================= STAGE 8: ADVENTURE ENGINE & RENDERING =================
     
-    // Character Sheet Logic (Expanded with EXP, Level, Skills, Passives)
+    // Character Sheet Logic (Dynamic Local vs Template isolation)
     let activeSheetId = null; let activeSheetType = null; let activeListType = null;
     let tempSheetObj = {}; let editingItemIndex = -1;
     
@@ -2602,8 +2762,17 @@ Roleplay Instructions:
 
     window.openCharacterSheet = function(id, type) {
       activeSheetId = id; activeSheetType = type;
-      let targetObj = type === 'user' ? userProfiles.find(p => p.id === id) : chatbots.find(b => b.id === id);
-      if (!targetObj && type === 'user') targetObj = defaultProfile; // fallback
+      let targetObj;
+      
+      if (currentStage === 8 && lastAdventureState && lastAdventureState.characters && lastAdventureState.characters[id]) {
+        targetObj = lastAdventureState.characters[id];
+        $('sheet-subtitle').innerText = "D&D Point Buy (30 pts) and Inventory. (Editing ACTIVE ADVENTURE Instance)";
+      } else {
+        targetObj = type === 'user' ? userProfiles.find(p => p.id === id) : chatbots.find(b => b.id === id);
+        if (!targetObj && type === 'user') targetObj = defaultProfile;
+        $('sheet-subtitle').innerText = "D&D Point Buy (30 pts) and Inventory. (Editing CREATOR TEMPLATE)";
+      }
+      
       if (!targetObj) return;
 
       $('sheet-title').innerText = targetObj.name + "'s Sheet";
@@ -2618,12 +2787,15 @@ Roleplay Instructions:
       if (tempSheetObj.gold === undefined) tempSheetObj.gold = 0;
 
       if (tempSheetObj.inventory.length === 0 && tempSheetObj.equipment && tempSheetObj.equipment.name) {
-        tempSheetObj.inventory = [{ name: tempSheetObj.equipment.name, description: tempSheetObj.equipment.description }];
+        tempSheetObj.inventory = [{ name: tempSheetObj.equipment.name, description: tempSheetObj.equipment.description, category: 'Items', tags: '' }];
       }
       
       $('sheet-gold-input').value = tempSheetObj.gold;
       
       closeSheetEditor();
+      closeInventoryItemEditor();
+      $('inv-category-select').value = 'All Items'; // Set default to All Items
+      renderInventoryCategory();
       $('character-sheet-modal').classList.remove('hidden');
     };
 
@@ -2670,7 +2842,7 @@ Roleplay Instructions:
     }
 
     function renderSheetLists() {
-      const types = ['skills', 'passives', 'inventory'];
+      const types = ['skills', 'passives'];
       types.forEach(type => {
         const listDiv = $(`sheet-list-${type}`);
         if (!listDiv) return;
@@ -2685,112 +2857,350 @@ Roleplay Instructions:
       });
     }
 
+    // --- NEW INVENTORY UI FUNCTIONS ---
+    window.renderInventoryCategory = function() {
+        const cat = $('inv-category-select').value;
+        const container = $('inv-items-container');
+        if (!container) return;
+        container.innerHTML = '';
+
+        const itemsInCat = tempSheetObj.inventory.filter(i => cat === 'All Items' || i.category === cat || (!i.category && cat === 'Items'));
+        
+        if (itemsInCat.length === 0) {
+            container.innerHTML = `<p class="text-[10px] text-neutral-600 text-center py-2 italic">No ${cat === 'All Items' ? 'items' : cat} equipped.</p>`;
+            return;
+        }
+
+        itemsInCat.forEach(item => {
+            const originalIndex = tempSheetObj.inventory.indexOf(item);
+            const btn = document.createElement('button');
+            btn.className = "w-full bg-neutral-950 hover:bg-neutral-800 border border-neutral-800 text-neutral-300 font-medium py-1.5 px-3 rounded-lg text-xs transition-colors text-left flex justify-between items-center";
+            
+            const tagsMarkup = item.tags ? `<span class="text-[8px] text-amber-500/80 block truncate mt-0.5">${item.tags}</span>` : '';
+            
+            btn.innerHTML = `
+                <div class="flex items-center gap-2 overflow-hidden w-full">
+                    <div class="w-6 h-6 rounded overflow-hidden shrink-0 border border-neutral-700 bg-black flex items-center justify-center">${item.imageUrl ? `<img src="${item.imageUrl}" class="w-full h-full object-cover">` : `<span class="text-[8px] text-neutral-600">--</span>`}</div>
+                    <div class="overflow-hidden flex-1 leading-tight">
+                        <span class="truncate text-[11px] block text-neutral-200 font-bold">${item.name}</span>
+                        ${tagsMarkup}
+                    </div>
+                </div>
+                <span class="text-[9px] text-neutral-500 shrink-0 ml-2">Edit ✎</span>
+            `;
+            btn.onclick = () => openInventoryItemEditor(originalIndex);
+            container.appendChild(btn);
+        });
+    }
+
+    window.openInventoryItemEditor = function(idx) {
+        editingItemIndex = idx;
+        $('inv-list-view').classList.add('hidden');
+        $('inv-item-overlay').classList.remove('hidden');
+        $('inv-item-overlay').classList.add('flex');
+        $('inv-editor-delete-btn').classList.toggle('hidden', idx === -1);
+        
+        if (idx !== -1) { 
+            const item = tempSheetObj.inventory[idx];
+            $('inv-editor-name').value = item.name || '';
+            $('inv-editor-desc').value = item.description || '';
+            $('inv-editor-category').value = item.category || 'Items';
+            $('inv-editor-tags').value = item.tags || '';
+            $('inv-editor-bonuses').value = item.bonuses || '';
+            $('inv-editor-skills').value = item.activatedSkills || '';
+            $('inv-editor-curses').value = item.curses || '';
+            
+            if (item.imageUrl) {
+                $('inv-editor-img').src = item.imageUrl;
+                $('inv-editor-img').classList.remove('hidden');
+                $('inv-editor-img-placeholder').classList.add('hidden');
+            } else {
+                $('inv-editor-img').src = '';
+                $('inv-editor-img').classList.add('hidden');
+                $('inv-editor-img-placeholder').classList.remove('hidden');
+            }
+        } else { 
+            $('inv-editor-name').value = ''; 
+            $('inv-editor-desc').value = ''; 
+            const catSelect = $('inv-category-select').value;
+            $('inv-editor-category').value = catSelect === 'All Items' ? 'Items' : catSelect;
+            $('inv-editor-tags').value = '';
+            $('inv-editor-bonuses').value = '';
+            $('inv-editor-skills').value = '';
+            $('inv-editor-curses').value = '';
+            $('inv-editor-img').src = '';
+            $('inv-editor-img').classList.add('hidden');
+            $('inv-editor-img-placeholder').classList.remove('hidden');
+        }
+    };
+
+    window.closeInventoryItemEditor = function() {
+        $('inv-item-overlay').classList.add('hidden');
+        $('inv-item-overlay').classList.remove('flex');
+        $('inv-list-view').classList.remove('hidden');
+        renderInventoryCategory();
+    };
+
+    window.saveInventoryItem = function() {
+        const name = $('inv-editor-name').value.trim();
+        if (!name) return alert("Item requires a name.");
+        
+        const itemData = {
+            name: name,
+            description: $('inv-editor-desc').value.trim(),
+            category: $('inv-editor-category').value,
+            tags: $('inv-editor-tags').value.trim(),
+            bonuses: $('inv-editor-bonuses').value.trim(),
+            activatedSkills: $('inv-editor-skills').value.trim(),
+            curses: $('inv-editor-curses').value.trim(),
+            imageUrl: $('inv-editor-img').src || ''
+        };
+
+        if (editingItemIndex === -1) tempSheetObj.inventory.push(itemData);
+        else tempSheetObj.inventory[editingItemIndex] = itemData;
+        
+        $('inv-category-select').value = itemData.category; 
+        closeInventoryItemEditor();
+    };
+
+    window.deleteInventoryItem = function() {
+        if (editingItemIndex !== -1 && confirm("Permanently delete this item?")) {
+            tempSheetObj.inventory.splice(editingItemIndex, 1);
+            closeInventoryItemEditor();
+        }
+    };
+
+    // --- GENERIC SKILLS/PASSIVES EDITOR ---
     window.openSheetEditor = function(type, idx) {
       activeListType = type; editingItemIndex = idx;
       $('sheet-lists-view').classList.add('hidden');
+      $('inventory-section').classList.add('hidden');
       $('sheet-item-editor').classList.remove('hidden');
       $('sheet-editor-title').innerText = `Edit ${type.substring(0, type.length-1).toUpperCase()}`;
       $('sheet-eq-delete-btn').classList.toggle('hidden', idx === -1);
       
-      if (idx !== -1) { $('sheet-eq-name').value = tempSheetObj[type][idx].name; $('sheet-eq-desc').value = tempSheetObj[type][idx].description; } 
-      else { $('sheet-eq-name').value = ''; $('sheet-eq-desc').value = ''; }
+      if (idx !== -1) { 
+        const item = tempSheetObj[type][idx];
+        $('sheet-eq-name').value = item.name || '';
+        $('sheet-eq-desc').value = item.description || '';
+      } else { 
+        $('sheet-eq-name').value = ''; 
+        $('sheet-eq-desc').value = ''; 
+      }
     };
 
     window.closeSheetEditor = function() {
       $('sheet-lists-view').classList.remove('hidden');
+      $('inventory-section').classList.remove('hidden');
       $('sheet-item-editor').classList.add('hidden');
       updateSheetUI(); renderSheetLists();
     };
 
     window.saveSheetItem = function() {
-      const name = $('sheet-eq-name').value.trim(); const desc = $('sheet-eq-desc').value.trim();
+      const name = $('sheet-eq-name').value.trim();
       if (!name) return alert("Requires a name.");
-      if (editingItemIndex === -1) tempSheetObj[activeListType].push({ name, description: desc });
-      else tempSheetObj[activeListType][editingItemIndex] = { name, description: desc };
+      
+      const itemData = {
+          name: name,
+          description: $('sheet-eq-desc').value.trim()
+      };
+
+      if (editingItemIndex === -1) tempSheetObj[activeListType].push(itemData);
+      else tempSheetObj[activeListType][editingItemIndex] = itemData;
+      
       closeSheetEditor();
     };
 
     window.deleteSheetItem = function() {
-      if (editingItemIndex !== -1) tempSheetObj[activeListType].splice(editingItemIndex, 1);
-      closeSheetEditor();
+      if (editingItemIndex !== -1) {
+          if (confirm(`Permanently delete this ${activeListType}?`)) {
+              tempSheetObj[activeListType].splice(editingItemIndex, 1);
+              closeSheetEditor();
+          }
+      } else {
+          closeSheetEditor();
+      }
     };
 
     window.saveCharacterSheet = function() {
-      let targetObj = activeSheetType === 'user' ? userProfiles.find(p => p.id === activeSheetId) : chatbots.find(b => b.id === activeSheetId);
-      if (!targetObj && activeSheetType === 'user' && activeSheetId === defaultProfile.id) targetObj = defaultProfile;
-      if (targetObj) {
-        targetObj.stats = { ...tempSheetObj.stats }; 
-        targetObj.inventory = [...tempSheetObj.inventory];
-        targetObj.skills = [...tempSheetObj.skills];
-        targetObj.passives = [...tempSheetObj.passives];
-        targetObj.gold = parseInt($('sheet-gold-input').value, 10) || 0;
-        if (activeSheetType === 'user') saveProfilesToLocalStorage(); else saveToLocalStorage();
+      // Determine if we are saving to the Adventure Local Instance or the Creator Base Template
+      if (currentStage === 8 && lastAdventureState && lastAdventureState.characters && lastAdventureState.characters[activeSheetId]) {
+         let localTarget = lastAdventureState.characters[activeSheetId];
+         localTarget.stats = { ...tempSheetObj.stats }; 
+         localTarget.inventory = [...tempSheetObj.inventory];
+         localTarget.skills = [...tempSheetObj.skills];
+         localTarget.passives = [...tempSheetObj.passives];
+         localTarget.gold = parseInt($('sheet-gold-input').value, 10) || 0;
+         autoSaveAdventure(); // Save local instance
+      } else {
+          let targetObj = activeSheetType === 'user' ? userProfiles.find(p => p.id === activeSheetId) : chatbots.find(b => b.id === activeSheetId);
+          if (!targetObj && activeSheetType === 'user' && activeSheetId === defaultProfile.id) targetObj = defaultProfile;
+          if (targetObj) {
+            targetObj.stats = { ...tempSheetObj.stats }; 
+            targetObj.inventory = [...tempSheetObj.inventory];
+            targetObj.skills = [...tempSheetObj.skills];
+            targetObj.passives = [...tempSheetObj.passives];
+            targetObj.gold = parseInt($('sheet-gold-input').value, 10) || 0;
+            if (activeSheetType === 'user') saveProfilesToLocalStorage(); else saveToLocalStorage();
+          }
       }
       $('character-sheet-modal').classList.add('hidden');
     };
 
     // LOOT GENERATOR FUNCTIONS
-    window.generateLootItem = async function(msgIndex) {
+    function getAdventureContextChar(id, type) {
+       if (currentStage === 8 && lastAdventureState && lastAdventureState.characters) {
+           return lastAdventureState.characters[id] || (type === 'user' ? defaultProfile : null);
+       }
+       return type === 'user' ? (userProfiles.find(p => p.id === id) || defaultProfile) : chatbots.find(b => b.id === id);
+    }
+
+    window.generateLootItem = async function(msgIndex, recipientId = 'player') {
         const typingInd = $('adventure-typing-indicator');
         const typingLbl = $('adventure-typing-text');
         if (typingInd) typingInd.classList.remove('hidden');
         if (typingLbl) typingLbl.innerText = "System is materializing an item...";
 
         try {
-            const activeProfile = getActiveProfile();
-            const historyDump = activeAdventureChatHistory.slice(Math.max(activeAdventureChatHistory.length - 10, 0)).map(m => m.text).join('\n');
-            const prompt = `The player ${activeProfile.name} (Level ${activeProfile.level || 1}) just found loot. Context:\n${historyDump}\n\nCreate a thematic D&D item. Include bonuses, penalties, passive effects, activated skills, or curses in the description. Return strictly JSON: {"name": "Item Name", "description": "Detailed mechanical description"}`;
+            const activeProfile = getAdventureContextChar(activeProfileId, 'user');
+            const recipientName = recipientId === 'player' ? activeProfile.name : getAdventureContextChar(recipientId, 'bot').name;
+            const recipientLevel = recipientId === 'player' ? (activeProfile.level || 1) : (getAdventureContextChar(recipientId, 'bot').level || 1);
+
+            const historyDump = activeAdventureChatHistory.slice(Math.max(activeAdventureChatHistory.length - 10, 0)).filter(m => m.sender !== 'system_loot').map(m => m.text).join('\n');
+            const prompt = `The character ${recipientName} (Level ${recipientLevel}) just found a grand reward. Context:\n${historyDump}\n\nCreate a thematic, balanced D&D item. The category MUST be one of: Weapons, Armor, Consumables, Utility, Items, Quest Items. Include mechanical bonuses and any curses. If it grants a new permanent skill/passive directly to their character sheet, include 'grantedSkill' or 'grantedPassive'. Return STRICTLY JSON: {"name": "Item Name", "category": "Weapons", "description": "...", "bonuses": "...", "activatedSkills": "...", "curses": "...", "grantedSkill": "", "grantedPassive": ""}`;
             
             const res = await callGeminiWithFallback([{role: "user", content: prompt}], "You are a backend game engine data generator.", appSettings.geminiKey);
-            let jsonStr = res.reply.replace(/```json/gi, '').replace(/```/g, '').trim();
+            
+            const jsonStart = res.reply.indexOf('{');
+            const jsonEnd = res.reply.lastIndexOf('}');
+            if (jsonStart === -1 || jsonEnd === -1) throw new Error("No JSON found in response");
+            
+            const jsonStr = res.reply.substring(jsonStart, jsonEnd + 1);
             const data = JSON.parse(jsonStr);
 
-            if (!activeProfile.inventory) activeProfile.inventory = [];
-            activeProfile.inventory.push({ name: data.name, description: data.description });
-            saveProfilesToLocalStorage();
-
-            activeAdventureChatHistory[msgIndex] = { sender: 'narrator', text: `**LOOT ACQUIRED!**\n${activeProfile.name} obtained **${data.name}**!\n*${data.description}*` };
+            let targetObj = recipientId === 'player' ? activeProfile : getAdventureContextChar(recipientId, 'bot');
+            if (!targetObj.inventory) targetObj.inventory = [];
             
-            autoSaveAdventure();
+            targetObj.inventory.push({ 
+                name: data.name, category: ITEM_CATEGORIES.includes(data.category) ? data.category : 'Items', 
+                description: data.description, bonuses: data.bonuses || '', activatedSkills: data.activatedSkills || '', curses: data.curses || '' 
+            });
+
+            let extraMsg = '';
+            if (data.grantedSkill) {
+                if (!targetObj.skills) targetObj.skills = [];
+                targetObj.skills.push({ name: `${data.name} Mastery`, description: data.grantedSkill });
+                extraMsg += `\n*Unlocked Skill:* ${data.grantedSkill}`;
+            }
+            if (data.grantedPassive) {
+                if (!targetObj.passives) targetObj.passives = [];
+                targetObj.passives.push({ name: `${data.name} Resonance`, description: data.grantedPassive });
+                extraMsg += `\n*Unlocked Passive:* ${data.grantedPassive}`;
+            }
+
+            autoSaveAdventure(); // Automatically saves to the local character array
+
+            if (recipientId === 'player') {
+                activeAdventureChatHistory[msgIndex] = { sender: 'narrator', text: `**LOOT ACQUIRED!**\n${activeProfile.name} obtained **${data.name}**!\n*${data.description}*${extraMsg}` };
+            } else {
+                activeAdventureChatHistory[msgIndex] = { sender: 'narrator', text: `**LOOT GIFTED!**\n${activeProfile.name} gave **${data.name}** to ${recipientName}!\n*${data.description}*${extraMsg}` };
+                activeAdventureChatHistory.push({ sender: 'event', text: `[System Note: ${activeProfile.name} just gifted you a ${data.category} called "${data.name}". Description: ${data.description}. Bonuses: ${data.bonuses || 'None'}. React in character to receiving this. If it's a piece of junk or mundane, you might be confused or annoyed. If it's rare/legendary, be grateful or awed.]` });
+            }
+            
             renderStage8AdventureChat();
+            autoSaveAdventure();
+            
+            // Resume the bot chain now that the item is resolved
+            let pendingParticipants = [...selectedAdventureBotIds];
+            async function runBots() {
+              if (pendingParticipants.length > 0) {
+                const nextBotId = pendingParticipants.shift();
+                const bot = getAdventureContextChar(nextBotId, 'bot');
+                if (bot) { await triggerAdventureBotResponse(bot); setTimeout(runBots, 400); } 
+                else runBots();
+              }
+            }
+            await runBots();
+
         } catch(e) {
             alert("Failed to materialize item. Check your API key. Proceeding with generic loot...");
-            const activeProfile = getActiveProfile();
+            const activeProfile = getAdventureContextChar(activeProfileId, 'user');
             if (!activeProfile.inventory) activeProfile.inventory = [];
-            activeProfile.inventory.push({ name: "Mystery Potion", description: "Unknown effects." });
-            saveProfilesToLocalStorage();
-            activeAdventureChatHistory[msgIndex] = { sender: 'narrator', text: `**LOOT ACQUIRED!**\n${activeProfile.name} obtained a **Mystery Potion**.` };
+            activeProfile.inventory.push({ name: "Mystery Potion", category: "Consumables", description: "Unknown effects." });
             autoSaveAdventure();
+            
+            activeAdventureChatHistory[msgIndex] = { sender: 'narrator', text: `**LOOT ACQUIRED!**\n${activeProfile.name} obtained a **Mystery Potion**.` };
+            
             renderStage8AdventureChat();
+            autoSaveAdventure();
+
+            let pendingParticipants = [...selectedAdventureBotIds];
+            async function runBotsFallback() {
+              if (pendingParticipants.length > 0) {
+                const nextBotId = pendingParticipants.shift();
+                const bot = getAdventureContextChar(nextBotId, 'bot');
+                if (bot) { await triggerAdventureBotResponse(bot); setTimeout(runBotsFallback, 400); } 
+                else runBotsFallback();
+              }
+            }
+            await runBotsFallback();
+            
         } finally {
             if (typingInd) typingInd.classList.add('hidden');
         }
     };
 
     window.generateLootGold = function(msgIndex) {
-        const activeProfile = getActiveProfile();
+        const activeProfile = getAdventureContextChar(activeProfileId, 'user');
         const amount = Math.floor(Math.random() * 50 * (activeProfile.level || 1)) + 10;
         
         if (activeProfile.gold === undefined) activeProfile.gold = 0;
         activeProfile.gold += amount;
-        saveProfilesToLocalStorage();
 
         activeAdventureChatHistory[msgIndex] = { sender: 'narrator', text: `**LOOT ACQUIRED!**\n${activeProfile.name} collected **${amount} Gold**.` };
-        autoSaveAdventure();
         renderStage8AdventureChat();
+        autoSaveAdventure();
+
+        let pendingParticipants = [...selectedAdventureBotIds];
+        async function runBots() {
+            if (pendingParticipants.length > 0) {
+            const nextBotId = pendingParticipants.shift();
+            const bot = getAdventureContextChar(nextBotId, 'bot');
+            if (bot) { await triggerAdventureBotResponse(bot); setTimeout(runBots, 400); } 
+            else runBots();
+            }
+        }
+        runBots();
     };
 
     window.declineLoot = function(msgIndex) {
         activeAdventureChatHistory[msgIndex] = { sender: 'narrator', text: `*The loot was left untouched.*` };
-        autoSaveAdventure();
         renderStage8AdventureChat();
+        autoSaveAdventure();
+
+        let pendingParticipants = [...selectedAdventureBotIds];
+        async function runBots() {
+            if (pendingParticipants.length > 0) {
+            const nextBotId = pendingParticipants.shift();
+            const bot = getAdventureContextChar(nextBotId, 'bot');
+            if (bot) { await triggerAdventureBotResponse(bot); setTimeout(runBots, 400); } 
+            else runBots();
+            }
+        }
+        runBots();
+    };
+
+    window.triggerGiftLoot = function(msgIndex) {
+        const sel = $(`loot-gift-target-${msgIndex}`);
+        if (!sel || !sel.value) return alert("Select a companion first.");
+        generateLootItem(msgIndex, sel.value);
     };
 
     function getAdventureSpeakerName(senderId) {
       if (senderId === 'narrator') return 'Narrator';
       if (senderId === 'system_loot') return 'System';
-      if (senderId === 'user') return getActiveProfile().name;
-      return chatbots.find(b => b.id === senderId)?.name || 'Companion';
+      if (senderId === 'user') return getAdventureContextChar(activeProfileId, 'user').name;
+      return getAdventureContextChar(senderId, 'bot')?.name || 'Companion';
     }
     
     function renderAdventureViewportImage(bgUrl) {
@@ -2848,7 +3258,7 @@ Roleplay Instructions:
       if (!container) return;
       container.innerHTML = '';
 
-      const activeProfile = getActiveProfile();
+      const activeProfile = getAdventureContextChar(activeProfileId, 'user');
 
       activeAdventureChatHistory.forEach((msg, idx) => {
         const wrapper = document.createElement('div');
@@ -2857,14 +3267,30 @@ Roleplay Instructions:
             wrapper.className = `w-full flex justify-center py-2 z-10`;
             const bubble = document.createElement('div');
             bubble.className = `bg-neutral-900 border border-amber-500/50 rounded-2xl p-4 shadow-[0_0_15px_rgba(245,158,11,0.15)] backdrop-blur-md w-[85%] text-sm flex flex-col gap-3 items-center`;
+            
+            let giftOptions = selectedAdventureBotIds.map(id => {
+               const b = getAdventureContextChar(id, 'bot');
+               return `<option value="${b.id}">${b.name}</option>`;
+            }).join('');
+
+            let giftHtml = selectedAdventureBotIds.length > 0 ? `
+              <div class="flex gap-2 w-full mt-2 justify-center items-center">
+                  <select id="loot-gift-target-${idx}" class="bg-black border border-neutral-700 text-[10px] text-white rounded p-1 w-24">
+                      ${giftOptions}
+                  </select>
+                  <button onclick="triggerGiftLoot(${idx})" class="bg-purple-600 hover:bg-purple-500 text-black font-bold py-1.5 px-3 rounded-lg text-[10px] transition-colors shadow shrink-0">Gift Item</button>
+              </div>
+            ` : '';
+
             bubble.innerHTML = `
                 <span class="text-xs font-black uppercase tracking-widest text-amber-500 text-center">Reward Discovered</span>
-                <p class="text-neutral-300 text-center italic text-[11px]">The context indicates you've found a reward. Would you like to receive an Item or Gold?</p>
+                <p class="text-neutral-300 text-center italic text-[11px]">The context indicates you've found a grand reward. What would you like to do?</p>
                 <div class="flex gap-2 w-full justify-center mt-1">
                     <button onclick="generateLootItem(${idx})" class="bg-amber-600 hover:bg-amber-500 text-black font-bold py-1.5 px-3 rounded-lg text-[10px] transition-colors shadow">Take Item</button>
                     <button onclick="generateLootGold(${idx})" class="bg-yellow-500 hover:bg-yellow-400 text-black font-bold py-1.5 px-3 rounded-lg text-[10px] transition-colors shadow">Take Gold</button>
                     <button onclick="declineLoot(${idx})" class="bg-neutral-700 hover:bg-neutral-600 text-white font-bold py-1.5 px-3 rounded-lg text-[10px] transition-colors shadow">Leave It</button>
                 </div>
+                ${giftHtml}
             `;
             wrapper.appendChild(bubble);
             container.appendChild(wrapper);
@@ -2899,10 +3325,10 @@ Roleplay Instructions:
           let avatarSrc = defaultProfile.avatarUrl; let name = "Unknown";
           
           if (isUser) { avatarSrc = activeProfile.avatarUrl || defaultProfile.avatarUrl; name = activeProfile.name; } 
-          else { const botObj = chatbots.find(b => b.id === msg.sender); if (botObj) { avatarSrc = botObj.avatarUrl || botObj.fullImageUrl; name = botObj.name; } }
+          else { const botObj = getAdventureContextChar(msg.sender, 'bot'); if (botObj) { avatarSrc = botObj.avatarUrl || botObj.fullImageUrl; name = botObj.name; } }
 
           const avatarColor = isUser ? 'border-amber-600/50' : 'border-neutral-600/50';
-          const avatarMarkup = `<img onclick="event.stopPropagation(); openCharacterSheet('${senderId}', '${senderType}')" class="w-12 h-12 rounded-full object-cover self-start border ${avatarColor} shrink-0 shadow-md cursor-pointer hover:scale-105 transition-transform" src="${avatarSrc}" alt="" title="View ${name}'s Character Sheet">`;
+          const avatarMarkup = `<img onclick="event.stopPropagation(); openCharacterSheet('${senderId}', '${senderType}')" class="w-12 h-12 rounded-full object-cover self-start border ${avatarColor} shrink-0 shadow-md cursor-pointer hover:scale-105 transition-transform" src="${avatarSrc}" alt="" title="View Local Adventure Sheet">`;
 
           const titleColor = isUser ? "text-amber-500" : "text-neutral-400";
           const bodyClass = isUser ? "text-amber-200" : "text-neutral-200";
@@ -2948,7 +3374,7 @@ Roleplay Instructions:
       let botObj = null;
       if (msg.sender === 'narrator') botObj = { name: "Narrator", voiceName: "Charon", voicePrompt: "Steady, authoritative, even paced", ttsEngine: "gemini" };
       else if (msg.sender === 'user') return; 
-      else botObj = chatbots.find(b => b.id === msg.sender);
+      else botObj = getAdventureContextChar(msg.sender, 'bot');
       if (botObj) speakMessage(msg.text, botObj, index);
     };
 
@@ -2971,9 +3397,58 @@ Roleplay Instructions:
         reader.onload = function(event) {
           adventureBackgrounds.push(event.target.result); activeAdventureBgIndex = adventureBackgrounds.length - 1; renderStage8AdventureChat();
           autoSaveAdventure();
+          e.target.value = '';
         };
         reader.readAsDataURL(file);
       });
+    }
+
+    // SKILL MENU UI
+    if ($('adventure-skills-btn')) {
+        $('adventure-skills-btn').addEventListener('click', () => {
+            const profile = getAdventureContextChar(activeProfileId, 'user');
+            const menu = $('skills-floating-menu');
+            if (!menu.classList.contains('hidden')) {
+                menu.classList.add('hidden');
+                return;
+            }
+
+            menu.classList.remove('hidden');
+            menu.innerHTML = '<span class="text-[10px] text-purple-400 font-bold uppercase tracking-wider mb-1 px-1 border-b border-purple-900/50 pb-1">Use Active Skill</span>';
+            
+            let allSkills = [];
+            if (profile.skills) allSkills.push(...profile.skills);
+            if (profile.inventory) {
+                profile.inventory.forEach(item => {
+                    if (item.activatedSkills && item.activatedSkills.trim() !== '') {
+                        allSkills.push({ name: `[${item.name}] ${item.activatedSkills}` });
+                    }
+                });
+            }
+
+            if (allSkills.length === 0) {
+                menu.innerHTML += `<p class="text-[10px] text-neutral-500 italic p-1">No active skills available. Earn them by leveling up or equipping items!</p>`;
+                return;
+            }
+
+            allSkills.forEach(sk => {
+                const btn = document.createElement('button');
+                btn.className = "text-left text-xs text-white bg-neutral-800 hover:bg-neutral-700 p-2 rounded-lg transition-colors border border-neutral-700";
+                btn.innerText = sk.name;
+                btn.onclick = () => {
+                    adventureInputMode = 'action';
+                    const advModeIcon = $('adventure-mode-icon');
+                    advModeIcon.innerText = "🎲";
+                    $('adventure-mode-btn').className = "bg-black/55 border border-purple-500/80 text-purple-400 shadow-[0_0_10px_rgba(168,85,247,0.2)] p-3 rounded-xl transition-all shrink-0 flex items-center justify-center cursor-pointer";
+                    
+                    const input = $('adventure-chat-input');
+                    input.value = `Using Skill [${sk.name}]: `;
+                    input.focus();
+                    menu.classList.add('hidden');
+                };
+                menu.appendChild(btn);
+            });
+        });
     }
     
     if ($('adventure-mode-btn')) {
@@ -3005,16 +3480,28 @@ Roleplay Instructions:
       let s = obj.stats || {str:8, dex:8, con:8, int:8, wis:8, cha:8}; 
       let inv = obj.inventory || [];
       if (inv.length === 0 && obj.equipment && obj.equipment.name) inv = [{ name: obj.equipment.name, description: obj.equipment.description }];
-      let eqStrs = inv.map(i => `${i.name} (${i.description})`).join(', '); if (!eqStrs) eqStrs = 'None';
       
-      let skStrs = (obj.skills || []).map(i => i.name).join(', '); if (!skStrs) skStrs = 'None';
-      let psStrs = (obj.passives || []).map(i => i.name).join(', '); if (!psStrs) psStrs = 'None';
+      let eqStrs = inv.map(i => {
+          let str = `${i.name} (${i.description})`;
+          if (i.bonuses) str += ` [Bonuses: ${i.bonuses}]`;
+          if (i.curses) str += ` [Curses: ${i.curses}]`;
+          return str;
+      }).join(', '); 
+      if (!eqStrs) eqStrs = 'None';
+      
+      let skStrs = (obj.skills || []).map(i => `${i.name}: ${i.description}`).join(' | '); if (!skStrs) skStrs = 'None';
+      let psStrs = (obj.passives || []).map(i => `${i.name}: ${i.description}`).join(' | '); if (!psStrs) psStrs = 'None';
       
       return `Level:${obj.level || 1} (EXP:${obj.exp || 0}) | Gold:${obj.gold || 0} | STR:${s.str} DEX:${s.dex} CON:${s.con} INT:${s.int} WIS:${s.wis} CHA:${s.cha} | Skills: ${skStrs} | Passives: ${psStrs} | Inv: ${eqStrs}`;
     }
 
     function getNarratorSystemPrompt() {
-      const profile = getActiveProfile();
+      const profile = getAdventureContextChar(activeProfileId, 'user');
+      
+      const sandboxRule = appSettings.sandboxMode 
+        ? `5. ACCEPT ALL STORY EVENTS: If the user's message contains "[Story Event:", this is a Sandbox God-Mode override. You MUST accept whatever scenario, character, or item they describe as absolute truth and adapt your narrative to incorporate it flawlessly without evading or ignoring it.`
+        : `5. STRICT DM ENFORCEMENT: You are the ultimate authority. If a player attempts to auto-resolve their own actions, declare what NPCs do, or magically spawn items/creatures (e.g. using "[Story Event:"), you MUST reject or twist their attempt to maintain a realistic, grounded, and challenging world. Players can only declare their *attempts*; you decide what actually happens.`;
+
       return `You are the Narrator of an interactive text adventure game.
 Title: ${adventureStoryTitle}
 Starting Premise: ${adventureStartingPrompt}
@@ -3022,7 +3509,7 @@ Starting Premise: ${adventureStartingPrompt}
 Participating Party & Stats:
 - ${profile.name} (Player) | ${formatCharContext(profile)}
 ${selectedAdventureBotIds.map(id => {
-  const bot = chatbots.find(b => b.id === id); return bot ? `- ${bot.name} (Companion) | ${formatCharContext(bot)}` : '';
+  const bot = getAdventureContextChar(id, 'bot'); return bot ? `- ${bot.name} (Companion) | ${formatCharContext(bot)}` : '';
 }).join('\n')}
 
 Roleplay Log Format:
@@ -3036,18 +3523,19 @@ Your Strict Boundaries:
 2. NEVER speak, write dialogue, or take actions on behalf of the player (${profile.name}) or any of the companions.
 3. Do not assume what the companions do next. Describe the outcome of their previous turn and wait for their input.
 4. Keep your output to exactly 1 descriptive paragraph. Do not prefix your output with "Narrator:" or "NARRATOR:". Just write your narrative directly.
+${sandboxRule}
 
 D&D Action Resolution System:
 Check the user's latest prompt. 
-IF AND ONLY IF the prompt starts with "[Action Attempt: ]", you MUST act as the Dungeon Master to resolve it mechanically BEFORE narrating the outcome. 
+IF the prompt CONTAINS "[Action Attempt:", you MUST act as the Dungeon Master to resolve it mechanically BEFORE narrating the outcome. 
 Follow this EXACT sequence for Actions:
 1. Identify the acting character and the most relevant stat (STR, DEX, CON, INT, WIS, CHA).
 2. Calculate the Modifier: (Stat - 10) / 2, rounded down.
 3. Set a realistic Difficulty Class (DC): 5 (Very Easy/Mundane, like picking up a rock), 10 (Easy), 15 (Medium), 20 (Hard), 25 (Very Hard).
-4. "Roll" a d20 (pick a random number 1-20). 
+4. "Roll" a d20 (pick a random number 1-20). Review their items and passives to see if they have Advantage. If they have Advantage, state so, roll twice, and take the higher. If Disadvantage, take the lower.
 5. Add the Roll + Modifier + Inventory/Skill Bonuses to get the Total.
 6. STRICT MATH CHECK: If Total >= DC, it is a Success. If Total < DC, it is a Failure. NEVER output a Success if the Total is lower than the DC!
-7. EXP: Only award EXP on a Success (DC * 10). If Failure, award 0.
+7. EXP: Only award EXP on a Success (DC * 10). Multiply by 1.5x for a Critical Success (Nat 20). If Failure, award 0.
 
 When resolving an [Action Attempt], you MUST begin your response with this exact text block format to prove the math:
 
@@ -3063,69 +3551,9 @@ When resolving an [Action Attempt], you MUST begin your response with this exact
 
 After this block, write your vivid narrative description of what happens.
 
-IMPORTANT: If the narrative involves ANY character acquiring a new item, picking up ANY object (even mundane items like flint, rocks, or herbs), finding loot, looting a defeated enemy, or receiving a reward, you MUST append the exact string [LOOT_PROMPT] at the very end of your response. This signals the system to generate the interactive loot UI. Do not assume the item is automatically in their inventory.`;
-    }
-
-    async function handleExpAndLevelUp(narratorText) {
-      const expMatch = narratorText.match(/\*\*EXP Awarded:\*\*\s*(\d+)/i);
-      const charMatch = narratorText.match(/\*\*Character:\*\*\s*([^\n\*]+)/i);
-      if (!expMatch || !charMatch) return;
-
-      const expGained = parseInt(expMatch[1], 10);
-      const charName = charMatch[1].trim().toLowerCase();
-
-      const activeProfile = getActiveProfile();
-      let targetObj = null; let isUser = false;
-
-      if (activeProfile.name.toLowerCase() === charName) { targetObj = activeProfile; isUser = true; } 
-      else { targetObj = chatbots.find(b => b.name.toLowerCase() === charName); }
-
-      if (!targetObj) return;
-
-      if (!targetObj.exp) targetObj.exp = 0;
-      if (!targetObj.level) targetObj.level = 1;
-      
-      targetObj.exp += expGained;
-      const nextThreshold = EXP_TABLE[targetObj.level + 1];
-
-      if (nextThreshold && targetObj.exp >= nextThreshold) {
-        targetObj.level++;
-        
-        if (appSettings.geminiKey) {
-            try {
-              const typingLbl = $('adventure-typing-text');
-              if (typingLbl) typingLbl.innerText = "System is weaving a new narrative perk...";
-              
-              const perkPrompt = `The character ${targetObj.name} just leveled up to Level ${targetObj.level} in our text adventure. Based on their progression, create a highly thematic but balanced new Skill OR Passive for them. Respond with EXACTLY this JSON format and nothing else:
-{"type": "Skill" or "Passive", "name": "Name of Perk", "description": "Brief description of the mechanical or narrative effect"}`;
-              
-              const historyDump = activeAdventureChatHistory.slice(-10).map(m => m.text).join('\n');
-              const apiMessages = [{role: "user", content: `Recent context:\n${historyDump}\n\nTask: ${perkPrompt}`}];
-              
-              const perkRes = await callGeminiWithFallback(apiMessages, "You are a backend game engine data generator.", appSettings.geminiKey);
-              let perkJsonStr = perkRes.reply.replace(/```json/gi, '').replace(/```/g, '').trim();
-              const perkData = JSON.parse(perkJsonStr);
-
-              if (perkData.type.toLowerCase() === 'skill') {
-                  if (!targetObj.skills) targetObj.skills = [];
-                  targetObj.skills.push({name: perkData.name, description: perkData.description});
-              } else {
-                  if (!targetObj.passives) targetObj.passives = [];
-                  targetObj.passives.push({name: perkData.name, description: perkData.description});
-              }
-
-              const levelUpMsg = `**LEVEL UP!**\n${targetObj.name} reached Level ${targetObj.level}!\n\n**New ${perkData.type} Learned:** ${perkData.name}\n*${perkData.description}*`;
-              activeAdventureChatHistory.push({ sender: 'narrator', text: levelUpMsg });
-            } catch(e) {
-              console.error("Failed to generate perk:", e);
-              activeAdventureChatHistory.push({ sender: 'narrator', text: `**LEVEL UP!**\n${targetObj.name} reached Level ${targetObj.level}!` });
-            }
-        } else {
-           activeAdventureChatHistory.push({ sender: 'narrator', text: `**LEVEL UP!**\n${targetObj.name} reached Level ${targetObj.level}!\n*(API required for dynamic perk generation)*` });
-        }
-      }
-      
-      if (isUser) saveProfilesToLocalStorage(); else saveToLocalStorage();
+IMPORTANT: Differentiate between Grand Rewards and Mundane Pickups!
+- For Grand Rewards (e.g. boss loot, treasure chests, major quest rewards): append the exact string [REWARD_CHOICE] at the very end of your response. This triggers a UI for the user to pick an item or gold.
+- For all other Pickups or Gifting (e.g. picking up a rock, an herb, buying an item, or finding a named sword): append the exact string [ACQUIRE: CharacterName | Item Name | Brief description] at the very end of your response. Ensure you use the exact Name of the Character who picked it up!`;
     }
 
     async function triggerAdventureNarratorResponse() {
@@ -3139,12 +3567,11 @@ IMPORTANT: If the narrative involves ANY character acquiring a new item, picking
       try {
         let reply = '';
         if (activeAdventureChatHistory.length === 0) {
-          const apiMessages = [{ role: "user", content: `Establish the opening scenario of the chronicle. Describe the scene, set the atmosphere, and invite ${getActiveProfile().name} and their companions to take action.` }];
+          const apiMessages = [{ role: "user", content: `Establish the opening scenario of the chronicle. Describe the scene, set the atmosphere, and invite ${getAdventureContextChar(activeProfileId, 'user').name} and their companions to take action.` }];
           if (appSettings.geminiKey) {
             const result = await callGeminiWithFallback(apiMessages, systemPrompt, appSettings.geminiKey); reply = result.reply;
           } else reply = `The air is thick with anticipation. Under the dark archway of ${adventureStoryTitle || 'The Unknown Sector'}, your party stands ready. The path forward remains unclear. What do you do?`;
         } else {
-          // Filter out the system_loot messages so the AI doesn't get confused by UI payload text
           const apiMessages = activeAdventureChatHistory.filter(m => m.sender !== 'system_loot').map(msg => {
             return { role: msg.sender === 'narrator' ? 'assistant' : 'user', content: `${getAdventureSpeakerName(msg.sender)}: ${msg.text}` };
           });
@@ -3155,17 +3582,74 @@ IMPORTANT: If the narrative involves ANY character acquiring a new item, picking
 
         const nameRegex = new RegExp(`^(Narrator):\\s*`, "gi"); reply = reply.replace(nameRegex, '').replace(nameRegex, '');
         
-        // Detect Loot Prompt
-        let hasLoot = false;
-        if (reply.includes('[LOOT_PROMPT]')) {
-            hasLoot = true;
-            reply = reply.replace(/\[LOOT_PROMPT\]/g, '').trim();
-        }
+        let hasRewardChoice = false;
+        let acquireMatch = reply.match(/\[ACQUIRE:\s*([^\]]+)\]/i);
 
-        activeAdventureChatHistory.push({ sender: 'narrator', text: reply }); 
+        if (reply.includes('[REWARD_CHOICE]')) {
+            hasRewardChoice = true;
+            reply = reply.replace(/\[REWARD_CHOICE\]/g, '').trim();
+        }
+        
+        if (acquireMatch) {
+            let parts = acquireMatch[1].split('|').map(s => s.trim());
+            let charName, itemName, itemDesc;
+            
+            if (parts.length >= 3) {
+                charName = parts[0]; itemName = parts[1]; itemDesc = parts[2];
+            } else if (parts.length === 2) {
+                charName = getAdventureContextChar(activeProfileId, 'user').name; 
+                itemName = parts[0]; itemDesc = parts[1];
+            } else {
+                charName = getAdventureContextChar(activeProfileId, 'user').name; 
+                itemName = parts[0]; itemDesc = "A mundane item.";
+            }
+
+            reply = reply.replace(acquireMatch[0], '').trim();
+            
+            let targetObj = null;
+            const activeProfile = getAdventureContextChar(activeProfileId, 'user');
+            if (activeProfile.name.toLowerCase() === charName.toLowerCase()) { targetObj = activeProfile; } 
+            else { 
+               const foundId = selectedAdventureBotIds.find(id => getAdventureContextChar(id, 'bot').name.toLowerCase() === charName.toLowerCase());
+               if (foundId) targetObj = getAdventureContextChar(foundId, 'bot');
+            }
+            if (!targetObj) targetObj = activeProfile; // Fallback to player
+            
+            const historyDump = activeAdventureChatHistory.slice(Math.max(activeAdventureChatHistory.length - 10, 0)).filter(m => m.sender !== 'system_loot').map(m => m.text).join('\n');
+            const itemPrompt = `The character ${targetObj.name} just acquired an item named "${itemName}" (Description given: "${itemDesc}"). Context:\n${historyDump}\n\nCategorize this item intelligently based on what it is (Weapons, Armor, Consumables, Utility, Items, Quest Items). ANY drinkable, potion, or food MUST be categorized as "Consumables". If it's a powerful/special/magical item, give it appropriate bonuses. If it's totally mundane (like a standard rock or normal branch), leave bonuses blank. Also generate 2-3 relevant comma-separated tags (like 'Potion, Healing' or 'Junk'). Return STRICTLY JSON: {"name": "${itemName}", "category": "Consumables", "tags": "...", "description": "...", "bonuses": "...", "activatedSkills": "...", "curses": ""}`;
+            
+            try {
+                const itemRes = await callGeminiWithFallback([{role: "user", content: itemPrompt}], "You are a backend game engine data generator.", appSettings.geminiKey);
+                const iStart = itemRes.reply.indexOf('{');
+                const iEnd = itemRes.reply.lastIndexOf('}');
+                if (iStart !== -1 && iEnd !== -1) {
+                    const parsedItem = JSON.parse(itemRes.reply.substring(iStart, iEnd + 1));
+                    if (!targetObj.inventory) targetObj.inventory = [];
+                    targetObj.inventory.push({ 
+                        name: parsedItem.name, 
+                        category: ITEM_CATEGORIES.includes(parsedItem.category) ? parsedItem.category : 'Items', 
+                        tags: parsedItem.tags || '',
+                        description: parsedItem.description, 
+                        bonuses: parsedItem.bonuses || '', 
+                        activatedSkills: parsedItem.activatedSkills || '', 
+                        curses: parsedItem.curses || '' 
+                    });
+                } else throw new Error("JSON fail");
+            } catch(e) {
+                if (!targetObj.inventory) targetObj.inventory = [];
+                targetObj.inventory.push({ name: itemName, category: 'Items', tags: '', description: itemDesc });
+            }
+
+            autoSaveAdventure();
+            activeAdventureChatHistory.push({ sender: 'narrator', text: reply });
+            activeAdventureChatHistory.push({ sender: 'narrator', text: `*(Added ${itemName} to ${targetObj.name}'s inventory)*` });
+        } else {
+            activeAdventureChatHistory.push({ sender: 'narrator', text: reply }); 
+        }
+        
         await handleExpAndLevelUp(reply);
 
-        if (hasLoot) {
+        if (hasRewardChoice) {
             activeAdventureChatHistory.push({ sender: 'system_loot', text: 'System UI Payload' });
         }
 
@@ -3182,7 +3666,7 @@ IMPORTANT: If the narrative involves ANY character acquiring a new item, picking
       if (typingInd) typingInd.classList.remove('hidden');
       if (typingLbl) typingLbl.innerText = `${bot.name} is preparing actions...`;
 
-      const activeProfile = getActiveProfile();
+      const activeProfile = getAdventureContextChar(activeProfileId, 'user');
       const sentenceConstraint = getAdventureSentenceConstraint();
       const botSystemPrompt = `You are the party companion named ${bot.name}.
 Physical Appearance: ${bot.appearance || 'Not specified'}
@@ -3243,7 +3727,7 @@ Your Strict Boundaries:
       async function runBots() {
         if (pendingParticipants.length > 0) {
           const nextBotId = pendingParticipants.shift();
-          const bot = chatbots.find(b => b.id === nextBotId);
+          const bot = getAdventureContextChar(nextBotId, 'bot');
           if (bot) { 
             await triggerAdventureBotResponse(bot); 
             setTimeout(runBots, 400); 
@@ -3255,6 +3739,11 @@ Your Strict Boundaries:
         await runBots();
       } else {
         await triggerAdventureNarratorResponse();
+        
+        // Prevent bots from responding if a Reward Choice was triggered, wait for user resolution
+        const lastMsg = activeAdventureChatHistory[activeAdventureChatHistory.length - 1];
+        if (lastMsg && lastMsg.sender === 'system_loot') return;
+        
         await runBots();
       }
     }
@@ -3343,9 +3832,17 @@ Your Strict Boundaries:
           if (!bVoice && bTts === 'gemini') return alert("Please select a prebuilt voice configuration to test.");
 
           const tempBotForVoice = { name: "Test System", voiceName: bVoice, voicePrompt: bVoicePr, ttsEngine: bTts };
-          $('test-voice-btn').disabled = true; const originalText = $('test-voice-btn').innerText; $('test-voice-btn').innerText = "Synthesizing...";
+          
+          $('test-voice-btn').disabled = true; 
+          const originalTextSpan = $('test-voice-btn').querySelector('span');
+          const originalText = originalTextSpan ? originalTextSpan.innerText : 'Test Voice';
+          if (originalTextSpan) originalTextSpan.innerText = "Synthesizing...";
+          
           try { await speakMessage("System check. Audio synthesis is fully operational.", tempBotForVoice, null); } 
-          catch (e) {} finally { $('test-voice-btn').disabled = false; $('test-voice-btn').innerText = originalText; }
+          catch (e) {} finally { 
+            $('test-voice-btn').disabled = false; 
+            if (originalTextSpan) originalTextSpan.innerText = originalText; 
+          }
         });
       }
 
