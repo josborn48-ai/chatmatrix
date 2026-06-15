@@ -42,7 +42,7 @@
 <body class="bg-black flex justify-center items-center min-h-screen p-0 sm:p-4 text-white font-sans selection:bg-red-800 selection:text-white">
 
   <!-- Virtual Mobile Frame Container -->
-  <div class="w-full max-w-md h-[100vh] sm:h-[850px] bg-neutral-950 sm:rounded-3xl shadow-[0_0_50px_rgba(220,38,38,0.15)] overflow-hidden flex flex-col border border-neutral-900 relative">
+  <div class="w-full max-w-md h-[100dvh] sm:h-[850px] bg-neutral-950 sm:rounded-3xl shadow-[0_0_50px_rgba(220,38,38,0.15)] overflow-hidden flex flex-col border border-neutral-900 relative">
     
     <!-- App Status Header -->
     <header class="bg-black border-b border-neutral-900 px-4 py-3 grid grid-cols-3 items-center z-10 relative shrink-0">
@@ -130,15 +130,15 @@
               </div>
             </button>
 
-            <button onclick="selectChatMode('vocal')" class="bg-neutral-955/40 border border-neutral-900 hover:border-red-900/30 p-3 rounded-2xl flex flex-col items-center justify-center gap-2 transition-all cursor-pointer group opacity-55 hover:opacity-80 active:scale-95">
-              <div class="w-12 h-12 rounded-xl bg-neutral-900/50 border border-neutral-800/80 flex items-center justify-center">
-                <svg class="w-6 h-6 text-neutral-600" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z"></path>
+            <button onclick="selectChatMode('cybermind')" class="bg-red-955/10 hover:bg-red-955/25 border-2 border-red-850 hover:border-red-500 p-3 rounded-2xl flex flex-col items-center justify-center gap-2 transition-all cursor-pointer group shadow-[0_0_15px_rgba(185,28,28,0.15)] active:scale-95">
+              <div class="w-12 h-12 rounded-xl bg-red-950/40 border border-red-800/40 flex items-center justify-center group-hover:scale-105 transition-transform duration-200">
+                <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
                 </svg>
               </div>
               <div class="text-center">
-                <span class="text-[11px] font-bold uppercase tracking-wider text-neutral-400 block">Holo-Vocal</span>
-                <span class="text-[8px] text-neutral-650 font-bold block uppercase tracking-wide">Locked</span>
+                <span class="text-[11px] font-black uppercase tracking-wider text-neutral-100 block">Cybermind</span>
+                <span class="text-[8px] text-red-400 font-bold block uppercase tracking-wide">Ready</span>
               </div>
             </button>
             
@@ -280,6 +280,7 @@
             <select id="bot-model" class="bg-black border border-neutral-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-red-700 text-white transition-all">
               <option value="gemini" selected>Google Gemini Direct API (Dynamic Auto-Failover)</option>
               <option value="local">Local LLM (Ollama, LM Studio, etc.)</option>
+              <option value="browser-gguf">In-Browser Direct GGUF (Hugging Face Offline Core)</option>
             </select>
           </div>
 
@@ -406,7 +407,7 @@
                 </label>
               </div>
 
-              <button id="test-voice-btn" type="button" class="bg-neutral-900 hover:bg-neutral-855 border border-neutral-800 text-neutral-300 font-semibold py-2 px-3 rounded-xl text-xs transition-all active:scale-[0.98] self-start flex items-center gap-1.5">
+              <button id="test-voice-btn" type="button" class="bg-neutral-900 hover:bg-neutral-855 border border-neutral-800 text-neutral-300 font-semibold py-2.5 px-3 rounded-xl text-xs transition-all active:scale-[0.98] self-start flex items-center gap-1.5">
                 <span>Test Voice</span>
               </button>
             </div>
@@ -655,7 +656,7 @@
           <div class="flex flex-col gap-2">
             <div class="flex items-center gap-2">
               <input type="file" id="adventure-default-bg-input" accept="image/*" class="hidden">
-              <button onclick="$('adventure-default-bg-input').click()" class="bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 text-neutral-300 font-semibold py-2.5 px-4 rounded-xl text-xs transition-all active:scale-[0.98] flex items-center justify-center gap-2 flex-1">
+              <button onclick="window.$('adventure-default-bg-input').click()" class="bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 text-neutral-300 font-semibold py-2.5 px-4 rounded-xl text-xs transition-all active:scale-[0.98] flex items-center justify-center gap-2 flex-1">
                 <svg class="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
                 From Device
               </button>
@@ -739,7 +740,7 @@
             <a href="https://perchance.org/ai-art-generator-advanced" target="_blank" class="bg-black/80 hover:bg-neutral-900 border border-amber-900/60 text-[10px] text-amber-500 font-extrabold px-3 py-1.5 rounded-lg backdrop-blur-md shadow-md transition-colors cursor-pointer text-center flex items-center" title="Generate with Perchance">
               GENERATE
             </a>
-            <button onclick="$('adventure-chat-bg-upload').click()" class="bg-black/80 hover:bg-neutral-900 border border-red-900/60 text-[10px] text-red-400 font-extrabold px-3 py-1.5 rounded-lg backdrop-blur-md shadow-md transition-colors cursor-pointer" title="Load scenery image">
+            <button onclick="window.$('adventure-chat-bg-upload').click()" class="bg-black/80 hover:bg-neutral-900 border border-red-900/60 text-[10px] text-red-400 font-extrabold px-3 py-1.5 rounded-lg backdrop-blur-md shadow-md transition-colors cursor-pointer" title="Load scenery image">
               UPLOAD
             </button>
           </div>
@@ -776,6 +777,97 @@
             </svg>
           </button>
         </div>
+      </section>
+
+      <!-- ================= STAGE 9: CYBERMIND CONFIGURATION ================= -->
+      <section id="stage-9" class="hidden p-6 flex-1 flex flex-col gap-5 overflow-y-auto">
+        <div class="flex items-center gap-3">
+          <button id="stage9-back-btn" class="text-neutral-400 hover:text-white transition-all">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path>
+            </svg>
+          </button>
+          <div>
+            <h2 class="text-xl font-bold text-neutral-100">Cybermind Portal</h2>
+            <p class="text-xs text-neutral-400 mt-0.5">Calibrate your synthetic core and connect local LLMs.</p>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-4">
+          <!-- Gemini Direct API Settings -->
+          <div class="bg-neutral-950/60 border border-neutral-900 p-4 rounded-2xl flex flex-col gap-3">
+            <span class="text-xs font-black uppercase tracking-wider text-red-500">Google Gemini Cloud Core</span>
+            
+            <div class="flex flex-col gap-1.5">
+              <div class="flex justify-between items-center">
+                <label class="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Gemini API Key</label>
+                <a href="https://aistudio.google.com/" target="_blank" class="text-[10px] text-red-500 hover:underline">Get Free Key ↗</a>
+              </div>
+              <input id="cybermind-gemini-key" type="password" 
+                class="bg-black border border-neutral-800 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-red-700 placeholder:text-neutral-700 text-white"
+                placeholder="Google AI Studio Key">
+            </div>
+          </div>
+
+          <!-- Local LLM Orchestration Settings -->
+          <div class="bg-neutral-950/60 border border-neutral-900 p-4 rounded-2xl flex flex-col gap-3">
+            <span class="text-xs font-black uppercase tracking-wider text-red-500">Local LLM Orchestration (.GGUF Setup)</span>
+            
+            <div class="flex flex-col gap-1.5">
+              <label class="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Connection Endpoint URL</label>
+              <input id="cybermind-local-url" type="text" 
+                class="bg-black border border-neutral-800 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-red-700 placeholder:text-neutral-700 text-white"
+                placeholder="e.g., http://localhost:1234/v1 (LM Studio) or http://localhost:11434/v1 (Ollama)">
+              <p class="text-[9px] text-neutral-600 leading-tight">Connects to your local model serving API. Verify CORS options are enabled on your server.</p>
+            </div>
+
+            <div class="flex flex-col gap-1.5">
+              <label class="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Loaded Model Name / Tag</label>
+              <input id="cybermind-local-model" type="text" 
+                class="bg-black border border-neutral-800 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-red-700 placeholder:text-neutral-700 text-white"
+                placeholder="e.g., mistral, llama3, qwen">
+            </div>
+          </div>
+
+          <!-- Local GGUF File Loader -->
+          <div class="bg-neutral-950/60 border border-neutral-800 p-4 rounded-2xl flex flex-col gap-2.5">
+            <div class="flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+              <span class="text-xs font-black uppercase tracking-wider text-amber-500">In-Browser Local GGUF Loader</span>
+            </div>
+            <p class="text-[10px] text-neutral-500 leading-tight">Run a quantized model (strongly recommend <= 3B parameters) straight from your device. No internet required; your model is processed completely locally in the browser sandbox.</p>
+            
+            <div class="flex flex-col gap-1.5 mt-1">
+              <label class="text-[9px] font-bold uppercase tracking-wider text-neutral-400">Select GGUF Model File</label>
+              <input type="file" id="cybermind-local-file-input" accept=".gguf" class="hidden">
+              <button onclick="window.$('cybermind-local-file-input').click()" type="button" class="bg-neutral-900 hover:bg-neutral-800 text-amber-500 hover:text-amber-400 font-black py-3 px-4 rounded-xl border border-neutral-800 hover:border-amber-900/60 text-xs transition-all active:scale-[0.98] flex items-center justify-center gap-1.5 w-full">
+                <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                Choose GGUF File from Device
+              </button>
+              <span id="cybermind-local-file-name" class="text-[10px] text-neutral-500 italic text-center mt-0.5 block truncate">No GGUF file loaded</span>
+            </div>
+
+            <!-- Native Model Loading & Progress Bar -->
+            <div id="cybermind-download-container" class="hidden mt-2 bg-black border border-neutral-800 rounded-xl p-3 flex flex-col gap-2">
+              <div class="flex justify-between items-center text-[10px]">
+                <span id="cybermind-download-status" class="text-amber-500 font-bold uppercase tracking-wide">Initializing engine...</span>
+                <span id="cybermind-download-pct" class="text-neutral-400 font-bold">0%</span>
+              </div>
+              <div class="w-full h-1.5 bg-neutral-900 rounded-full overflow-hidden">
+                <div id="cybermind-download-bar" class="h-full bg-amber-500 transition-all duration-300 w-0"></div>
+              </div>
+            </div>
+
+            <!-- Dynamic Download Action Button -->
+            <button id="cybermind-download-trigger-btn" type="button" class="w-full bg-neutral-900 hover:bg-neutral-800 text-amber-500 hover:text-amber-400 font-black py-2.5 px-4 rounded-xl border border-neutral-800 hover:border-amber-900/60 text-xs transition-all active:scale-[0.98] mt-1 flex items-center justify-center gap-1.5">
+              <span>Initialize & Load Model</span>
+            </button>
+          </div>
+        </div>
+
+        <button id="cybermind-save-btn" class="w-full bg-red-700 hover:bg-red-600 text-white font-bold py-3.5 rounded-xl text-sm transition-all shadow-[0_0_20px_rgba(220,38,38,0.2)] active:scale-95 mt-auto">
+          SAVE CYBERMIND CORE
+        </button>
       </section>
 
     </main>
@@ -847,7 +939,7 @@
           <div id="inv-item-overlay" class="hidden flex-col gap-2 pt-1">
               <div class="flex justify-between items-start border-b border-neutral-800 pb-2">
                   <div class="flex gap-2 items-start w-full pr-1">
-                      <div class="w-12 h-12 rounded-lg border border-neutral-700 bg-neutral-900 overflow-hidden flex items-center justify-center shrink-0 cursor-pointer hover:border-amber-500 transition-colors relative group" onclick="$('inv-editor-img-input').click()">
+                      <div class="w-12 h-12 rounded-lg border border-neutral-700 bg-neutral-900 overflow-hidden flex items-center justify-center shrink-0 cursor-pointer hover:border-amber-500 transition-colors relative group" onclick="window.$('inv-editor-img-input').click()">
                           <span class="text-[10px] text-neutral-600 font-bold" id="inv-editor-img-placeholder">IMG</span>
                           <img id="inv-editor-img" class="w-full h-full object-cover hidden">
                           <div class="absolute inset-0 bg-black/60 hidden group-hover:flex items-center justify-center text-[14px]">📷</div>
@@ -878,7 +970,10 @@
                       <textarea id="inv-editor-desc" rows="3" class="bg-black border border-neutral-800 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-amber-500 text-white resize-none leading-relaxed" placeholder="Item description..."></textarea>
                   </div>
                   <div class="flex flex-col gap-1">
-                      <label class="text-[9px] uppercase tracking-wider font-bold text-purple-400 pl-1">Active Skills</label>
+                      <div class="flex justify-between items-center pr-1">
+                          <label class="text-[9px] uppercase tracking-wider font-bold text-purple-400 pl-1">Active Skills</label>
+                          <button type="button" onclick="extractSkillFromItem()" class="bg-purple-900/40 hover:bg-purple-800 text-purple-300 px-2 py-0.5 rounded text-[8px] font-bold transition-colors">Extract to Sheet</button>
+                      </div>
                       <textarea id="inv-editor-skills" rows="3" class="bg-black border border-neutral-800 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-purple-500 text-white resize-none leading-relaxed" placeholder="e.g. Cleave"></textarea>
                   </div>
                   <div class="flex flex-col gap-1">
@@ -893,6 +988,7 @@
               
               <div class="flex gap-2 mt-1">
                   <button id="inv-editor-delete-btn" onclick="deleteInventoryItem()" class="bg-red-955/40 hover:bg-red-900 border border-red-900/50 text-red-500 px-3 py-1.5 rounded-lg text-[10px] font-bold transition-colors">Del</button>
+                  <button onclick="regenerateItemStats(event)" class="bg-purple-900/40 hover:bg-purple-800 border border-purple-900/50 text-purple-400 hover:text-white px-3 py-1.5 rounded-lg text-[10px] font-bold transition-colors shadow">Re-roll</button>
                   <button onclick="saveInventoryItem()" class="flex-1 bg-amber-700 hover:bg-amber-600 text-black px-3 py-1.5 rounded-lg text-[10px] font-bold transition-colors shadow tracking-wider">SAVE ITEM</button>
               </div>
           </div>
@@ -905,6 +1001,11 @@
         <input id="sheet-eq-name" type="text" class="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-red-700 text-white" placeholder="Name">
         <textarea id="sheet-eq-desc" rows="3" class="bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-red-700 text-white resize-none" placeholder="Description"></textarea>
 
+        <div id="sheet-skill-toggle-container" class="hidden items-center justify-between bg-neutral-900 border border-neutral-800 rounded-lg px-3 py-2 mt-1">
+            <span class="text-[9px] font-bold text-neutral-400 uppercase">Show in Quick Action Menu</span>
+            <input type="checkbox" id="sheet-eq-show-menu" class="w-3.5 h-3.5 accent-purple-600 rounded bg-black border-neutral-700">
+        </div>
+
         <div class="flex gap-2 mt-1">
           <button onclick="deleteSheetItem()" id="sheet-eq-delete-btn" class="bg-red-955/40 hover:bg-red-900 text-red-500 px-3 py-1.5 rounded-lg text-[10px] font-bold transition-colors">Delete</button>
           <button onclick="closeSheetEditor()" class="flex-1 bg-neutral-800 hover:bg-neutral-700 text-white px-3 py-1.5 rounded-lg text-[10px] font-bold transition-colors">Cancel</button>
@@ -914,7 +1015,7 @@
 
       <!-- Action Footer -->
       <div class="flex gap-3 mt-4">
-        <button onclick="$('character-sheet-modal').classList.add('hidden')" class="flex-1 bg-transparent text-neutral-400 hover:text-white font-semibold py-2.5 rounded-xl text-xs border border-neutral-800 transition-all">
+        <button onclick="window.$('character-sheet-modal').classList.add('hidden')" class="flex-1 bg-transparent text-neutral-400 hover:text-white font-semibold py-2.5 rounded-xl text-xs border border-neutral-800 transition-all">
           Cancel
         </button>
         <button onclick="saveCharacterSheet()" class="flex-1 bg-red-700 hover:bg-red-600 text-white font-semibold py-2.5 rounded-xl text-xs transition-all shadow-lg">
@@ -928,33 +1029,19 @@
   <div id="settings-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-md flex justify-center items-center z-50 p-4">
     <div class="bg-neutral-950 border border-neutral-900 w-full max-w-sm rounded-3xl p-6 flex flex-col gap-4 shadow-[0_0_50px_rgba(220,38,38,0.1)]">
       <div>
-        <h3 class="text-lg font-bold text-neutral-100">AI Engine Settings</h3>
-        <p class="text-xs text-neutral-500 mt-0.5">Configure direct APIs and local LLM options.</p>
+        <h3 class="text-lg font-bold text-neutral-100">Portal Settings</h3>
+        <p class="text-xs text-neutral-500 mt-0.5">Manage backups, sandbox rules, and hidden entities.</p>
       </div>
 
       <div class="flex flex-col gap-3">
+        <!-- Backup & Restore -->
         <div class="flex flex-col gap-1.5">
-          <div class="flex justify-between items-center">
-            <label class="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Gemini API Key</label>
-            <a href="https://aistudio.google.com/" target="_blank" class="text-[10px] text-red-500 hover:underline">Get Free Key ↗</a>
+          <label class="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Backup & Restore Data</label>
+          <div class="flex gap-2">
+            <button type="button" onclick="exportAppData()" class="flex-1 bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 text-neutral-300 font-bold py-1.5 rounded-lg text-[10px] transition-all cursor-pointer">Export Backup (JSON)</button>
+            <button type="button" onclick="window.$('import-file-input').click()" class="flex-1 bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 text-neutral-300 font-bold py-1.5 rounded-lg text-[10px] transition-all cursor-pointer">Import Backup</button>
+            <input type="file" id="import-file-input" accept=".json" class="hidden" onchange="importAppData(event)">
           </div>
-          <input id="settings-gemini-key" type="password" 
-            class="bg-black border border-neutral-800 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-red-700 placeholder:text-neutral-700 text-white"
-            placeholder="Google AI Studio Key">
-        </div>
-
-        <div class="flex flex-col gap-1.5">
-          <label class="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Local LLM Endpoint URL</label>
-          <input id="settings-local-url" type="text" 
-            class="bg-black border border-neutral-800 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-red-700 placeholder:text-neutral-700 text-white"
-            placeholder="e.g., http://localhost:1234/v1">
-        </div>
-
-        <div class="flex flex-col gap-1.5">
-          <label class="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Local Model Name</label>
-          <input id="settings-local-model" type="text" 
-            class="bg-black border border-neutral-800 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-red-700 placeholder:text-neutral-700 text-white"
-            placeholder="e.g., mistral, llama3">
         </div>
 
         <div class="flex flex-col gap-1.5 border-t border-neutral-900 pt-4" id="settings-unhide-section">
@@ -989,8 +1076,9 @@
 
   <!-- APPLICATION LOGIC & STAGES STATE MACHINE -->
   <script>
-    // DOM Shorthand
+    // DOM Shorthand - Bound to window to guarantee availability in inline handlers
     const $ = id => document.getElementById(id);
+    window.$ = $;
 
     let appMode = 'creator'; 
     let chatbots = [];         
@@ -1051,7 +1139,22 @@
     let activeMenuIdx = null;
     let hasManuallyEditedPrompt = false;
 
-    let appSettings = { geminiKey: '', localUrl: 'http://localhost:1234/v1', localModel: 'mistral', sandboxMode: false };
+    // Direct WebAssembly Model State parameters
+    let wllamaInstance = null;
+    let isWllamaLoading = false;
+    let currentlyLoadedRepo = '';
+    let currentlyLoadedFile = '';
+    let isCybermindReady = false;
+    let selectedGgufFileList = null;
+
+    let appSettings = { 
+      geminiKey: '', 
+      localUrl: 'http://localhost:1234/v1', 
+      localModel: 'mistral', 
+      sandboxMode: false,
+      hfRepo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',
+      hfFilename: 'qwen2.5-0.5b-instruct-q4_k_m.gguf'
+    };
 
     const defaultProfile = {
       id: 'default_user', name: 'Creator', appearance: 'Human developer', backstory: 'The creator of this synthetic space.',
@@ -1235,14 +1338,14 @@
         activeProfileId = await getDBValue('botforge_active_profile', null);
         const cleanProfiles = userProfiles.filter(p => p);
         if (cleanProfiles.length === 0) {
-          userProfiles.push(defaultProfile);
+          userProfiles.push(JSON.parse(JSON.stringify(defaultProfile)));
           activeProfileId = defaultProfile.id;
           saveProfilesToLocalStorage();
         } else if (!activeProfileId || !cleanProfiles.some(p => p.id === activeProfileId)) {
           activeProfileId = cleanProfiles[0].id;
         }
       } catch (e) { 
-        userProfiles = [defaultProfile];
+        userProfiles = [JSON.parse(JSON.stringify(defaultProfile))];
         activeProfileId = defaultProfile.id; 
         saveProfilesToLocalStorage();
       }
@@ -1255,9 +1358,6 @@
 
     if ($('home-settings-btn')) {
       $('home-settings-btn').addEventListener('click', () => {
-        $('settings-gemini-key').value = appSettings.geminiKey || '';
-        $('settings-local-url').value = appSettings.localUrl || 'http://localhost:1234/v1';
-        $('settings-local-model').value = appSettings.localModel || 'mistral';
         if ($('settings-sandbox-mode')) $('settings-sandbox-mode').checked = !!appSettings.sandboxMode;
         populateSettingsHiddenBots();
         $('settings-modal').classList.remove('hidden');
@@ -1268,13 +1368,57 @@
 
     if ($('settings-save-btn')) {
       $('settings-save-btn').addEventListener('click', () => {
-        appSettings.geminiKey = $('settings-gemini-key').value.trim(); 
-        appSettings.localUrl = $('settings-local-url').value.trim(); 
-        appSettings.localModel = $('settings-local-model').value.trim();
         appSettings.sandboxMode = $('settings-sandbox-mode') ? $('settings-sandbox-mode').checked : false;
         saveSettings(); $('settings-modal').classList.add('hidden');
       });
     }
+
+    // Backup & Restore
+    window.exportAppData = async function() {
+      const data = {
+        bots: await getDBValue('botforge_bots', []),
+        hiddenBots: await getDBValue('botforge_hidden_bots', []),
+        settings: await getDBValue('botforge_settings', {}),
+        profiles: await getDBValue('botforge_user_profiles', []),
+        activeProfile: await getDBValue('botforge_active_profile', null),
+        adventures: await getDBValue('botforge_adventures', []),
+        lastAdventure: await getDBValue('botforge_last_adventure', null)
+      };
+      const json = JSON.stringify(data, null, 2);
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `botforge_backup_${Date.now()}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    };
+
+    window.importAppData = async function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = async function(evt) {
+        try {
+          const data = JSON.parse(evt.target.result);
+          if (data.bots) await setDBValue('botforge_bots', data.bots);
+          if (data.hiddenBots) await setDBValue('botforge_hidden_bots', data.hiddenBots);
+          if (data.settings) await setDBValue('botforge_settings', data.settings);
+          if (data.profiles) await setDBValue('botforge_user_profiles', data.profiles);
+          if (data.activeProfile) await setDBValue('botforge_active_profile', data.activeProfile);
+          if (data.adventures) await setDBValue('botforge_adventures', data.adventures);
+          if (data.lastAdventure) await setDBValue('botforge_last_adventure', data.lastAdventure);
+          
+          alert("Data imported successfully! Reloading the studio...");
+          window.location.reload();
+        } catch(err) {
+          alert("Failed to import. Invalid JSON file format.");
+        }
+      };
+      reader.readAsText(file);
+    };
 
     function destroyCroppers() {
         if (cropperInstance) { cropperInstance.destroy(); cropperInstance = null; }
@@ -1283,7 +1427,7 @@
 
     // ================= STAGE ROUTER =================
     function updateStageUI() {
-      [0,1,2,3,4,5,6,7,8].forEach(i => {
+      [0,1,2,3,4,5,6,7,8,9].forEach(i => {
         const id = i === 4 ? 'stage-profile-form' : `stage-${i}`;
         if ($(id)) $(id).classList.toggle('hidden', currentStage !== i);
       });
@@ -1330,6 +1474,13 @@
       } else if (currentStage === 8) {
         if (ind) { ind.innerText = "RPG Active Chronicle"; ind.className = "text-xs text-rose-500 font-medium bg-rose-955/40 px-2.5 py-1 rounded-full border border-rose-955"; }
         renderStage8AdventureChat();
+      } else if (currentStage === 9) {
+        if (ind) { ind.innerText = "Cybermind Setup"; ind.className = "text-xs text-red-500 font-medium bg-red-955/40 px-2.5 py-1 rounded-full border border-red-955"; }
+        if ($('cybermind-gemini-key')) $('cybermind-gemini-key').value = appSettings.geminiKey || '';
+        if ($('cybermind-local-url')) $('cybermind-local-url').value = appSettings.localUrl || 'http://localhost:1234/v1';
+        if ($('cybermind-local-model')) $('cybermind-local-model').value = appSettings.localModel || 'mistral';
+        if ($('cybermind-hf-repo')) $('cybermind-hf-repo').value = appSettings.hfRepo || 'Qwen/Qwen2.5-0.5B-Instruct-GGUF';
+        if ($('cybermind-hf-filename')) $('cybermind-hf-filename').value = appSettings.hfFilename || 'qwen2.5-0.5b-instruct-q4_k_m.gguf';
       }
     }
 
@@ -1416,7 +1567,7 @@
         const row = document.createElement('div');
         row.className = "flex items-center justify-between gap-2 p-1.5 border-b border-neutral-900 last:border-b-0";
         row.innerHTML = `
-          <span class="text-[10px] font-bold text-neutral-300 truncate max-w-[120px]">${bot.name}</span>
+          <span class="text-[10px] font-bold text-neutral-305 truncate max-w-[120px]">${bot.name}</span>
           <button onclick="unhideBot('${bot.id}')" class="bg-red-750 hover:bg-red-700 text-white font-bold py-1 px-2.5 rounded-lg text-[9px] transition-all cursor-pointer">Unhide Chatbot</button>
         `;
         list.appendChild(row);
@@ -1432,7 +1583,10 @@
       if (!$('profile-list')) return;
       $('profile-list').innerHTML = '';
       let renderList = userProfiles.filter(p => p);
-      if (renderList.length === 0) { renderList.push(defaultProfile); activeProfileId = defaultProfile.id; }
+      if (renderList.length === 0) { 
+        renderList.push(JSON.parse(JSON.stringify(defaultProfile))); 
+        activeProfileId = defaultProfile.id; 
+      }
 
       renderList.forEach(p => {
         const isActive = p.id === activeProfileId;
@@ -1964,7 +2118,7 @@ Roleplay Instructions:
 
     function getActiveProfile() {
       const active = userProfiles.find(p => p && p.id === activeProfileId);
-      return active || defaultProfile;
+      return active || JSON.parse(JSON.stringify(defaultProfile));
     }
 
     function parseMarkdown(text) {
@@ -2004,12 +2158,12 @@ Roleplay Instructions:
     }
 
     async function speakGeminiNativeTTS(text, bot, apiKey, modelName) {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
       const stylePrefix = bot.voicePrompt ? `[Style: ${bot.voicePrompt}] ` : "";
       const payload = {
         contents: [ { parts: [ { text: `${stylePrefix}${text}` } ] } ],
         generationConfig: { responseModalities: ["AUDIO"], speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: bot.voiceName || "Kore" } } } }
       };
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
       const response = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
       if (!response.ok) await handleFetchError(response);
       const data = await response.json(); return data.candidates[0].content.parts[0].inlineData.data;
@@ -2035,6 +2189,17 @@ Roleplay Instructions:
         }
       }
       currentAudio = null; isAudioPlaying = false; playingAudioIndex = null;
+      
+      for (const idx in speechAudioCache) {
+        if (speechAudioCache[idx]) {
+          Promise.resolve(speechAudioCache[idx]).then(url => {
+            if (url && typeof url === 'string' && url.startsWith('blob:')) {
+              try { URL.revokeObjectURL(url); } catch(e){}
+            }
+          }).catch(e => {});
+        }
+      }
+
       speechQueue = []; currentQueueIndex = 0; isQueuePlaying = false; speechAudioCache = {}; 
       if ($('chat-bg-layer')) $('chat-bg-layer').style.filter = 'brightness(1)';
       if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; }
@@ -2193,8 +2358,11 @@ Roleplay Instructions:
       for (const model of GEMINI_MODELS) {
         try { const reply = await callGeminiDirect(apiMessages, systemPrompt, apiKey, model); return { reply, modelUsed: model }; } 
         catch (err) {
-          lastError = err; const errStr = err.message.toLowerCase();
-          if (errStr.includes("quota") || errStr.includes("limit") || errStr.includes("429") || errStr.includes("rate") || errStr.includes("timeout") || errStr.includes("fetch") || errStr.includes("503") || errStr.includes("500") || errStr.includes("server") || errStr.includes("unavailable")) continue;
+          const errStr = err.message.toLowerCase();
+          if (errStr.includes("quota") || errStr.includes("limit") || errStr.includes("429") || errStr.includes("rate") || errStr.includes("timeout") || errStr.includes("fetch") || errStr.includes("503") || errStr.includes("500") || errStr.includes("server") || errStr.includes("unavailable")) {
+            lastError = err;
+            continue;
+          }
           else throw err;
         }
       }
@@ -2216,7 +2384,6 @@ Roleplay Instructions:
       
       let bgUrl = bot.fullImageUrl || bot.avatarUrl || 'none';
       
-      // Parse active moods from the last response
       const lastBotMsg = [...activeChatHistory].reverse().find(m => m.sender === 'bot');
       if (lastBotMsg && bot.moods && bot.moods.length > 0) {
         const text = lastBotMsg.text.toLowerCase();
@@ -2417,6 +2584,106 @@ Roleplay Instructions:
       if (shouldScrollToBottom) $('chat-messages-container').scrollTop = $('chat-messages-container').scrollHeight;
     }
 
+    // ================= DYNAMIC DIRECT WASM LOADER =================
+    async function getOrInitWllamaFromLocalFile(fileList) {
+      if (!fileList || fileList.length === 0) {
+        return alert("Please select a local GGUF model file first using the selector button.");
+      }
+
+      const container = $('cybermind-download-container');
+      const statusLbl = $('cybermind-download-status');
+      const pctLbl = $('cybermind-download-pct');
+      const bar = $('cybermind-download-bar');
+      const triggerBtn = $('cybermind-download-trigger-btn');
+
+      if (container) container.classList.remove('hidden');
+      if (statusLbl) statusLbl.innerText = "Loading WebAssembly Engine...";
+      if (pctLbl) pctLbl.innerText = "0%";
+      if (bar) bar.style.width = "0%";
+      if (triggerBtn) {
+        triggerBtn.disabled = true;
+        triggerBtn.classList.add('opacity-50', 'cursor-not-allowed');
+      }
+
+      try {
+        // Load the official raw ES Module file directly from jsDelivr
+        const { Wllama } = await import('https://cdn.jsdelivr.net/npm/@wllama/wllama@3.4.1/esm/index.js');
+        
+        // Simplified V3.1+ config: Point directly to the unified, single-build WASM file
+        const CONFIG_PATHS = {
+          default: 'https://cdn.jsdelivr.net/npm/@wllama/wllama@3.4.1/esm/wasm/wllama.wasm',
+        };
+
+        const wllama = new Wllama(CONFIG_PATHS);
+
+        // CLEAR POISONED CACHES
+        try {
+          await wllama.cacheManager.clear();
+        } catch(e) {}
+
+        if (statusLbl) statusLbl.innerText = "Reading model data into browser memory...";
+
+        const progressCallback = ({ loaded, total }) => {
+          const pct = Math.round((loaded / total) * 100);
+          if (pctLbl) pctLbl.innerText = `${pct}%`;
+          if (bar) bar.style.width = `${pct}%`;
+        };
+
+        isWllamaLoading = true;
+        // Feeds the local FileList directly as a blob stream into the WASM proxy memory!
+        await wllama.loadModel(fileList, { progressCallback });
+        
+        wllamaInstance = wllama;
+        isWllamaLoading = false;
+        isCybermindReady = true;
+
+        if (statusLbl) statusLbl.innerText = "Model Active & Calibrated!";
+        if (triggerBtn) {
+          triggerBtn.innerHTML = "<span>Engine Active & Canned! ✓</span>";
+          triggerBtn.classList.remove('text-amber-500', 'hover:text-amber-400');
+          triggerBtn.classList.add('text-emerald-500');
+        }
+        return wllama;
+      } catch (err) {
+        isWllamaLoading = false;
+        isCybermindReady = false;
+        if (statusLbl) statusLbl.innerText = "Failed to load model file";
+        if (triggerBtn) {
+          triggerBtn.disabled = false;
+          triggerBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+        alert(`Engine Initialization Failed.\n\nDetails: ${err.message}`);
+        throw err;
+      }
+    }
+
+    if ($('cybermind-local-file-input')) {
+      $('cybermind-local-file-input').addEventListener('change', (e) => {
+        const files = e.target.files;
+        if (!files || files.length === 0) return;
+        selectedGgufFileList = files;
+        if ($('cybermind-local-file-name')) {
+          $('cybermind-local-file-name').innerText = files[0].name;
+        }
+        
+        const triggerBtn = $('cybermind-download-trigger-btn');
+        if (triggerBtn) {
+          triggerBtn.disabled = false;
+          triggerBtn.classList.remove('opacity-50', 'cursor-not-allowed', 'text-emerald-500');
+          triggerBtn.classList.add('text-amber-500');
+          triggerBtn.innerHTML = "<span>Initialize & Load Model</span>";
+        }
+        const container = $('cybermind-download-container');
+        if (container) container.classList.add('hidden');
+      });
+    }
+
+    if ($('cybermind-download-trigger-btn')) {
+      $('cybermind-download-trigger-btn').addEventListener('click', async () => {
+        await getOrInitWllamaFromLocalFile(selectedGgufFileList);
+      });
+    }
+
     async function triggerBotResponse() {
       const bot = chatbots.find(b => b.id === activeBotId);
       if (!bot) return;
@@ -2427,32 +2694,51 @@ Roleplay Instructions:
 
       try {
         let reply = '';
+        
+        let apiMessages = [];
         if (activeChatHistory.length === 0) {
-          const apiMessages = [{ role: "user", content: `Write a short, engaging opening greeting introducing yourself to your creator (${getActiveProfile().name}) in character.` }];
-          if (bot.model === 'local') {
-            reply = await callLocalLLM(apiMessages, systemPrompt, appSettings.localUrl, appSettings.localModel);
-            if ($('chat-connected-status')) $('chat-connected-status').innerText = `Connected • Local`;
-          } else {
-            if (!appSettings.geminiKey) throw new Error("Missing Gemini API Key. Open settings on the Home Screen to configure it.");
-            const result = await callGeminiWithFallback(apiMessages, systemPrompt, appSettings.geminiKey);
-            reply = result.reply;
-            if ($('chat-connected-status')) $('chat-connected-status').innerText = `Connected • ${result.modelUsed}`;
-          }
+          apiMessages.push({ role: "user", content: `Write a short, engaging opening greeting introducing yourself to your creator (${getActiveProfile().name}) in character.` });
         } else {
-          const apiMessages = activeChatHistory.map(msg => ({
+          apiMessages = activeChatHistory.map(msg => ({
             role: msg.sender === 'bot' ? 'assistant' : 'user',
             content: msg.sender === 'event' ? `[Narrative Event: ${msg.text}]` : msg.text
           }));
-          if (bot.model === 'local') {
-            reply = await callLocalLLM(apiMessages, systemPrompt, appSettings.localUrl, appSettings.localModel);
-            if ($('chat-connected-status')) $('chat-connected-status').innerText = `Connected • Local`;
-          } else {
-            if (!appSettings.geminiKey) throw new Error("Missing Gemini API Key. Open settings on the Home Screen to configure it.");
-            const result = await callGeminiWithFallback(apiMessages, systemPrompt, appSettings.geminiKey);
-            reply = result.reply;
-            if ($('chat-connected-status')) $('chat-connected-status').innerText = `Connected • ${result.modelUsed}`;
-          }
         }
+
+        if (bot.model === 'browser-gguf') {
+          if (!isCybermindReady || !wllamaInstance) {
+            if ($('typing-indicator')) $('typing-indicator').classList.add('hidden');
+            alert("The offline browser engine is not active. Please open 'Cybermind' from the Home Gateway and click 'Initialize & Load Model' first.");
+            activeChatHistory.push({ sender: 'bot', text: `System Alert: Cybermind Engine Offline. Please initialize the browser core.` });
+            renderChatMessagesOnly(true);
+            return;
+          }
+          if ($('typing-text')) $('typing-text').innerText = `${bot.name} is calculating...`;
+          
+          let formattedPrompt = `<|im_start|>system\n${systemPrompt}<|im_end|>\n`;
+          apiMessages.forEach(m => {
+            formattedPrompt += `<|im_start|>${m.role}\n${m.content}<|im_end|>\n`;
+          });
+          formattedPrompt += `<|im_start|>assistant\n`;
+
+          reply = await wllamaInstance.createCompletion(formattedPrompt, {
+            nPredict: 150,
+            sampling: { temp: 0.7, topK: 40, topP: 0.9 },
+            stop: ["<|im_end|>", "<|im_start|>", "<|endoftext|>"]
+          });
+          
+          if ($('chat-connected-status')) $('chat-connected-status').innerText = `Connected • Browser GGUF`;
+
+        } else if (bot.model === 'local') {
+          reply = await callLocalLLM(apiMessages, systemPrompt, appSettings.localUrl, appSettings.localModel);
+          if ($('chat-connected-status')) $('chat-connected-status').innerText = `Connected • Local`;
+        } else {
+          if (!appSettings.geminiKey) throw new Error("Missing Gemini API Key. Open Cybermind on the Home Screen to configure it.");
+          const result = await callGeminiWithFallback(apiMessages, systemPrompt, appSettings.geminiKey);
+          reply = result.reply;
+          if ($('chat-connected-status')) $('chat-connected-status').innerText = `Connected • ${result.modelUsed}`;
+        }
+
         if ($('typing-indicator')) $('typing-indicator').classList.add('hidden');
         
         const nameRegex = new RegExp(`^(${bot.name}|${bot.id}):\\s*`, "gi");
@@ -2540,13 +2826,16 @@ Roleplay Instructions:
         adventureInputMode = 'dialogue'; activeAdventureMenuIdx = null; advZoom = 1; advPanX = 0; advPanY = 0; currentRenderedAdvBg = null; updateViewportTransform();
         if ($('adventure-default-bg-filename')) $('adventure-default-bg-filename').innerText = "No image loaded (Defaults to black)";
         currentStage = 6; updateStageUI();
+      } else if (mode === 'cybermind') {
+        if ($('gateway-overlay')) $('gateway-overlay').classList.add('opacity-0', 'pointer-events-none', 'scale-105');
+        currentStage = 9; updateStageUI();
       } else alert(`${mode.toUpperCase()} MODE is currently locked. Secure operational clearance required.`);
     };
 
     // ================= ADVENTURE STATE AUTOSAVE & INIT =================
     function getNewAdventureCharactersSnapshot() {
       const snapshot = {};
-      const profile = userProfiles.find(p => p.id === selectedAdventureProfileId) || defaultProfile;
+      const profile = userProfiles.find(p => p.id === selectedAdventureProfileId) || JSON.parse(JSON.stringify(defaultProfile));
       snapshot[selectedAdventureProfileId] = JSON.parse(JSON.stringify(profile));
       
       selectedAdventureBotIds.forEach(botId => {
@@ -2607,7 +2896,7 @@ Roleplay Instructions:
       if (pSlider) {
         pSlider.innerHTML = '';
         let list = userProfiles.filter(p => p);
-        if (list.length === 0) list.push(defaultProfile);
+        if (list.length === 0) list.push(JSON.parse(JSON.stringify(defaultProfile)));
         list.forEach(p => {
           const isSel = p.id === selectedAdventureProfileId;
           const card = document.createElement('div');
@@ -2662,7 +2951,7 @@ Roleplay Instructions:
            const sortedList = [...savedAdventures].sort((a, b) => b.timestamp - a.timestamp);
            sortedList.forEach(adv => {
              const row = document.createElement('div');
-             row.className = "bg-neutral-900/40 hover:bg-neutral-900/80 border border-neutral-805 p-3 rounded-xl flex items-center justify-between gap-3 transition-all cursor-pointer";
+             row.className = "bg-neutral-900/40 hover:bg-neutral-900/80 border border-neutral-850 p-3 rounded-xl flex items-center justify-between gap-3 transition-all cursor-pointer";
              row.onclick = () => loadAdventure(adv.id);
              row.innerHTML = `
                <div class="overflow-hidden flex-1">
@@ -2686,7 +2975,7 @@ Roleplay Instructions:
       activeAdventureId = adv.id; selectedAdventureProfileId = adv.profileId; selectedAdventureBotIds = [...adv.botIds];
       adventureStoryTitle = adv.storyTitle; adventureStartingPrompt = adv.startingPrompt;
       activeAdventureChatHistory = [...adv.chatHistory]; adventureBackgrounds = [...adv.backgrounds]; activeAdventureBgIndex = adv.activeBgIndex;
-      lastAdventureState = adv; // Set active local state
+      lastAdventureState = adv;
       
       advZoom = 1; advPanX = 0; advPanY = 0; currentRenderedAdvBg = null; updateViewportTransform();
       currentStage = 8; updateStageUI();
@@ -2739,7 +3028,6 @@ Roleplay Instructions:
         advZoom = 1; advPanX = 0; advPanY = 0; currentRenderedAdvBg = null; updateViewportTransform();
         if (adventureTempBgUrl) { adventureBackgrounds.push(adventureTempBgUrl); activeAdventureBgIndex = 0; }
         
-        // Generate initial snapshot for this new adventure
         lastAdventureState = {
             id: 'adv_' + Date.now(),
             name: title,
@@ -2758,7 +3046,7 @@ Roleplay Instructions:
     let tempSheetObj = {}; let editingItemIndex = -1;
     
     const STAT_COSTS = { 8:0, 9:1, 10:2, 11:3, 12:4, 13:5, 14:7, 15:9, 16:12, 17:15, 18:19, 19:23, 20:27 };
-    function getSpentPoints() { return Object.values(tempSheetObj.stats).reduce((sum, val) => sum + STAT_COSTS[val], 0); }
+    function getSpentPoints() { return Object.values(tempSheetObj.stats).reduce((sum, val) => sum + (STAT_COSTS[val] || 0), 0); }
 
     window.openCharacterSheet = function(id, type) {
       activeSheetId = id; activeSheetType = type;
@@ -2769,7 +3057,7 @@ Roleplay Instructions:
         $('sheet-subtitle').innerText = "D&D Point Buy (30 pts) and Inventory. (Editing ACTIVE ADVENTURE Instance)";
       } else {
         targetObj = type === 'user' ? userProfiles.find(p => p.id === id) : chatbots.find(b => b.id === id);
-        if (!targetObj && type === 'user') targetObj = defaultProfile;
+        if (!targetObj && type === 'user') targetObj = JSON.parse(JSON.stringify(defaultProfile));
         $('sheet-subtitle').innerText = "D&D Point Buy (30 pts) and Inventory. (Editing CREATOR TEMPLATE)";
       }
       
@@ -2794,7 +3082,7 @@ Roleplay Instructions:
       
       closeSheetEditor();
       closeInventoryItemEditor();
-      $('inv-category-select').value = 'All Items'; // Set default to All Items
+      $('inv-category-select').value = 'All Items'; 
       renderInventoryCategory();
       $('character-sheet-modal').classList.remove('hidden');
     };
@@ -2802,7 +3090,8 @@ Roleplay Instructions:
     window.adjStat = function(stat, dir) {
       const current = tempSheetObj.stats[stat];
       if (dir === 1 && current < 20) {
-        const costDiff = STAT_COSTS[current + 1] - STAT_COSTS[current];
+        const nextCost = STAT_COSTS[current + 1] !== undefined ? STAT_COSTS[current + 1] : 999;
+        const costDiff = nextCost - STAT_COSTS[current];
         if (getSpentPoints() + costDiff <= 30) tempSheetObj.stats[stat]++;
       } else if (dir === -1 && current > 8) tempSheetObj.stats[stat]--;
       updateSheetUI();
@@ -2953,7 +3242,7 @@ Roleplay Instructions:
             bonuses: $('inv-editor-bonuses').value.trim(),
             activatedSkills: $('inv-editor-skills').value.trim(),
             curses: $('inv-editor-curses').value.trim(),
-            imageUrl: $('inv-editor-img').src || ''
+            imageUrl: $('inv-editor-img').classList.contains('hidden') ? '' : $('inv-editor-img').src 
         };
 
         if (editingItemIndex === -1) tempSheetObj.inventory.push(itemData);
@@ -2970,7 +3259,84 @@ Roleplay Instructions:
         }
     };
 
+    if ($('inv-editor-img-input')) {
+        $('inv-editor-img-input').addEventListener('change', (e) => {
+            const file = e.target.files[0]; if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                $('inv-editor-img').src = event.target.result;
+                $('inv-editor-img').classList.remove('hidden');
+                $('inv-editor-img-placeholder').classList.add('hidden');
+                e.target.value = '';
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    window.regenerateItemStats = async function(event) {
+        const name = $('inv-editor-name').value.trim();
+        if (!name) return alert("Item requires a name first.");
+        
+        const targetRarity = prompt(`What rarity/power level should this item be?\n(e.g., Mundane, Magical, Rare, Legendary, Cursed)`, "Legendary");
+        if (targetRarity === null) return;
+        
+        if (targetRarity.toLowerCase() === 'mundane' || targetRarity.toLowerCase() === 'normal') {
+            $('inv-editor-bonuses').value = '';
+            $('inv-editor-skills').value = '';
+            $('inv-editor-curses').value = '';
+            $('inv-editor-tags').value = 'Mundane';
+            alert("Stats cleared. Item is now Mundane. Click Save to keep changes.");
+            return;
+        }
+
+        const currentDesc = $('inv-editor-desc').value.trim();
+        const currentCat = $('inv-editor-category').value;
+        
+        const btn = event ? event.target : null;
+        const originalText = btn ? btn.innerText : "Re-roll";
+        if (btn) {
+          btn.innerText = "Rolling...";
+          btn.disabled = true;
+        }
+
+        const itemPrompt = `Make this item "${name}" a ${targetRarity} item in category ${currentCat}. Current desc: "${currentDesc}". Create amazing D&D 5e stats/bonuses. Return STRICTLY JSON: {"description": "...", "bonuses": "...", "activatedSkills": "...", "curses": "...", "tags": "${targetRarity}, ..."}`;
+        
+        try {
+            const itemRes = await callGeminiWithFallback([{role: "user", content: itemPrompt}], "You are a backend game engine data generator. Output only JSON.", appSettings.geminiKey);
+            const iStart = itemRes.reply.indexOf('{');
+            const iEnd = itemRes.reply.lastIndexOf('}');
+            if (iStart !== -1 && iEnd !== -1) {
+                const parsedItem = JSON.parse(itemRes.reply.substring(iStart, iEnd + 1));
+                if (parsedItem.description) $('inv-editor-desc').value = parsedItem.description;
+                if (parsedItem.bonuses) $('inv-editor-bonuses').value = parsedItem.bonuses;
+                if (parsedItem.activatedSkills) $('inv-editor-skills').value = parsedItem.activatedSkills;
+                if (parsedItem.curses) $('inv-editor-curses').value = parsedItem.curses;
+                if (parsedItem.tags) $('inv-editor-tags').value = parsedItem.tags;
+                alert("Stats generated successfully! Review them and click SAVE ITEM.");
+            } else throw new Error("JSON parse fail");
+        } catch(e) {
+            alert("Generation failed. Please try again.");
+        } finally {
+            if (btn) {
+              btn.innerText = originalText;
+              btn.disabled = false;
+            }
+        }
+    };
+
     // --- GENERIC SKILLS/PASSIVES EDITOR ---
+    window.extractSkillFromItem = function() {
+        const skillText = $('inv-editor-skills').value.trim();
+        const itemName = $('inv-editor-name').value.trim() || 'Unknown Item';
+        if (!skillText) return alert("No active skills to extract! Type a skill description first.");
+        
+        if (!tempSheetObj.skills) tempSheetObj.skills = [];
+        tempSheetObj.skills.push({ name: itemName + " Skill", description: skillText, showInMenu: true });
+        
+        alert("Skill extracted and added to Character Sheet! (It is enabled for the quick menu by default).");
+        renderSheetLists();
+    };
+
     window.openSheetEditor = function(type, idx) {
       activeListType = type; editingItemIndex = idx;
       $('sheet-lists-view').classList.add('hidden');
@@ -2979,13 +3345,19 @@ Roleplay Instructions:
       $('sheet-editor-title').innerText = `Edit ${type.substring(0, type.length-1).toUpperCase()}`;
       $('sheet-eq-delete-btn').classList.toggle('hidden', idx === -1);
       
+      const toggleCont = $('sheet-skill-toggle-container');
+      if (type === 'skills') { toggleCont.classList.remove('hidden'); toggleCont.classList.add('flex'); }
+      else { toggleCont.classList.add('hidden'); toggleCont.classList.remove('flex'); }
+
       if (idx !== -1) { 
         const item = tempSheetObj[type][idx];
         $('sheet-eq-name').value = item.name || '';
         $('sheet-eq-desc').value = item.description || '';
+        if (type === 'skills') $('sheet-eq-show-menu').checked = !!item.showInMenu;
       } else { 
         $('sheet-eq-name').value = ''; 
         $('sheet-eq-desc').value = ''; 
+        if (type === 'skills') $('sheet-eq-show-menu').checked = true;
       }
     };
 
@@ -3004,6 +3376,9 @@ Roleplay Instructions:
           name: name,
           description: $('sheet-eq-desc').value.trim()
       };
+      if (activeListType === 'skills') {
+          itemData.showInMenu = $('sheet-eq-show-menu').checked;
+      }
 
       if (editingItemIndex === -1) tempSheetObj[activeListType].push(itemData);
       else tempSheetObj[activeListType][editingItemIndex] = itemData;
@@ -3023,7 +3398,6 @@ Roleplay Instructions:
     };
 
     window.saveCharacterSheet = function() {
-      // Determine if we are saving to the Adventure Local Instance or the Creator Base Template
       if (currentStage === 8 && lastAdventureState && lastAdventureState.characters && lastAdventureState.characters[activeSheetId]) {
          let localTarget = lastAdventureState.characters[activeSheetId];
          localTarget.stats = { ...tempSheetObj.stats }; 
@@ -3031,10 +3405,10 @@ Roleplay Instructions:
          localTarget.skills = [...tempSheetObj.skills];
          localTarget.passives = [...tempSheetObj.passives];
          localTarget.gold = parseInt($('sheet-gold-input').value, 10) || 0;
-         autoSaveAdventure(); // Save local instance
+         autoSaveAdventure(); 
       } else {
           let targetObj = activeSheetType === 'user' ? userProfiles.find(p => p.id === activeSheetId) : chatbots.find(b => b.id === activeSheetId);
-          if (!targetObj && activeSheetType === 'user' && activeSheetId === defaultProfile.id) targetObj = defaultProfile;
+          if (!targetObj && activeSheetType === 'user' && activeSheetId === defaultProfile.id) targetObj = JSON.parse(JSON.stringify(defaultProfile));
           if (targetObj) {
             targetObj.stats = { ...tempSheetObj.stats }; 
             targetObj.inventory = [...tempSheetObj.inventory];
@@ -3049,10 +3423,10 @@ Roleplay Instructions:
 
     // LOOT GENERATOR FUNCTIONS
     function getAdventureContextChar(id, type) {
-       if (currentStage === 8 && lastAdventureState && lastAdventureState.characters) {
-           return lastAdventureState.characters[id] || (type === 'user' ? defaultProfile : null);
+       if (currentStage === 8 && lastAdventureState && lastAdventureState.characters && lastAdventureState.characters[id]) {
+           return lastAdventureState.characters[id];
        }
-       return type === 'user' ? (userProfiles.find(p => p.id === id) || defaultProfile) : chatbots.find(b => b.id === id);
+       return type === 'user' ? (userProfiles.find(p => p.id === id) || JSON.parse(JSON.stringify(defaultProfile))) : chatbots.find(b => b.id === id);
     }
 
     window.generateLootItem = async function(msgIndex, recipientId = 'player') {
@@ -3062,18 +3436,18 @@ Roleplay Instructions:
         if (typingLbl) typingLbl.innerText = "System is materializing an item...";
 
         try {
-            const activeProfile = getAdventureContextChar(activeProfileId, 'user');
+            const activeProfile = getAdventureContextChar(selectedAdventureProfileId, 'user');
             const recipientName = recipientId === 'player' ? activeProfile.name : getAdventureContextChar(recipientId, 'bot').name;
             const recipientLevel = recipientId === 'player' ? (activeProfile.level || 1) : (getAdventureContextChar(recipientId, 'bot').level || 1);
 
             const historyDump = activeAdventureChatHistory.slice(Math.max(activeAdventureChatHistory.length - 10, 0)).filter(m => m.sender !== 'system_loot').map(m => m.text).join('\n');
-            const prompt = `The character ${recipientName} (Level ${recipientLevel}) just found a grand reward. Context:\n${historyDump}\n\nCreate a thematic, balanced D&D item. The category MUST be one of: Weapons, Armor, Consumables, Utility, Items, Quest Items. Include mechanical bonuses and any curses. If it grants a new permanent skill/passive directly to their character sheet, include 'grantedSkill' or 'grantedPassive'. Return STRICTLY JSON: {"name": "Item Name", "category": "Weapons", "description": "...", "bonuses": "...", "activatedSkills": "...", "curses": "...", "grantedSkill": "", "grantedPassive": ""}`;
+            const prompt = `The character ${recipientName} (Level ${recipientLevel}) just found a grand reward. Context:\n${historyDump}\n\nCreate a thematic, balanced D&D item. The category MUST be one of: Weapons, Armor, Consumables, Utility, Items, Quest Items. Include mechanical bonuses and any curses. Return STRICTLY JSON: {"name": "Item Name", "category": "Weapons", "tags": "Legendary", "description": "...", "bonuses": "...", "activatedSkills": "...", "curses": ""}`;
             
             const res = await callGeminiWithFallback([{role: "user", content: prompt}], "You are a backend game engine data generator.", appSettings.geminiKey);
             
             const jsonStart = res.reply.indexOf('{');
             const jsonEnd = res.reply.lastIndexOf('}');
-            if (jsonStart === -1 || jsonEnd === -1) throw new Error("No JSON found in response");
+            if (jsonStart === -1 && jsonEnd === -1) throw new Error("No JSON found in response");
             
             const jsonStr = res.reply.substring(jsonStart, jsonEnd + 1);
             const data = JSON.parse(jsonStr);
@@ -3083,34 +3457,21 @@ Roleplay Instructions:
             
             targetObj.inventory.push({ 
                 name: data.name, category: ITEM_CATEGORIES.includes(data.category) ? data.category : 'Items', 
-                description: data.description, bonuses: data.bonuses || '', activatedSkills: data.activatedSkills || '', curses: data.curses || '' 
+                tags: data.tags || '', description: data.description, bonuses: data.bonuses || '', activatedSkills: data.activatedSkills || '', curses: data.curses || '' 
             });
 
-            let extraMsg = '';
-            if (data.grantedSkill) {
-                if (!targetObj.skills) targetObj.skills = [];
-                targetObj.skills.push({ name: `${data.name} Mastery`, description: data.grantedSkill });
-                extraMsg += `\n*Unlocked Skill:* ${data.grantedSkill}`;
-            }
-            if (data.grantedPassive) {
-                if (!targetObj.passives) targetObj.passives = [];
-                targetObj.passives.push({ name: `${data.name} Resonance`, description: data.grantedPassive });
-                extraMsg += `\n*Unlocked Passive:* ${data.grantedPassive}`;
-            }
-
-            autoSaveAdventure(); // Automatically saves to the local character array
+            autoSaveAdventure(); 
 
             if (recipientId === 'player') {
-                activeAdventureChatHistory[msgIndex] = { sender: 'narrator', text: `**LOOT ACQUIRED!**\n${activeProfile.name} obtained **${data.name}**!\n*${data.description}*${extraMsg}` };
+                activeAdventureChatHistory[msgIndex] = { sender: 'narrator', text: `**LOOT ACQUIRED!**\n${activeProfile.name} obtained **${data.name}**!\n*${data.description}*` };
             } else {
-                activeAdventureChatHistory[msgIndex] = { sender: 'narrator', text: `**LOOT GIFTED!**\n${activeProfile.name} gave **${data.name}** to ${recipientName}!\n*${data.description}*${extraMsg}` };
+                activeAdventureChatHistory[msgIndex] = { sender: 'narrator', text: `**LOOT GIFTED!**\n${activeProfile.name} gave **${data.name}** to ${recipientName}!\n*${data.description}*` };
                 activeAdventureChatHistory.push({ sender: 'event', text: `[System Note: ${activeProfile.name} just gifted you a ${data.category} called "${data.name}". Description: ${data.description}. Bonuses: ${data.bonuses || 'None'}. React in character to receiving this. If it's a piece of junk or mundane, you might be confused or annoyed. If it's rare/legendary, be grateful or awed.]` });
             }
             
             renderStage8AdventureChat();
             autoSaveAdventure();
             
-            // Resume the bot chain now that the item is resolved
             let pendingParticipants = [...selectedAdventureBotIds];
             async function runBots() {
               if (pendingParticipants.length > 0) {
@@ -3124,9 +3485,9 @@ Roleplay Instructions:
 
         } catch(e) {
             alert("Failed to materialize item. Check your API key. Proceeding with generic loot...");
-            const activeProfile = getAdventureContextChar(activeProfileId, 'user');
+            const activeProfile = getAdventureContextChar(selectedAdventureProfileId, 'user');
             if (!activeProfile.inventory) activeProfile.inventory = [];
-            activeProfile.inventory.push({ name: "Mystery Potion", category: "Consumables", description: "Unknown effects." });
+            activeProfile.inventory.push({ name: "Mystery Potion", category: "Consumables", tags: "Mundane", description: "Unknown effects." });
             autoSaveAdventure();
             
             activeAdventureChatHistory[msgIndex] = { sender: 'narrator', text: `**LOOT ACQUIRED!**\n${activeProfile.name} obtained a **Mystery Potion**.` };
@@ -3151,7 +3512,7 @@ Roleplay Instructions:
     };
 
     window.generateLootGold = function(msgIndex) {
-        const activeProfile = getAdventureContextChar(activeProfileId, 'user');
+        const activeProfile = getAdventureContextChar(selectedAdventureProfileId, 'user');
         const amount = Math.floor(Math.random() * 50 * (activeProfile.level || 1)) + 10;
         
         if (activeProfile.gold === undefined) activeProfile.gold = 0;
@@ -3199,7 +3560,7 @@ Roleplay Instructions:
     function getAdventureSpeakerName(senderId) {
       if (senderId === 'narrator') return 'Narrator';
       if (senderId === 'system_loot') return 'System';
-      if (senderId === 'user') return getAdventureContextChar(activeProfileId, 'user').name;
+      if (senderId === 'user') return getAdventureContextChar(selectedAdventureProfileId, 'user').name;
       return getAdventureContextChar(senderId, 'bot')?.name || 'Companion';
     }
     
@@ -3258,7 +3619,7 @@ Roleplay Instructions:
       if (!container) return;
       container.innerHTML = '';
 
-      const activeProfile = getAdventureContextChar(activeProfileId, 'user');
+      const activeProfile = getAdventureContextChar(selectedAdventureProfileId, 'user');
 
       activeAdventureChatHistory.forEach((msg, idx) => {
         const wrapper = document.createElement('div');
@@ -3311,7 +3672,7 @@ Roleplay Instructions:
           let actionControlsMarkup = '';
           if (isControlsVisible) {
             const editBtnMarkup = `<button onclick="event.stopPropagation(); editAdventureMessage(${idx})" class="bg-neutral-900 border border-neutral-800 px-2 py-0.5 rounded-md flex items-center gap-1 shadow text-[10px] text-neutral-400"><span>Edit</span></button>`;
-            let rightSideMarkup = isCurrentlyPlaying ? `<div onclick="event.stopPropagation(); stopCurrentAudio();" class="w-[60px] h-[22px] bg-red-600 text-black font-black text-[10px] rounded-md flex items-center justify-center cursor-pointer shadow">STOP</div>` : `<button onclick="event.stopPropagation(); playAdventureBubbleSpeech(${idx})" class="bg-neutral-900 border border-neutral-800 p-1 rounded-md flex items-center shadow h-[22px] w-[22px]"><svg class="w-3 h-3 text-neutral-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z"></path></svg></button>`;
+            let rightSideMarkup = isCurrentlyPlaying ? `<div onclick="event.stopPropagation(); stopCurrentAudio();" class="w-[60px] h-[22px] bg-red-600 text-black font-black text-[10px] rounded-md flex items-center justify-center cursor-pointer shadow">STOP</div>` : `<button onclick="event.stopPropagation(); playAdventureBubbleSpeech(${idx})" class="bg-neutral-955/80 border border-neutral-800/60 p-1 rounded-md flex items-center shadow h-[22px] w-[22px]"><svg class="w-3 h-3 text-neutral-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z"></path></svg></button>`;
             actionControlsMarkup = `<div class="flex justify-between items-center mt-2 border-t border-red-900/40 pt-2 select-none h-6"><div class="flex justify-start">${editBtnMarkup}</div><div class="flex justify-end gap-1.5 items-center">${rightSideMarkup}</div></div>`;
           }
 
@@ -3406,7 +3767,7 @@ Roleplay Instructions:
     // SKILL MENU UI
     if ($('adventure-skills-btn')) {
         $('adventure-skills-btn').addEventListener('click', () => {
-            const profile = getAdventureContextChar(activeProfileId, 'user');
+            const profile = getAdventureContextChar(selectedAdventureProfileId, 'user');
             const menu = $('skills-floating-menu');
             if (!menu.classList.contains('hidden')) {
                 menu.classList.add('hidden');
@@ -3417,23 +3778,18 @@ Roleplay Instructions:
             menu.innerHTML = '<span class="text-[10px] text-purple-400 font-bold uppercase tracking-wider mb-1 px-1 border-b border-purple-900/50 pb-1">Use Active Skill</span>';
             
             let allSkills = [];
-            if (profile.skills) allSkills.push(...profile.skills);
-            if (profile.inventory) {
-                profile.inventory.forEach(item => {
-                    if (item.activatedSkills && item.activatedSkills.trim() !== '') {
-                        allSkills.push({ name: `[${item.name}] ${item.activatedSkills}` });
-                    }
-                });
+            if (profile.skills) {
+                allSkills = profile.skills.filter(sk => sk.showInMenu);
             }
 
             if (allSkills.length === 0) {
-                menu.innerHTML += `<p class="text-[10px] text-neutral-500 italic p-1">No active skills available. Earn them by leveling up or equipping items!</p>`;
+                menu.innerHTML += `<p class="text-[10px] text-neutral-500 italic p-1 leading-tight">No quick skills configured. Extract them from items or edit your Character Sheet to check 'Show in Quick Menu'.</p>`;
                 return;
             }
 
             allSkills.forEach(sk => {
                 const btn = document.createElement('button');
-                btn.className = "text-left text-xs text-white bg-neutral-800 hover:bg-neutral-700 p-2 rounded-lg transition-colors border border-neutral-700";
+                btn.className = "text-left text-xs text-white bg-neutral-800 hover:bg-neutral-700 p-2 rounded-lg transition-colors border border-neutral-700 truncate";
                 btn.innerText = sk.name;
                 btn.onclick = () => {
                     adventureInputMode = 'action';
@@ -3442,7 +3798,8 @@ Roleplay Instructions:
                     $('adventure-mode-btn').className = "bg-black/55 border border-purple-500/80 text-purple-400 shadow-[0_0_10px_rgba(168,85,247,0.2)] p-3 rounded-xl transition-all shrink-0 flex items-center justify-center cursor-pointer";
                     
                     const input = $('adventure-chat-input');
-                    input.value = `Using Skill [${sk.name}]: `;
+                    const descText = sk.description ? ` - ${sk.description}` : '';
+                    input.value = `Using Skill [${sk.name}]${descText}: `;
                     input.focus();
                     menu.classList.add('hidden');
                 };
@@ -3496,7 +3853,7 @@ Roleplay Instructions:
     }
 
     function getNarratorSystemPrompt() {
-      const profile = getAdventureContextChar(activeProfileId, 'user');
+      const profile = getAdventureContextChar(selectedAdventureProfileId, 'user');
       
       const sandboxRule = appSettings.sandboxMode 
         ? `5. ACCEPT ALL STORY EVENTS: If the user's message contains "[Story Event:", this is a Sandbox God-Mode override. You MUST accept whatever scenario, character, or item they describe as absolute truth and adapt your narrative to incorporate it flawlessly without evading or ignoring it.`
@@ -3545,7 +3902,7 @@ When resolving an [Action Attempt], you MUST begin your response with this exact
 * **Bonuses Applied:** [Any skill/passive/item modifiers applied, or '0']
 * **DC:** [DC Number]
 * **Roll Math:** [Roll] + [Modifier] + [Bonuses] = [Total]
-* **Result:** [Success / Failure / Critical Success / Critical Failure]
+* **Result:** [Result Name]
 * **EXP Awarded:** [Number]
 ---
 
@@ -3553,7 +3910,79 @@ After this block, write your vivid narrative description of what happens.
 
 IMPORTANT: Differentiate between Grand Rewards and Mundane Pickups!
 - For Grand Rewards (e.g. boss loot, treasure chests, major quest rewards): append the exact string [REWARD_CHOICE] at the very end of your response. This triggers a UI for the user to pick an item or gold.
-- For all other Pickups or Gifting (e.g. picking up a rock, an herb, buying an item, or finding a named sword): append the exact string [ACQUIRE: CharacterName | Item Name | Brief description] at the very end of your response. Ensure you use the exact Name of the Character who picked it up!`;
+- For all other Pickups or Gifting (e.g. picking up a rock, an herb, buying an item, or finding a named sword): append the exact string [ACQUIRE: CharacterName | Item Name | Category | Rarity | Brief description] at the very end of your response. 
+Category MUST be one of: Weapons, Armor, Consumables, Utility, Items, Quest Items.
+Rarity MUST be: Mundane, Magical, Rare, or Legendary.
+Ensure you use the exact Name of the Character who picked it up!`;
+    }
+
+    async function handleExpAndLevelUp(narratorText) {
+      const expMatch = narratorText.match(/\*\*EXP Awarded:\*\*\s*(\d+)/i);
+      const charMatch = narratorText.match(/\*\*Character:\*\*\s*([^\n\*]+)/i);
+      if (!expMatch || !charMatch) return;
+
+      const expGained = parseInt(expMatch[1], 10);
+      const charName = charMatch[1].trim().toLowerCase();
+
+      const activeProfile = getAdventureContextChar(selectedAdventureProfileId, 'user');
+      let targetObj = null;
+
+      if (activeProfile.name.toLowerCase() === charName) { targetObj = activeProfile; } 
+      else { 
+         const foundId = selectedAdventureBotIds.find(id => getAdventureContextChar(id, 'bot').name.toLowerCase() === charName);
+         if (foundId) targetObj = getAdventureContextChar(foundId, 'bot');
+      }
+
+      if (!targetObj || isNaN(expGained) || expGained === 0) return;
+
+      if (!targetObj.exp) targetObj.exp = 0;
+      if (!targetObj.level) targetObj.level = 1;
+      
+      targetObj.exp += expGained;
+      
+      while (EXP_TABLE[targetObj.level + 1] && targetObj.exp >= EXP_TABLE[targetObj.level + 1]) {
+        targetObj.level++;
+        
+        if (appSettings.geminiKey) {
+            try {
+              const typingLbl = $('adventure-typing-text');
+              if (typingLbl) typingLbl.innerText = "System is weaving a new narrative perk...";
+              
+              const perkPrompt = `The character ${targetObj.name} just leveled up to Level ${targetObj.level} in our text adventure. Based on their progression, create a highly thematic but balanced new Skill OR Passive for them. Respond with EXACTLY this JSON format and nothing else:
+{"type": "Skill" or "Passive", "name": "Name of Perk", "description": "Brief description of the mechanical or narrative effect"}`;
+              
+              const historyDump = activeAdventureChatHistory.slice(-10).map(m => m.text).join('\n');
+              const apiMessages = [{role: "user", content: `Recent context:\n${historyDump}\n\nTask: ${perkPrompt}`}];
+              
+              const perkRes = await callGeminiWithFallback(apiMessages, "You are a backend game engine data generator.", appSettings.geminiKey);
+              
+              const jsonStart = perkRes.reply.indexOf('{');
+              const jsonEnd = perkRes.reply.lastIndexOf('}');
+              if (jsonStart !== -1 && jsonEnd !== -1) {
+                  const perkJsonStr = perkRes.reply.substring(jsonStart, jsonEnd + 1);
+                  const perkData = JSON.parse(perkJsonStr);
+
+                  if (perkData.type.toLowerCase() === 'skill') {
+                      if (!targetObj.skills) targetObj.skills = [];
+                      targetObj.skills.push({name: perkData.name, description: perkData.description});
+                  } else {
+                      if (!targetObj.passives) targetObj.passives = [];
+                      targetObj.passives.push({name: perkData.name, description: perkData.description});
+                  }
+
+                  const levelUpMsg = `**LEVEL UP!**\n${targetObj.name} reached Level ${targetObj.level}!\n\n**New ${perkData.type} Learned:** ${perkData.name}\n*${perkData.description}*`;
+                  activeAdventureChatHistory.push({ sender: 'narrator', text: levelUpMsg });
+              } else throw new Error("JSON parse failure");
+            } catch(e) {
+              console.error("Failed to generate perk:", e);
+              activeAdventureChatHistory.push({ sender: 'narrator', text: `**LEVEL UP!**\n${targetObj.name} reached Level ${targetObj.level}!` });
+            }
+        } else {
+           activeAdventureChatHistory.push({ sender: 'narrator', text: `**LEVEL UP!**\n${targetObj.name} reached Level ${targetObj.level}!\n*(API required for dynamic perk generation)*` });
+        }
+      }
+      
+      autoSaveAdventure(); 
     }
 
     async function triggerAdventureNarratorResponse() {
@@ -3567,7 +3996,7 @@ IMPORTANT: Differentiate between Grand Rewards and Mundane Pickups!
       try {
         let reply = '';
         if (activeAdventureChatHistory.length === 0) {
-          const apiMessages = [{ role: "user", content: `Establish the opening scenario of the chronicle. Describe the scene, set the atmosphere, and invite ${getAdventureContextChar(activeProfileId, 'user').name} and their companions to take action.` }];
+          const apiMessages = [{ role: "user", content: `Establish the opening scenario of the chronicle. Describe the scene, set the atmosphere, and invite ${getAdventureContextChar(selectedAdventureProfileId, 'user').name} and their companions to take action.` }];
           if (appSettings.geminiKey) {
             const result = await callGeminiWithFallback(apiMessages, systemPrompt, appSettings.geminiKey); reply = result.reply;
           } else reply = `The air is thick with anticipation. Under the dark archway of ${adventureStoryTitle || 'The Unknown Sector'}, your party stands ready. The path forward remains unclear. What do you do?`;
@@ -3592,52 +4021,68 @@ IMPORTANT: Differentiate between Grand Rewards and Mundane Pickups!
         
         if (acquireMatch) {
             let parts = acquireMatch[1].split('|').map(s => s.trim());
-            let charName, itemName, itemDesc;
+            let charName = getAdventureContextChar(selectedAdventureProfileId, 'user').name; 
+            let itemName = "Item"; 
+            let itemCat = "Items"; 
+            let itemRarity = "Mundane"; 
+            let itemDesc = "A recovered item.";
             
-            if (parts.length >= 3) {
-                charName = parts[0]; itemName = parts[1]; itemDesc = parts[2];
-            } else if (parts.length === 2) {
-                charName = getAdventureContextChar(activeProfileId, 'user').name; 
-                itemName = parts[0]; itemDesc = parts[1];
-            } else {
-                charName = getAdventureContextChar(activeProfileId, 'user').name; 
-                itemName = parts[0]; itemDesc = "A mundane item.";
+            if (parts.length >= 5) {
+                charName = parts[0]; itemName = parts[1]; itemCat = parts[2]; itemRarity = parts[3]; itemDesc = parts.slice(4).join(' ');
+            } else if (parts.length >= 3) {
+                charName = parts[0]; itemName = parts[1]; itemDesc = parts.slice(2).join(' ');
+            } else if (parts.length > 0) {
+                itemName = parts[0];
             }
+
+            const fullAcquireStr = acquireMatch[1].toLowerCase();
+            if (fullAcquireStr.includes('legendary')) itemRarity = 'Legendary';
+            else if (fullAcquireStr.includes('rare')) itemRarity = 'Rare';
+            else if (fullAcquireStr.includes('magical')) itemRarity = 'Magical';
+            else if (fullAcquireStr.includes('mundane') || fullAcquireStr.includes('normal')) itemRarity = 'Mundane';
 
             reply = reply.replace(acquireMatch[0], '').trim();
             
             let targetObj = null;
-            const activeProfile = getAdventureContextChar(activeProfileId, 'user');
+            const activeProfile = getAdventureContextChar(selectedAdventureProfileId, 'user');
             if (activeProfile.name.toLowerCase() === charName.toLowerCase()) { targetObj = activeProfile; } 
             else { 
                const foundId = selectedAdventureBotIds.find(id => getAdventureContextChar(id, 'bot').name.toLowerCase() === charName.toLowerCase());
                if (foundId) targetObj = getAdventureContextChar(foundId, 'bot');
             }
-            if (!targetObj) targetObj = activeProfile; // Fallback to player
+            if (!targetObj) targetObj = activeProfile; 
             
-            const historyDump = activeAdventureChatHistory.slice(Math.max(activeAdventureChatHistory.length - 10, 0)).filter(m => m.sender !== 'system_loot').map(m => m.text).join('\n');
-            const itemPrompt = `The character ${targetObj.name} just acquired an item named "${itemName}" (Description given: "${itemDesc}"). Context:\n${historyDump}\n\nCategorize this item intelligently based on what it is (Weapons, Armor, Consumables, Utility, Items, Quest Items). ANY drinkable, potion, or food MUST be categorized as "Consumables". If it's a powerful/special/magical item, give it appropriate bonuses. If it's totally mundane (like a standard rock or normal branch), leave bonuses blank. Also generate 2-3 relevant comma-separated tags (like 'Potion, Healing' or 'Junk'). Return STRICTLY JSON: {"name": "${itemName}", "category": "Consumables", "tags": "...", "description": "...", "bonuses": "...", "activatedSkills": "...", "curses": ""}`;
-            
-            try {
-                const itemRes = await callGeminiWithFallback([{role: "user", content: itemPrompt}], "You are a backend game engine data generator.", appSettings.geminiKey);
-                const iStart = itemRes.reply.indexOf('{');
-                const iEnd = itemRes.reply.lastIndexOf('}');
-                if (iStart !== -1 && iEnd !== -1) {
-                    const parsedItem = JSON.parse(itemRes.reply.substring(iStart, iEnd + 1));
-                    if (!targetObj.inventory) targetObj.inventory = [];
-                    targetObj.inventory.push({ 
-                        name: parsedItem.name, 
-                        category: ITEM_CATEGORIES.includes(parsedItem.category) ? parsedItem.category : 'Items', 
-                        tags: parsedItem.tags || '',
-                        description: parsedItem.description, 
-                        bonuses: parsedItem.bonuses || '', 
-                        activatedSkills: parsedItem.activatedSkills || '', 
-                        curses: parsedItem.curses || '' 
-                    });
-                } else throw new Error("JSON fail");
-            } catch(e) {
+            if (itemRarity === 'Mundane') {
                 if (!targetObj.inventory) targetObj.inventory = [];
-                targetObj.inventory.push({ name: itemName, category: 'Items', tags: '', description: itemDesc });
+                targetObj.inventory.push({ 
+                    name: itemName, category: ITEM_CATEGORIES.includes(itemCat) ? itemCat : 'Items', 
+                    tags: 'Mundane', description: itemDesc, bonuses: '', activatedSkills: '', curses: '' 
+                });
+            } else {
+                const historyDump = activeAdventureChatHistory.slice(Math.max(activeAdventureChatHistory.length - 10, 0)).filter(m => m.sender !== 'system_loot').map(m => m.text).join('\n');
+                const itemPrompt = `The character ${targetObj.name} just acquired a ${itemRarity} item named "${itemName}" (Category: ${itemCat}, Desc: "${itemDesc}"). Context:\n${historyDump}\n\nSince this is a ${itemRarity} item, generate appropriate mechanical stats, bonuses, or curses for D&D 5e style play. Return STRICTLY JSON format: {"name": "${itemName}", "category": "${itemCat}", "tags": "${itemRarity}, ...", "description": "...", "bonuses": "...", "activatedSkills": "...", "curses": ""}`;
+                
+                try {
+                    const itemRes = await callGeminiWithFallback([{role: "user", content: itemPrompt}], "You are a backend game engine data generator.", appSettings.geminiKey);
+                    const iStart = itemRes.reply.indexOf('{');
+                    const iEnd = itemRes.reply.lastIndexOf('}');
+                    if (iStart !== -1 && iEnd !== -1) {
+                        const parsedItem = JSON.parse(itemRes.reply.substring(iStart, iEnd + 1));
+                        if (!targetObj.inventory) targetObj.inventory = [];
+                        targetObj.inventory.push({ 
+                            name: parsedItem.name, 
+                            category: ITEM_CATEGORIES.includes(parsedItem.category) ? parsedItem.category : 'Items', 
+                            tags: parsedItem.tags || itemRarity,
+                            description: parsedItem.description, 
+                            bonuses: parsedItem.bonuses || '', 
+                            activatedSkills: parsedItem.activatedSkills || '', 
+                            curses: parsedItem.curses || '' 
+                        });
+                    } else throw new Error("JSON parse failure");
+                } catch(e) {
+                    if (!targetObj.inventory) targetObj.inventory = [];
+                    targetObj.inventory.push({ name: itemName, category: ITEM_CATEGORIES.includes(itemCat) ? itemCat : 'Items', tags: itemRarity, description: itemDesc });
+                }
             }
 
             autoSaveAdventure();
@@ -3666,7 +4111,7 @@ IMPORTANT: Differentiate between Grand Rewards and Mundane Pickups!
       if (typingInd) typingInd.classList.remove('hidden');
       if (typingLbl) typingLbl.innerText = `${bot.name} is preparing actions...`;
 
-      const activeProfile = getAdventureContextChar(activeProfileId, 'user');
+      const activeProfile = getAdventureContextChar(selectedAdventureProfileId, 'user');
       const sentenceConstraint = getAdventureSentenceConstraint();
       const botSystemPrompt = `You are the party companion named ${bot.name}.
 Physical Appearance: ${bot.appearance || 'Not specified'}
@@ -3705,7 +4150,7 @@ Your Strict Boundaries:
         activeAdventureChatHistory.push({ sender: bot.id, text: reply }); renderStage8AdventureChat(); autoSaveAdventure();
       } catch (err) {
         if (typingInd) typingInd.classList.add('hidden');
-        activeAdventureChatHistory.push({ sender: bot.id, text: `[Action Error: ${bot.name} is briefly incapacitated]` }); renderStage8AdventureChat(); autoSaveAdventure();
+        activeAdventureChatHistory.push({ sender: bot.id, text: `[Action Error: ${bot.name} is briefly incapacitated. System Diagnostic: ${err.message}]` }); renderStage8AdventureChat(); autoSaveAdventure();
       }
     }
 
@@ -3740,7 +4185,6 @@ Your Strict Boundaries:
       } else {
         await triggerAdventureNarratorResponse();
         
-        // Prevent bots from responding if a Reward Choice was triggered, wait for user resolution
         const lastMsg = activeAdventureChatHistory[activeAdventureChatHistory.length - 1];
         if (lastMsg && lastMsg.sender === 'system_loot') return;
         
@@ -3819,6 +4263,26 @@ Your Strict Boundaries:
       });
     }
 
+    // Cybermind Stage 9 Logic Handlers
+    if ($('stage9-back-btn')) {
+      $('stage9-back-btn').addEventListener('click', () => {
+        if ($('gateway-overlay')) $('gateway-overlay').classList.remove('opacity-0', 'pointer-events-none', 'scale-105');
+      });
+    }
+
+    if ($('cybermind-save-btn')) {
+      $('cybermind-save-btn').addEventListener('click', () => {
+        appSettings.geminiKey = $('cybermind-gemini-key').value.trim();
+        appSettings.localUrl = $('cybermind-local-url').value.trim();
+        appSettings.localModel = $('cybermind-local-model').value.trim();
+        appSettings.hfRepo = $('cybermind-hf-repo').value.trim();
+        appSettings.hfFilename = $('cybermind-hf-filename').value.trim();
+        saveSettings();
+        alert("Cybermind intelligence matrix successfully calibrated and stored!");
+        if ($('gateway-overlay')) $('gateway-overlay').classList.remove('opacity-0', 'pointer-events-none', 'scale-105');
+      });
+    }
+
     window.onload = async function() {
       await loadFromStorage();
 
@@ -3829,6 +4293,10 @@ Your Strict Boundaries:
           const bVoice = $('bot-voice') ? $('bot-voice').value : 'Kore';
           const bVoicePr = $('bot-voice-prompt') ? $('bot-voice-prompt').value.trim() : '';
           const bTts = $('bot-tts-engine') ? $('bot-tts-engine').value : 'gemini';
+          
+          if (bTts === 'gemini' && !appSettings.geminiKey) {
+            return alert("Gemini API key is required to test Gemini Prebuilt Vocal profiles. Please configure it in Cybermind first.");
+          }
           if (!bVoice && bTts === 'gemini') return alert("Please select a prebuilt voice configuration to test.");
 
           const tempBotForVoice = { name: "Test System", voiceName: bVoice, voicePrompt: bVoicePr, ttsEngine: bTts };
