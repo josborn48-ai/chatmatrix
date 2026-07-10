@@ -280,7 +280,6 @@
             <select id="bot-model" class="bg-black border border-neutral-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-red-700 text-white transition-all">
               <option value="gemini" selected>Google Gemini Direct API (Dynamic Auto-Failover)</option>
               <option value="local">Local LLM (Ollama, LM Studio, etc.)</option>
-              <option value="browser-gguf">In-Browser Direct GGUF (Hugging Face Offline Core)</option>
             </select>
           </div>
 
@@ -828,41 +827,6 @@
                 placeholder="e.g., mistral, llama3, qwen">
             </div>
           </div>
-
-          <!-- Local GGUF File Loader -->
-          <div class="bg-neutral-950/60 border border-neutral-800 p-4 rounded-2xl flex flex-col gap-2.5">
-            <div class="flex items-center gap-1.5">
-              <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-              <span class="text-xs font-black uppercase tracking-wider text-amber-500">In-Browser Local GGUF Loader</span>
-            </div>
-            <p class="text-[10px] text-neutral-500 leading-tight">Run a quantized model (strongly recommend <= 3B parameters) straight from your device. No internet required; your model is processed completely locally in the browser sandbox.</p>
-            
-            <div class="flex flex-col gap-1.5 mt-1">
-              <label class="text-[9px] font-bold uppercase tracking-wider text-neutral-400">Select GGUF Model File</label>
-              <input type="file" id="cybermind-local-file-input" accept=".gguf" class="hidden">
-              <button onclick="window.$('cybermind-local-file-input').click()" type="button" class="bg-neutral-900 hover:bg-neutral-800 text-amber-500 hover:text-amber-400 font-black py-3 px-4 rounded-xl border border-neutral-800 hover:border-amber-900/60 text-xs transition-all active:scale-[0.98] flex items-center justify-center gap-1.5 w-full">
-                <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                Choose GGUF File from Device
-              </button>
-              <span id="cybermind-local-file-name" class="text-[10px] text-neutral-500 italic text-center mt-0.5 block truncate">No GGUF file loaded</span>
-            </div>
-
-            <!-- Native Model Loading & Progress Bar -->
-            <div id="cybermind-download-container" class="hidden mt-2 bg-black border border-neutral-800 rounded-xl p-3 flex flex-col gap-2">
-              <div class="flex justify-between items-center text-[10px]">
-                <span id="cybermind-download-status" class="text-amber-500 font-bold uppercase tracking-wide">Initializing engine...</span>
-                <span id="cybermind-download-pct" class="text-neutral-400 font-bold">0%</span>
-              </div>
-              <div class="w-full h-1.5 bg-neutral-900 rounded-full overflow-hidden">
-                <div id="cybermind-download-bar" class="h-full bg-amber-500 transition-all duration-300 w-0"></div>
-              </div>
-            </div>
-
-            <!-- Dynamic Download Action Button -->
-            <button id="cybermind-download-trigger-btn" type="button" class="w-full bg-neutral-900 hover:bg-neutral-800 text-amber-500 hover:text-amber-400 font-black py-2.5 px-4 rounded-xl border border-neutral-800 hover:border-amber-900/60 text-xs transition-all active:scale-[0.98] mt-1 flex items-center justify-center gap-1.5">
-              <span>Initialize & Load Model</span>
-            </button>
-          </div>
         </div>
 
         <button id="cybermind-save-btn" class="w-full bg-red-700 hover:bg-red-600 text-white font-bold py-3.5 rounded-xl text-sm transition-all shadow-[0_0_20px_rgba(220,38,38,0.2)] active:scale-95 mt-auto">
@@ -1139,21 +1103,11 @@
     let activeMenuIdx = null;
     let hasManuallyEditedPrompt = false;
 
-    // Direct WebAssembly Model State parameters
-    let wllamaInstance = null;
-    let isWllamaLoading = false;
-    let currentlyLoadedRepo = '';
-    let currentlyLoadedFile = '';
-    let isCybermindReady = false;
-    let selectedGgufFileList = null;
-
     let appSettings = { 
       geminiKey: '', 
       localUrl: 'http://localhost:1234/v1', 
       localModel: 'mistral', 
       sandboxMode: false,
-      hfRepo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',
-      hfFilename: 'qwen2.5-0.5b-instruct-q4_k_m.gguf'
     };
 
     const defaultProfile = {
@@ -1479,8 +1433,6 @@
         if ($('cybermind-gemini-key')) $('cybermind-gemini-key').value = appSettings.geminiKey || '';
         if ($('cybermind-local-url')) $('cybermind-local-url').value = appSettings.localUrl || 'http://localhost:1234/v1';
         if ($('cybermind-local-model')) $('cybermind-local-model').value = appSettings.localModel || 'mistral';
-        if ($('cybermind-hf-repo')) $('cybermind-hf-repo').value = appSettings.hfRepo || 'Qwen/Qwen2.5-0.5B-Instruct-GGUF';
-        if ($('cybermind-hf-filename')) $('cybermind-hf-filename').value = appSettings.hfFilename || 'qwen2.5-0.5b-instruct-q4_k_m.gguf';
       }
     }
 
@@ -2253,11 +2205,26 @@ Roleplay Instructions:
       })();
     }
 
-    async function speakMessage(text, bot, index = null) {
+async function speakMessage(text, bot, index = null) {
       if (!bot) return;
       stopCurrentAudio();
+
+      // Clean the text to strip asterisks, underscores, and code blocks before reading
+      const cleanTextForSpeech = (txt) => {
+        if (!txt) return '';
+        return txt
+          .replace(/```[\s\S]*?```/g, '') // Prevent reading raw code blocks
+          .replace(/`([^`]+)`/g, '$1')    // Read inline code words normally
+          .replace(/\*/g, '')             // Strip asterisks so Gemini reads narration aloud
+          .replace(/_/g, '')              // Strip underscores
+          .trim();
+      };
+
+      const spokenText = cleanTextForSpeech(text);
+      if (!spokenText) return; // Nothing to vocalize after cleaning
+
       if (bot.ttsEngine === 'browser') {
-        const utterance = new SpeechSynthesisUtterance(text); currentAudio = speechSynthesis;
+        const utterance = new SpeechSynthesisUtterance(spokenText); currentAudio = speechSynthesis;
         utterance.addEventListener('start', () => {
           isAudioPlaying = true; if (playingAudioIndex === null) playingAudioIndex = index;
           if ($('typing-indicator')) $('typing-indicator').classList.add('hidden');
@@ -2283,7 +2250,7 @@ Roleplay Instructions:
         return chunks.filter(c => c.length > 0);
       };
 
-      speechQueue = chunkTextBySentences(text); currentQueueIndex = 0; isQueuePlaying = true; speechAudioCache = {}; 
+      speechQueue = chunkTextBySentences(spokenText); currentQueueIndex = 0; isQueuePlaying = true; speechAudioCache = {}; 
       if (speechQueue.length === 0) return;
       preloadQueueItem(bot, 0); await playNextQueueItem(bot, index);
     }
@@ -2584,106 +2551,6 @@ Roleplay Instructions:
       if (shouldScrollToBottom) $('chat-messages-container').scrollTop = $('chat-messages-container').scrollHeight;
     }
 
-    // ================= DYNAMIC DIRECT WASM LOADER =================
-    async function getOrInitWllamaFromLocalFile(fileList) {
-      if (!fileList || fileList.length === 0) {
-        return alert("Please select a local GGUF model file first using the selector button.");
-      }
-
-      const container = $('cybermind-download-container');
-      const statusLbl = $('cybermind-download-status');
-      const pctLbl = $('cybermind-download-pct');
-      const bar = $('cybermind-download-bar');
-      const triggerBtn = $('cybermind-download-trigger-btn');
-
-      if (container) container.classList.remove('hidden');
-      if (statusLbl) statusLbl.innerText = "Loading WebAssembly Engine...";
-      if (pctLbl) pctLbl.innerText = "0%";
-      if (bar) bar.style.width = "0%";
-      if (triggerBtn) {
-        triggerBtn.disabled = true;
-        triggerBtn.classList.add('opacity-50', 'cursor-not-allowed');
-      }
-
-      try {
-        // Load the official raw ES Module file directly from jsDelivr
-        const { Wllama } = await import('https://cdn.jsdelivr.net/npm/@wllama/wllama@3.4.1/esm/index.js');
-        
-        // Simplified V3.1+ config: Point directly to the unified, single-build WASM file
-        const CONFIG_PATHS = {
-          default: 'https://cdn.jsdelivr.net/npm/@wllama/wllama@3.4.1/esm/wasm/wllama.wasm',
-        };
-
-        const wllama = new Wllama(CONFIG_PATHS);
-
-        // CLEAR POISONED CACHES
-        try {
-          await wllama.cacheManager.clear();
-        } catch(e) {}
-
-        if (statusLbl) statusLbl.innerText = "Reading model data into browser memory...";
-
-        const progressCallback = ({ loaded, total }) => {
-          const pct = Math.round((loaded / total) * 100);
-          if (pctLbl) pctLbl.innerText = `${pct}%`;
-          if (bar) bar.style.width = `${pct}%`;
-        };
-
-        isWllamaLoading = true;
-        // Feeds the local FileList directly as a blob stream into the WASM proxy memory!
-        await wllama.loadModel(fileList, { progressCallback });
-        
-        wllamaInstance = wllama;
-        isWllamaLoading = false;
-        isCybermindReady = true;
-
-        if (statusLbl) statusLbl.innerText = "Model Active & Calibrated!";
-        if (triggerBtn) {
-          triggerBtn.innerHTML = "<span>Engine Active & Canned! ✓</span>";
-          triggerBtn.classList.remove('text-amber-500', 'hover:text-amber-400');
-          triggerBtn.classList.add('text-emerald-500');
-        }
-        return wllama;
-      } catch (err) {
-        isWllamaLoading = false;
-        isCybermindReady = false;
-        if (statusLbl) statusLbl.innerText = "Failed to load model file";
-        if (triggerBtn) {
-          triggerBtn.disabled = false;
-          triggerBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-        }
-        alert(`Engine Initialization Failed.\n\nDetails: ${err.message}`);
-        throw err;
-      }
-    }
-
-    if ($('cybermind-local-file-input')) {
-      $('cybermind-local-file-input').addEventListener('change', (e) => {
-        const files = e.target.files;
-        if (!files || files.length === 0) return;
-        selectedGgufFileList = files;
-        if ($('cybermind-local-file-name')) {
-          $('cybermind-local-file-name').innerText = files[0].name;
-        }
-        
-        const triggerBtn = $('cybermind-download-trigger-btn');
-        if (triggerBtn) {
-          triggerBtn.disabled = false;
-          triggerBtn.classList.remove('opacity-50', 'cursor-not-allowed', 'text-emerald-500');
-          triggerBtn.classList.add('text-amber-500');
-          triggerBtn.innerHTML = "<span>Initialize & Load Model</span>";
-        }
-        const container = $('cybermind-download-container');
-        if (container) container.classList.add('hidden');
-      });
-    }
-
-    if ($('cybermind-download-trigger-btn')) {
-      $('cybermind-download-trigger-btn').addEventListener('click', async () => {
-        await getOrInitWllamaFromLocalFile(selectedGgufFileList);
-      });
-    }
-
     async function triggerBotResponse() {
       const bot = chatbots.find(b => b.id === activeBotId);
       if (!bot) return;
@@ -2705,31 +2572,7 @@ Roleplay Instructions:
           }));
         }
 
-        if (bot.model === 'browser-gguf') {
-          if (!isCybermindReady || !wllamaInstance) {
-            if ($('typing-indicator')) $('typing-indicator').classList.add('hidden');
-            alert("The offline browser engine is not active. Please open 'Cybermind' from the Home Gateway and click 'Initialize & Load Model' first.");
-            activeChatHistory.push({ sender: 'bot', text: `System Alert: Cybermind Engine Offline. Please initialize the browser core.` });
-            renderChatMessagesOnly(true);
-            return;
-          }
-          if ($('typing-text')) $('typing-text').innerText = `${bot.name} is calculating...`;
-          
-          let formattedPrompt = `<|im_start|>system\n${systemPrompt}<|im_end|>\n`;
-          apiMessages.forEach(m => {
-            formattedPrompt += `<|im_start|>${m.role}\n${m.content}<|im_end|>\n`;
-          });
-          formattedPrompt += `<|im_start|>assistant\n`;
-
-          reply = await wllamaInstance.createCompletion(formattedPrompt, {
-            nPredict: 150,
-            sampling: { temp: 0.7, topK: 40, topP: 0.9 },
-            stop: ["<|im_end|>", "<|im_start|>", "<|endoftext|>"]
-          });
-          
-          if ($('chat-connected-status')) $('chat-connected-status').innerText = `Connected • Browser GGUF`;
-
-        } else if (bot.model === 'local') {
+         if (bot.model === 'local') {
           reply = await callLocalLLM(apiMessages, systemPrompt, appSettings.localUrl, appSettings.localModel);
           if ($('chat-connected-status')) $('chat-connected-status').innerText = `Connected • Local`;
         } else {
@@ -4275,8 +4118,6 @@ Your Strict Boundaries:
         appSettings.geminiKey = $('cybermind-gemini-key').value.trim();
         appSettings.localUrl = $('cybermind-local-url').value.trim();
         appSettings.localModel = $('cybermind-local-model').value.trim();
-        appSettings.hfRepo = $('cybermind-hf-repo').value.trim();
-        appSettings.hfFilename = $('cybermind-hf-filename').value.trim();
         saveSettings();
         alert("Cybermind intelligence matrix successfully calibrated and stored!");
         if ($('gateway-overlay')) $('gateway-overlay').classList.remove('opacity-0', 'pointer-events-none', 'scale-105');
