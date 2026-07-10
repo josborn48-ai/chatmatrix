@@ -1025,6 +1025,17 @@
           </label>
         </div>
 
+        <div class="flex items-center justify-between bg-black border border-neutral-800 rounded-xl px-4 py-3 transition-all mt-2">
+          <div class="flex flex-col gap-0.5 pr-3">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Local Adventure Mode</span>
+            <p class="text-[9px] text-neutral-600 leading-tight">If enabled, Adventure Mode will bypass Gemini and route the Narrator and Companions to your Local LLM.</p>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer select-none shrink-0">
+            <input id="settings-local-adv-mode" type="checkbox" class="sr-only peer">
+            <div class="w-9 h-5 bg-neutral-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-[16px] after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-neutral-400 peer-checked:after:bg-red-600 after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-red-955/20 border border-neutral-700 peer-checked:border-red-700"></div>
+          </label>
+        </div>
+
       </div>
 
       <div class="flex gap-3 mt-2">
@@ -1313,6 +1324,7 @@
     if ($('home-settings-btn')) {
       $('home-settings-btn').addEventListener('click', () => {
         if ($('settings-sandbox-mode')) $('settings-sandbox-mode').checked = !!appSettings.sandboxMode;
+        if ($('settings-local-adv-mode')) $('settings-local-adv-mode').checked = !!appSettings.localAdventureMode;
         populateSettingsHiddenBots();
         $('settings-modal').classList.remove('hidden');
       });
@@ -1323,6 +1335,7 @@
     if ($('settings-save-btn')) {
       $('settings-save-btn').addEventListener('click', () => {
         appSettings.sandboxMode = $('settings-sandbox-mode') ? $('settings-sandbox-mode').checked : false;
+        appSettings.localAdventureMode = $('settings-local-adv-mode') ? $('settings-local-adv-mode').checked : false;
         saveSettings(); $('settings-modal').classList.add('hidden');
       });
     }
@@ -3840,14 +3853,18 @@ Ensure you use the exact Name of the Character who picked it up!`;
         let reply = '';
         if (activeAdventureChatHistory.length === 0) {
           const apiMessages = [{ role: "user", content: `Establish the opening scenario of the chronicle. Describe the scene, set the atmosphere, and invite ${getAdventureContextChar(selectedAdventureProfileId, 'user').name} and their companions to take action.` }];
-          if (appSettings.geminiKey) {
+          if (appSettings.localAdventureMode) {
+            reply = await callLocalLLM(apiMessages, systemPrompt, appSettings.localUrl, appSettings.localModel);
+          } else if (appSettings.geminiKey) {
             const result = await callGeminiWithFallback(apiMessages, systemPrompt, appSettings.geminiKey); reply = result.reply;
           } else reply = `The air is thick with anticipation. Under the dark archway of ${adventureStoryTitle || 'The Unknown Sector'}, your party stands ready. The path forward remains unclear. What do you do?`;
         } else {
           const apiMessages = activeAdventureChatHistory.filter(m => m.sender !== 'system_loot').map(msg => {
             return { role: msg.sender === 'narrator' ? 'assistant' : 'user', content: `${getAdventureSpeakerName(msg.sender)}: ${msg.text}` };
           });
-          if (appSettings.geminiKey) {
+          if (appSettings.localAdventureMode) {
+            reply = await callLocalLLM(apiMessages, systemPrompt, appSettings.localUrl, appSettings.localModel);
+          } else if (appSettings.geminiKey) {
             const result = await callGeminiWithFallback(apiMessages, systemPrompt, appSettings.geminiKey); reply = result.reply;
           } else reply = "You push forward cautiously. The shadows stretch longer as your footsteps echo through the corridors.";
         }
@@ -3984,7 +4001,9 @@ Your Strict Boundaries:
 
       try {
         let reply = '';
-        if (appSettings.geminiKey) {
+        if (appSettings.localAdventureMode) {
+          reply = await callLocalLLM(apiMessages, botSystemPrompt, appSettings.localUrl, appSettings.localModel);
+        } else if (appSettings.geminiKey) {
           const result = await callGeminiWithFallback(apiMessages, botSystemPrompt, appSettings.geminiKey); reply = result.reply;
         } else reply = `Let's watch our flank. I don't trust these shadows one bit.`;
 
