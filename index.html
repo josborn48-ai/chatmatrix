@@ -505,6 +505,7 @@
             <label class="text-xs font-bold uppercase tracking-wider text-neutral-400">Bot Brain (AI Engine)</label>
             <select id="bot-model" class="bg-black border border-neutral-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-red-700 text-white transition-all">
               <option value="gemini" selected>Google Gemini Direct API (Dynamic Auto-Failover)</option>
+              <option value="grok">xAI Grok Cloud API (grok-beta)</option>
               <option value="local">Local LLM (Ollama, LM Studio, etc.)</option>
             </select>
           </div>
@@ -1037,6 +1038,21 @@
             </div>
           </div>
 
+          <!-- Grok xAI API Settings -->
+          <div class="bg-neutral-950/60 border border-neutral-900 p-4 rounded-2xl flex flex-col gap-3">
+            <span class="text-xs font-black uppercase tracking-wider text-red-500">xAI Grok Cloud Core</span>
+            
+            <div class="flex flex-col gap-1.5">
+              <div class="flex justify-between items-center">
+                <label class="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Grok API Key</label>
+                <a href="https://console.x.ai/" target="_blank" class="text-[10px] text-red-500 hover:underline">Get Grok Key ↗</a>
+              </div>
+              <input id="cybermind-grok-key" type="password" 
+                class="bg-black border border-neutral-800 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-red-700 placeholder:text-neutral-700 text-white"
+                placeholder="xAI Console API Key">
+            </div>
+          </div>
+
           <!-- Local LLM Orchestration Settings -->
           <div class="bg-neutral-950/60 border border-neutral-900 p-4 rounded-2xl flex flex-col gap-3">
             <span class="text-xs font-black uppercase tracking-wider text-red-500">Local LLM Orchestration (.GGUF Setup)</span>
@@ -1045,7 +1061,7 @@
               <label class="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Connection Endpoint URL</label>
               <input id="cybermind-local-url" type="text" 
                 class="bg-black border border-neutral-800 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-red-700 placeholder:text-neutral-700 text-white"
-                placeholder="e.g., http://localhost:1234/v1 (LM Studio) or http://localhost:11434/v1 (Ollama)">
+                placeholder="e.g., http://localhost:1234/v1">
               <p class="text-[9px] text-neutral-600 leading-tight">Connects to your local model serving API. Verify CORS options are enabled on your server.</p>
             </div>
 
@@ -1460,16 +1476,15 @@
           </label>
         </div>
 
-        <!-- Local Adventure Mode Toggle -->
-        <div class="flex items-center justify-between bg-black border border-neutral-800 rounded-xl px-4 py-3 transition-all mt-2">
-          <div class="flex flex-col gap-0.5 pr-3">
-            <span class="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Local Adventure Mode</span>
-            <p class="text-[9px] text-neutral-600 leading-tight">If enabled, Adventure Mode will bypass Gemini and route the Narrator and Companions to your Local LLM.</p>
-          </div>
-          <label class="relative inline-flex items-center cursor-pointer select-none shrink-0">
-            <input id="settings-local-adv-mode" type="checkbox" class="sr-only peer">
-            <div class="w-9 h-5 bg-neutral-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-[16px] after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-neutral-400 peer-checked:after:bg-red-600 after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-red-955/20 border border-neutral-700 peer-checked:border-red-700"></div>
-          </label>
+        <!-- Narrator AI Engine Dropdown -->
+        <div class="flex flex-col gap-1.5 border-t border-neutral-900 pt-3 mt-2">
+          <label class="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Narrator AI Engine</label>
+          <select id="settings-narrator-engine" class="bg-black border border-neutral-800 rounded-xl px-4 py-2 text-xs focus:outline-none focus:border-red-700 text-white transition-all">
+            <option value="gemini" selected>Google Gemini</option>
+            <option value="grok">xAI Grok</option>
+            <option value="local">Local LLM</option>
+          </select>
+          <p class="text-[9px] text-neutral-600 leading-tight">Select which API generates narrative prose and runs backend math/stats generation.</p>
         </div>
 
         <!-- Save As New Profile Action -->
@@ -1559,10 +1574,11 @@
 
     let appSettings = { 
       geminiKey: '', 
+      grokKey: '',
       localUrl: 'http://localhost:11434/v1', 
       localModel: 'stheno', 
       sandboxMode: false,
-      localAdventureMode: false
+      narratorEngine: 'gemini'
     };
 
     let narratorSettings = {
@@ -1918,7 +1934,11 @@
         
         // Populate adventure mode parameters inside Narrator Settings
         if ($('settings-sandbox-mode')) $('settings-sandbox-mode').checked = !!appSettings.sandboxMode;
-        if ($('settings-local-adv-mode')) $('settings-local-adv-mode').checked = !!appSettings.localAdventureMode;
+        if ($('settings-narrator-engine')) {
+          // Fallback legacy support for users who had "localAdventureMode: true" previously saved
+          if (appSettings.localAdventureMode) appSettings.narratorEngine = 'local';
+          $('settings-narrator-engine').value = appSettings.narratorEngine || 'gemini';
+        }
         
         renderNarratorProfilesDropdown();
 
@@ -1986,7 +2006,7 @@
       
       // Save adventure mode parameters inside Narrator Settings
       appSettings.sandboxMode = $('settings-sandbox-mode') ? $('settings-sandbox-mode').checked : false;
-      appSettings.localAdventureMode = $('settings-local-adv-mode') ? $('settings-local-adv-mode').checked : false;
+      appSettings.narratorEngine = $('settings-narrator-engine') ? $('settings-narrator-engine').value : 'gemini';
       saveSettings();
       
       $('narrator-settings-modal').classList.add('hidden');
@@ -2127,6 +2147,7 @@
       } else if (currentStage === 9) {
         if (ind) { ind.innerText = "Cybermind Setup"; ind.className = "text-xs text-red-500 font-medium bg-red-955/40 px-2.5 py-1 rounded-full border border-red-955"; }
         if ($('cybermind-gemini-key')) $('cybermind-gemini-key').value = appSettings.geminiKey || '';
+        if ($('cybermind-grok-key')) $('cybermind-grok-key').value = appSettings.grokKey || '';
         if ($('cybermind-local-url')) $('cybermind-local-url').value = appSettings.localUrl || 'http://localhost:1234/v1';
         if ($('cybermind-local-model')) $('cybermind-local-model').value = appSettings.localModel || 'mistral';
       }
@@ -3057,6 +3078,18 @@ async function speakMessage(text, bot, index = null) {
       const data = await response.json(); return data.choices[0].message.content;
     }
 
+    async function callGrokAPI(apiMessages, systemPrompt, apiKey, modelName = "grok-4.5", signal = null) {
+      const messages = [ { role: "system", content: systemPrompt }, ...apiMessages ];
+      const response = await fetch("https://api.x.ai/v1/chat/completions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
+        body: JSON.stringify({ model: modelName, messages: messages }),
+        signal
+      });
+      if (!response.ok) await handleFetchError(response);
+      const data = await response.json(); return data.choices[0].message.content;
+    }
+
     // ================= STAGE 3: ACTIVE CONVERSATION =================
     function updateChatBackground() {
       const bot = chatbots.find(b => b.id === activeBotId);
@@ -3288,6 +3321,10 @@ async function speakMessage(text, bot, index = null) {
          if (bot.model === 'local') {
           reply = await callLocalLLM(apiMessages, systemPrompt, appSettings.localUrl, appSettings.localModel);
           if ($('chat-connected-status')) $('chat-connected-status').innerText = `Connected • Local`;
+        } else if (bot.model === 'grok') {
+          if (!appSettings.grokKey) throw new Error("Missing Grok API Key. Open Cybermind to configure it.");
+          reply = await callGrokAPI(apiMessages, systemPrompt, appSettings.grokKey);
+          if ($('chat-connected-status')) $('chat-connected-status').innerText = `Connected • Grok`;
         } else {
           if (!appSettings.geminiKey) throw new Error("Missing Gemini API Key. Open Cybermind on the Home Screen to configure it.");
           const result = await callGeminiWithFallback(apiMessages, systemPrompt, appSettings.geminiKey);
@@ -4516,8 +4553,11 @@ If the story context does not provide enough details about "${tempSheetObj.name}
 Return STRICTLY JSON: {"appearance": "...", "personality": "...", "backstory": "..."}`;
         
         let reply = "";
-        if (appSettings.localAdventureMode) {
+        if (appSettings.narratorEngine === 'local') {
             reply = await callLocalLLM([{role: "user", content: prompt}], "You are a backend game engine data generator.", appSettings.localUrl, appSettings.localModel, signal);
+        } else if (appSettings.narratorEngine === 'grok') {
+            if (!appSettings.grokKey) throw new Error("Grok API key missing.");
+            reply = await callGrokAPI([{role: "user", content: prompt}], "You are a backend game engine data generator.", appSettings.grokKey, "grok-4.5", signal);
         } else if (appSettings.geminiKey) {
             const res = await callGeminiWithFallback([{role: "user", content: prompt}], "You are a backend game engine data generator.", appSettings.geminiKey, signal);
             reply = res.reply;
@@ -4621,8 +4661,11 @@ Return STRICTLY JSON matching this structure:
 }`;
 
             let reply = "";
-            if (appSettings.localAdventureMode) {
+            if (appSettings.narratorEngine === 'local') {
                 reply = await callLocalLLM([{role: "user", content: prompt}], "You are a backend game engine data generator. Output ONLY JSON.", appSettings.localUrl, appSettings.localModel, signal);
+            } else if (appSettings.narratorEngine === 'grok') {
+                if (!appSettings.grokKey) throw new Error("Grok API key missing.");
+                reply = await callGrokAPI([{role: "user", content: prompt}], "You are a backend game engine data generator. Output ONLY JSON.", appSettings.grokKey, "grok-4.5", signal);
             } else if (appSettings.geminiKey) {
                 const res = await callGeminiWithFallback([{role: "user", content: prompt}], "You are a backend game engine data generator. Output ONLY JSON.", appSettings.geminiKey, signal);
                 reply = res.reply;
@@ -4958,7 +5001,7 @@ Return STRICTLY JSON matching this structure:
     // progressive background plot summary compiler
     async function updateAdventureSummary() {
       if (isSummarizing) return;
-      if (!lastAdventureState || (!appSettings.geminiKey && !appSettings.localAdventureMode)) return;
+      if (!lastAdventureState || (!appSettings.geminiKey && appSettings.narratorEngine !== 'local' && !appSettings.grokKey)) return;
       if (activeAdventureChatHistory.length < 4) return;
       
       isSummarizing = true;
@@ -4977,8 +5020,10 @@ ${recentHistory}
 Write a concise, updated running plot summary of the entire adventure so far (maximum 3 sentences). Preserve key achievements, active quests, and introduced characters. Do not include metadata. Output ONLY the summary paragraph directly.`;
         
         let newSummary = "";
-        if (appSettings.localAdventureMode) {
+        if (appSettings.narratorEngine === 'local') {
           newSummary = await callLocalLLM([{role: "user", content: summaryPrompt}], "You are a backend game engine summary generator.", appSettings.localUrl, appSettings.localModel);
+        } else if (appSettings.narratorEngine === 'grok' && appSettings.grokKey) {
+          newSummary = await callGrokAPI([{role: "user", content: summaryPrompt}], "You are a backend game engine summary generator.", appSettings.grokKey);
         } else if (appSettings.geminiKey) {
           const res = await callGeminiWithFallback([{role: "user", content: summaryPrompt}], "You are a backend game engine summary generator.", appSettings.geminiKey);
           newSummary = res.reply;
@@ -5200,8 +5245,11 @@ At the very end of your response, if any mechanical events or changes occurred (
         let reply = '';
         if (activeAdventureChatHistory.length === 0) {
           const apiMessages = [{ role: "user", content: `Establish the opening scenario of the chronicle. Describe the scene, set the atmosphere, and invite ${getAdventureContextChar(selectedAdventureProfileId, 'user').name} and their companions to take action.` }];
-          if (appSettings.localAdventureMode) {
+          if (appSettings.narratorEngine === 'local') {
             reply = await callLocalLLM(apiMessages, systemPrompt, appSettings.localUrl, appSettings.localModel);
+          } else if (appSettings.narratorEngine === 'grok') {
+            if (!appSettings.grokKey) throw new Error("Grok API key missing.");
+            reply = await callGrokAPI(apiMessages, systemPrompt, appSettings.grokKey);
           } else if (appSettings.geminiKey) {
             const result = await callGeminiWithFallback(apiMessages, systemPrompt, appSettings.geminiKey); reply = result.reply;
           } else reply = `The air is thick with anticipation. Under the dark archway of ${adventureStoryTitle || 'The Unknown Sector'}, your party stands ready. The path forward remains unclear. What do you do?`;
@@ -5211,8 +5259,11 @@ At the very end of your response, if any mechanical events or changes occurred (
           const apiMessages = rollingHistory.filter(m => m.sender !== 'system_loot').map(msg => {
             return { role: msg.sender === 'narrator' ? 'assistant' : 'user', content: `${getAdventureSpeakerName(msg.sender)}: ${msg.text}` };
           });
-          if (appSettings.localAdventureMode) {
+          if (appSettings.narratorEngine === 'local') {
             reply = await callLocalLLM(apiMessages, systemPrompt, appSettings.localUrl, appSettings.localModel);
+          } else if (appSettings.narratorEngine === 'grok') {
+            if (!appSettings.grokKey) throw new Error("Grok API key missing.");
+            reply = await callGrokAPI(apiMessages, systemPrompt, appSettings.grokKey);
           } else if (appSettings.geminiKey) {
             const result = await callGeminiWithFallback(apiMessages, systemPrompt, appSettings.geminiKey); reply = result.reply;
           } else reply = "You push forward cautiously. The shadows stretch longer as your footsteps echo through the corridors.";
@@ -5404,8 +5455,11 @@ Your Strict Boundaries:
 
       try {
         let reply = '';
-        if (appSettings.localAdventureMode) {
+        if (bot.model === 'local') {
           reply = await callLocalLLM(apiMessages, botSystemPrompt, appSettings.localUrl, appSettings.localModel);
+        } else if (bot.model === 'grok') {
+          if (!appSettings.grokKey) throw new Error("Grok API key missing.");
+          reply = await callGrokAPI(apiMessages, botSystemPrompt, appSettings.grokKey);
         } else if (appSettings.geminiKey) {
           const result = await callGeminiWithFallback(apiMessages, botSystemPrompt, appSettings.geminiKey); reply = result.reply;
         } else reply = `Let's watch our flank. I don't trust these shadows one bit.`;
@@ -5521,6 +5575,7 @@ Your Strict Boundaries:
     if ($('cybermind-save-btn')) {
       $('cybermind-save-btn').addEventListener('click', () => {
         appSettings.geminiKey = $('cybermind-gemini-key').value.trim();
+        appSettings.grokKey = $('cybermind-grok-key').value.trim();
         appSettings.localUrl = $('cybermind-local-url').value.trim();
         appSettings.localModel = $('cybermind-local-model').value.trim();
         saveSettings();
