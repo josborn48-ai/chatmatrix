@@ -205,6 +205,11 @@
       </div>
 
       <div class="flex items-center justify-end gap-2">
+        <button id="narrator-settings-btn" class="hidden text-neutral-400 hover:text-white p-1 transition-all cursor-pointer flex items-center justify-center" title="Narrator Configuration">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+          </svg>
+        </button>
         <button id="home-settings-btn" class="text-neutral-400 hover:text-white p-1 transition-all cursor-pointer flex items-center justify-center" title="API Settings">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
@@ -1064,6 +1069,17 @@
   <!-- ================= CHARACTER SHEET MODAL ================= -->
   <div id="character-sheet-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-md flex justify-center items-center z-50 p-4">
     <div class="bg-neutral-950 border border-red-900/50 w-full max-w-sm rounded-3xl p-6 flex flex-col gap-4 shadow-[0_0_50px_rgba(220,38,38,0.15)] max-h-[90vh] overflow-y-auto no-scrollbar relative">
+      <!-- High-tech Loading Spinner Overlay -->
+      <div id="sheet-loading-overlay" class="hidden absolute inset-0 bg-black/80 backdrop-blur-sm z-40 flex flex-col justify-center items-center gap-4">
+        <div class="relative w-20 h-20 flex items-center justify-center">
+          <div class="absolute inset-0 border-4 border-dashed border-red-900/30 border-t-red-600 rounded-full animate-spin"></div>
+          <div class="w-10 h-10 bg-red-955/40 border border-red-500/60 rounded-full animate-pulse flex items-center justify-center shadow-[0_0_15px_rgba(220,38,38,0.3)]">
+            <span class="text-[9px] text-red-500 font-black">AI</span>
+          </div>
+        </div>
+        <span id="sheet-loading-text" class="text-xs font-black uppercase tracking-widest text-red-500 animate-pulse text-center px-4 leading-relaxed">Scanning timelines...</span>
+      </div>
+
       <div>
         <h3 id="sheet-title" class="text-lg font-black text-neutral-100 uppercase tracking-wider">Character Sheet</h3>
         <p id="sheet-subtitle" class="text-[10px] text-neutral-500 mt-0.5">Edit attributes or background.</p>
@@ -1094,7 +1110,7 @@
           <label class="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Backstory</label>
           <textarea id="sheet-bio-backstory" rows="3" class="bg-black border border-neutral-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-red-700 text-white transition-all resize-none"></textarea>
         </div>
-        <button id="sheet-bio-generate-btn" onclick="generateActiveSheetBio()" class="w-full bg-purple-900/40 hover:bg-purple-800 border border-purple-500/50 text-purple-300 hover:text-white font-bold py-2 rounded-xl text-xs transition-colors shadow mt-1">
+        <button id="sheet-bio-generate-btn" onclick="generateActiveSheetBio()" class="w-full bg-purple-900/40 hover:bg-purple-800 border border-purple-500/50 text-purple-300 hover:text-white font-bold py-2 rounded-xl text-xs transition-colors shadow mt-1 relative z-50">
           ✧ Auto-Generate Bio via AI ✧
         </button>
       </div>
@@ -1291,7 +1307,7 @@
     <div class="bg-neutral-950 border border-neutral-900 w-full max-w-sm rounded-3xl p-6 flex flex-col gap-4 shadow-[0_0_50px_rgba(220,38,38,0.1)]">
       <div>
         <h3 class="text-lg font-bold text-neutral-100">Portal Settings</h3>
-        <p class="text-xs text-neutral-500 mt-0.5">Manage backups, sandbox rules, and hidden entities.</p>
+        <p class="text-xs text-neutral-500 mt-0.5">Manage backups and hidden entities.</p>
       </div>
 
       <div class="flex flex-col gap-3">
@@ -1311,6 +1327,128 @@
           </div>
         </div>
 
+      </div>
+
+      <div class="flex gap-3 mt-2">
+        <button id="settings-close-btn" class="flex-1 bg-transparent text-neutral-400 hover:text-white font-semibold py-2.5 rounded-xl text-xs border border-neutral-800 transition-all">
+          Cancel
+        </button>
+        <button id="settings-save-btn" class="flex-1 bg-red-700 hover:bg-red-600 text-white font-semibold py-2.5 rounded-xl text-xs transition-all">
+          Save Settings
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= NARRATOR SETTINGS OVERLAY MODAL ================= -->
+  <div id="narrator-settings-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-md flex justify-center items-center z-50 p-4">
+    <div class="bg-neutral-950 border border-neutral-900 w-full max-w-sm rounded-3xl p-6 flex flex-col gap-4 shadow-[0_0_50px_rgba(220,38,38,0.1)] max-h-[90vh] overflow-y-auto no-scrollbar">
+      <div>
+        <h3 class="text-lg font-bold text-neutral-100">Narrator Settings</h3>
+        <p class="text-xs text-neutral-500 mt-0.5">Calibrate vocal synthesis profiles, portraits, and genre focus.</p>
+      </div>
+
+      <div class="flex flex-col gap-3">
+        <!-- Profile Selector Dropdown -->
+        <div class="flex flex-col gap-1.5 border-b border-neutral-900 pb-3">
+          <label class="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Load Narrator Profile</label>
+          <div class="relative">
+            <button type="button" id="narrator-profile-dropdown-btn" class="w-full bg-black border border-neutral-800 rounded-xl px-4 py-3 text-xs text-white transition-all flex items-center justify-between cursor-pointer select-none">
+              <div class="flex items-center gap-2" id="narrator-profile-dropdown-selected">
+                <span class="text-neutral-500">Default (The Narrator)</span>
+              </div>
+              <span class="text-xs text-neutral-500">▼</span>
+            </button>
+            <div id="narrator-profile-dropdown-options" class="hidden absolute left-0 right-0 top-[100%] bg-neutral-950 border border-neutral-800 rounded-xl mt-1 max-h-[180px] overflow-y-auto z-50 shadow-xl no-scrollbar">
+              <!-- Profiles populate here dynamically -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Avatar Upload -->
+        <div class="flex flex-col gap-1.5 border-b border-neutral-900 pb-3">
+          <label class="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Narrator Portrait</label>
+          <div class="flex items-center gap-3">
+            <img id="narrator-settings-avatar-preview" class="w-12 h-12 rounded-full object-cover border border-red-900/60" src="">
+            <button type="button" onclick="window.$('narrator-avatar-upload').click()" class="bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 text-neutral-300 font-semibold py-1.5 px-3 rounded-lg text-xs transition-colors">Choose Image</button>
+            <input type="file" id="narrator-avatar-upload" accept="image/*" class="hidden" onchange="uploadNarratorAvatar(event)">
+          </div>
+        </div>
+
+        <!-- Custom Narrator Name -->
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Narrator Name</label>
+          <input id="narrator-name" type="text" class="bg-black border border-neutral-800 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-red-700 text-white transition-all" placeholder="e.g., Dungeon Master, Investigator">
+        </div>
+
+        <!-- Quiet Mode Toggle -->
+        <div class="flex items-center justify-between bg-black border border-neutral-800 rounded-xl px-4 py-3 transition-all">
+          <div class="flex flex-col gap-0.5 pr-3">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Talk Mode</span>
+            <p class="text-[9px] text-neutral-600 leading-tight">Auto-plays voice synthesis when the Narrator responds.</p>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer select-none shrink-0">
+            <input id="narrator-quiet-mode" type="checkbox" class="sr-only peer">
+            <div class="w-9 h-5 bg-neutral-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-[16px] after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-neutral-400 peer-checked:after:bg-red-600 after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-red-955/20 border border-neutral-700 peer-checked:border-red-700"></div>
+          </label>
+        </div>
+
+        <!-- Voice Selection -->
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Voice Profile</label>
+          <select id="narrator-voice" class="bg-black border border-neutral-800 rounded-xl px-4 py-2 text-xs focus:outline-none focus:border-red-700 text-white transition-all">
+            <option value="">(Disable Voice / Muted)</option>
+            <optgroup label="Female Profiles">
+              <option value="Kore">Kore -- Firm, steady, direct</option>
+              <option value="Leda">Leda -- Youthful, bright, energetic</option>
+              <option value="Aoede">Aoede -- Breezy, relaxed, natural</option>
+              <option value="Callirrhoe">Callirrhoe -- Easy-going, friendly</option>
+              <option value="Autonoe">Autonoe -- Bright, cheerful</option>
+              <option value="Despina">Despina -- Smooth, soft, gentle</option>
+              <option value="Erinome">Erinome -- Clear, articulate</option>
+              <option value="Laomedeia">Laomedeia -- Upbeat, positive</option>
+              <option value="Achernar">Achernar -- Soft, warm</option>
+              <option value="Gacrux">Gacrux -- Mature, expressive</option>
+              <option value="Pulcherrima">Pulcherrima -- Direct, structured</option>
+              <option value="Vindemiatrix">Vindemiatrix -- Gentle, quiet</option>
+              <option value="Sulafat">Sulafat -- Warm, supportive</option>
+            </optgroup>
+            <optgroup label="Male Profiles">
+              <option value="Puck">Puck -- Upbeat, lively, energetic</option>
+              <option value="Charon">Charon -- Informative, calm, reassuring</option>
+              <option value="Fenrir">Fenrir -- Excitable, passionate</option>
+              <option value="Orus">Orus -- Firm, lower-middle pitch</option>
+              <option value="Enceladus">Enceladus -- Soft, breathy, tired</option>
+              <option value="Iapetus">Iapetus -- Clear, clean, mid-low pitch</option>
+              <option value="Umbriel">Umbriel -- Easy-going, relaxed</option>
+              <option value="Algieba">Algieba -- Smooth, flowing, lower pitch</option>
+              <option value="Algenib">Algenib -- Gravelly, textured, raspy</option>
+              <option value="Rasalgethi">Rasalgethi -- Professional narrator</option>
+              <option value="Alnilam">Alnilam -- Confident, firm, lower-middle</option>
+              <option value="Schedar">Schedar -- Even, steady, balanced</option>
+              <option value="Achird">Achird -- Friendly, approachable, casual</option>
+              <option value="Zubenelgenubi">Zubenelgenubi -- Casual, relaxed</option>
+              <option value="Sadachbia">Sadachbia -- Lively, lower pitch</option>
+              <option value="Sadaltager">Sadaltager -- Knowledgeable, clear</option>
+              <option value="Zephyr">Zephyr -- Bright, high pitch</option>
+            </optgroup>
+          </select>
+        </div>
+
+        <!-- Vocal Style Prompt -->
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Vocal Style Prompt</label>
+          <input id="narrator-voice-prompt" type="text" class="bg-black border border-neutral-800 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-red-700 text-white transition-all" placeholder="e.g. Whispering tone, slow pacing, deep pitch">
+        </div>
+
+        <!-- Writing Style / Genre context -->
+        <div class="flex flex-col gap-1.5 border-t border-neutral-900 pt-3">
+          <label class="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Writing Style & Genre Context</label>
+          <textarea id="narrator-writing-style" rows="3" class="bg-black border border-neutral-800 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-red-700 text-white transition-all resize-none" placeholder="e.g. Gritty Detective Noir, hardboiled descriptions, rain-soaked mystery context..."></textarea>
+          <p class="text-[9px] text-neutral-600 leading-tight">Dictates the vocabulary, genre, pacing, and formatting rules of the narrative.</p>
+        </div>
+
+        <!-- Adventure Sandbox Mode Toggle -->
         <div class="flex items-center justify-between bg-black border border-neutral-800 rounded-xl px-4 py-3 transition-all mt-2">
           <div class="flex flex-col gap-0.5 pr-3">
             <span class="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Adventure Sandbox Mode</span>
@@ -1322,6 +1460,7 @@
           </label>
         </div>
 
+        <!-- Local Adventure Mode Toggle -->
         <div class="flex items-center justify-between bg-black border border-neutral-800 rounded-xl px-4 py-3 transition-all mt-2">
           <div class="flex flex-col gap-0.5 pr-3">
             <span class="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Local Adventure Mode</span>
@@ -1333,13 +1472,20 @@
           </label>
         </div>
 
+        <!-- Save As New Profile Action -->
+        <div class="flex flex-col gap-1.5 border-t border-neutral-900 pt-3 mt-2">
+          <button type="button" onclick="saveAsNewNarratorProfile()" class="w-full bg-neutral-900 hover:bg-neutral-800 border border-neutral-805 text-neutral-300 font-semibold py-2 rounded-xl text-[10px] transition-colors shadow">
+            Save Current as New Profile +
+          </button>
+        </div>
+
       </div>
 
-      <div class="flex gap-3 mt-2">
-        <button id="settings-close-btn" class="flex-1 bg-transparent text-neutral-400 hover:text-white font-semibold py-2.5 rounded-xl text-xs border border-neutral-800 transition-all">
+      <div class="flex gap-3 mt-3">
+        <button onclick="window.$('narrator-settings-modal').classList.add('hidden')" class="flex-1 bg-transparent text-neutral-400 hover:text-white font-semibold py-2.5 rounded-xl text-xs border border-neutral-800 transition-all">
           Cancel
         </button>
-        <button id="settings-save-btn" class="flex-1 bg-red-700 hover:bg-red-600 text-white font-semibold py-2.5 rounded-xl text-xs transition-all">
+        <button onclick="saveNarratorSettings()" class="flex-1 bg-red-700 hover:bg-red-600 text-white font-semibold py-2.5 rounded-xl text-xs transition-all">
           Save Settings
         </button>
       </div>
@@ -1418,6 +1564,18 @@
       sandboxMode: false,
       localAdventureMode: false
     };
+
+    let narratorSettings = {
+      name: 'The Narrator',
+      voiceName: 'Charon',
+      voicePrompt: 'Steady, authoritative, even paced',
+      isQuietMode: false,
+      writingStyle: 'Descriptive tabletop roleplay adventure, high fantasy styling',
+      avatarUrl: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'><rect width='100' height='100' rx='20' fill='%231a1a1a'/><text x='50' y='55' font-family='sans-serif' font-size='35' font-weight='bold' fill='%23dc2626' text-anchor='middle' alignment-baseline='middle'>DM</text></svg>"
+    };
+
+    let activeNarratorProfileId = null;
+    let savedNarratorProfiles = [];
 
     const defaultProfile = {
       id: 'default_user', name: 'Creator', appearance: 'Human developer', backstory: 'The creator of this synthetic space.',
@@ -1596,6 +1754,9 @@
       try { userProfiles = await getDBValue('botforge_user_profiles', null) || []; } catch (e) { userProfiles = []; }
       try { savedAdventures = await getDBValue('botforge_adventures', null) || []; } catch (e) { savedAdventures = []; }
       try { lastAdventureState = await getDBValue('botforge_last_adventure', null); } catch (e) { lastAdventureState = null; }
+      try { narratorSettings = await getDBValue('botforge_narrator_settings', null) || narratorSettings; } catch (e) {}
+      try { savedNarratorProfiles = await getDBValue('botforge_saved_narrator_profiles', null) || []; } catch (e) {}
+      try { activeNarratorProfileId = await getDBValue('botforge_active_narrator_profile_id', null); } catch (e) {}
       
       try {
         activeProfileId = await getDBValue('botforge_active_profile', null);
@@ -1618,11 +1779,231 @@
     function saveSettings() { setDBValue('botforge_settings', appSettings); }
     function saveProfilesToLocalStorage() { setDBValue('botforge_user_profiles', userProfiles); setDBValue('botforge_active_profile', activeProfileId); }
     function saveAdventuresToStorage() { setDBValue('botforge_adventures', savedAdventures); }
+    function saveNarratorSettingsToStorage() { setDBValue('botforge_narrator_settings', narratorSettings); }
+    function saveNarratorProfilesToStorage() {
+      setDBValue('botforge_saved_narrator_profiles', savedNarratorProfiles);
+      setDBValue('botforge_active_narrator_profile_id', activeNarratorProfileId);
+    }
+
+    window.populateNarratorSettingsFields = function() {
+      if ($('narrator-name')) $('narrator-name').value = narratorSettings.name || 'The Narrator';
+      if ($('narrator-quiet-mode')) $('narrator-quiet-mode').checked = !narratorSettings.isQuietMode;
+      if ($('narrator-voice')) $('narrator-voice').value = narratorSettings.voiceName || '';
+      if ($('narrator-voice-prompt')) $('narrator-voice-prompt').value = narratorSettings.voicePrompt || '';
+      if ($('narrator-writing-style')) $('narrator-writing-style').value = narratorSettings.writingStyle || '';
+      if ($('narrator-settings-avatar-preview')) $('narrator-settings-avatar-preview').src = narratorSettings.avatarUrl || '';
+    };
+
+    window.renderNarratorProfilesDropdown = function() {
+      const list = $('narrator-profile-dropdown-options');
+      if (!list) return;
+      list.innerHTML = '';
+
+      // Default/Reset Row
+      const defaultRow = document.createElement('div');
+      defaultRow.className = "flex items-center gap-2.5 px-4 py-2.5 hover:bg-neutral-900 cursor-pointer transition-colors text-xs text-neutral-300";
+      defaultRow.onclick = () => selectNarratorProfile(null);
+      defaultRow.innerHTML = `
+        <div class="w-5 h-5 rounded-full bg-neutral-900 border border-neutral-850 flex items-center justify-center shrink-0">
+          <span class="text-[8px] text-red-500 font-bold">DM</span>
+        </div>
+        <span>Default (The Narrator)</span>
+      `;
+      list.appendChild(defaultRow);
+
+      savedNarratorProfiles.forEach(p => {
+        const row = document.createElement('div');
+        row.className = "flex items-center justify-between hover:bg-neutral-900 transition-colors text-xs text-neutral-300";
+        
+        const selectionArea = document.createElement('div');
+        selectionArea.className = "flex items-center gap-2.5 px-4 py-2.5 cursor-pointer flex-1 overflow-hidden";
+        selectionArea.onclick = () => selectNarratorProfile(p.id);
+        const avatarSrc = p.avatarUrl || "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'><rect width='100' height='100' rx='20' fill='%231a1a1a'/><text x='50' y='55' font-family='sans-serif' font-size='35' font-weight='bold' fill='%23dc2626' text-anchor='middle' alignment-baseline='middle'>DM</text></svg>";
+        selectionArea.innerHTML = `
+          <img src="${avatarSrc}" class="w-5 h-5 rounded-full object-cover shrink-0">
+          <span class="truncate font-medium">${p.name}</span>
+        `;
+        row.appendChild(selectionArea);
+
+        const actionsArea = document.createElement('div');
+        actionsArea.className = "pr-3 shrink-0 flex items-center";
+        const delBtn = document.createElement('button');
+        delBtn.type = "button";
+        delBtn.className = "text-neutral-500 hover:text-red-500 font-bold text-sm px-1.5 transition-colors";
+        delBtn.innerText = "×";
+        delBtn.title = "Delete Profile";
+        delBtn.onclick = (e) => {
+          e.stopPropagation();
+          deleteNarratorProfile(p.id);
+        };
+        actionsArea.appendChild(delBtn);
+        row.appendChild(actionsArea);
+
+        list.appendChild(row);
+      });
+    };
+
+    window.selectNarratorProfile = function(id) {
+      activeNarratorProfileId = id;
+      if (id === null) {
+        narratorSettings = {
+          name: 'The Narrator',
+          voiceName: 'Charon',
+          voicePrompt: 'Steady, authoritative, even paced',
+          isQuietMode: false,
+          writingStyle: 'Descriptive tabletop roleplay adventure, high fantasy styling',
+          avatarUrl: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'><rect width='100' height='100' rx='20' fill='%231a1a1a'/><text x='50' y='55' font-family='sans-serif' font-size='35' font-weight='bold' fill='%23dc2626' text-anchor='middle' alignment-baseline='middle'>DM</text></svg>"
+        };
+        populateNarratorSettingsFields();
+        $('narrator-profile-dropdown-selected').innerHTML = `<span class="text-neutral-500">Default (The Narrator)</span>`;
+      } else {
+        const p = savedNarratorProfiles.find(profile => profile.id === id);
+        if (p) {
+          narratorSettings = {
+            name: p.name,
+            voiceName: p.voiceName,
+            voicePrompt: p.voicePrompt,
+            isQuietMode: p.isQuietMode,
+            writingStyle: p.writingStyle,
+            avatarUrl: p.avatarUrl
+          };
+          populateNarratorSettingsFields();
+          const avatarSrc = p.avatarUrl || "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'><rect width='100' height='100' rx='20' fill='%231a1a1a'/><text x='50' y='55' font-family='sans-serif' font-size='35' font-weight='bold' fill='%23dc2626' text-anchor='middle' alignment-baseline='middle'>DM</text></svg>";
+          $('narrator-profile-dropdown-selected').innerHTML = `
+            <img src="${avatarSrc}" class="w-4 h-4 rounded-full object-cover shrink-0">
+            <span class="truncate font-semibold text-neutral-200">${p.name}</span>
+          `;
+        }
+      }
+      $('narrator-profile-dropdown-options').classList.add('hidden');
+    };
+
+    window.saveAsNewNarratorProfile = function() {
+      const nameInput = $('narrator-name') ? $('narrator-name').value.trim() : '';
+      const finalName = prompt("Enter a unique name to store this Narrator Profile:", nameInput || "My Custom Narrator");
+      if (finalName === null || !finalName.trim()) return;
+
+      const newProfile = {
+        id: 'np_' + Date.now(),
+        name: finalName.trim(),
+        voiceName: $('narrator-voice').value,
+        voicePrompt: $('narrator-voice-prompt').value.trim(),
+        isQuietMode: !$('narrator-quiet-mode').checked,
+        writingStyle: $('narrator-writing-style').value.trim(),
+        avatarUrl: $('narrator-settings-avatar-preview').src
+      };
+
+      savedNarratorProfiles.push(newProfile);
+      activeNarratorProfileId = newProfile.id;
+      saveNarratorProfilesToStorage();
+      
+      alert(`Narrator Profile "${newProfile.name}" successfully created!`);
+      
+      renderNarratorProfilesDropdown();
+      selectNarratorProfile(newProfile.id);
+    };
+
+    window.deleteNarratorProfile = function(id) {
+      if (confirm("Permanently delete this Narrator profile?")) {
+        savedNarratorProfiles = savedNarratorProfiles.filter(p => p.id !== id);
+        if (activeNarratorProfileId === id) selectNarratorProfile(null);
+        saveNarratorProfilesToStorage();
+        renderNarratorProfilesDropdown();
+      }
+    };
+
+    if ($('narrator-settings-btn')) {
+      $('narrator-settings-btn').addEventListener('click', () => {
+        populateNarratorSettingsFields();
+        
+        // Populate adventure mode parameters inside Narrator Settings
+        if ($('settings-sandbox-mode')) $('settings-sandbox-mode').checked = !!appSettings.sandboxMode;
+        if ($('settings-local-adv-mode')) $('settings-local-adv-mode').checked = !!appSettings.localAdventureMode;
+        
+        renderNarratorProfilesDropdown();
+
+        // Update UI selection header label
+        if (activeNarratorProfileId) {
+          const activeP = savedNarratorProfiles.find(p => p.id === activeNarratorProfileId);
+          if (activeP) {
+            const avatarSrc = activeP.avatarUrl || "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'><rect width='100' height='100' rx='20' fill='%231a1a1a'/><text x='50' y='55' font-family='sans-serif' font-size='35' font-weight='bold' fill='%23dc2626' text-anchor='middle' alignment-baseline='middle'>DM</text></svg>";
+            $('narrator-profile-dropdown-selected').innerHTML = `
+              <img src="${avatarSrc}" class="w-4 h-4 rounded-full object-cover shrink-0">
+              <span class="truncate font-semibold text-neutral-200">${activeP.name}</span>
+            `;
+          } else {
+            $('narrator-profile-dropdown-selected').innerHTML = `<span class="text-neutral-500">Default (The Narrator)</span>`;
+          }
+        } else {
+          $('narrator-profile-dropdown-selected').innerHTML = `<span class="text-neutral-500">Default (The Narrator)</span>`;
+        }
+
+        $('narrator-settings-modal').classList.remove('hidden');
+      });
+    }
+
+    if ($('narrator-profile-dropdown-btn')) {
+      $('narrator-profile-dropdown-btn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        if ($('narrator-profile-dropdown-options')) {
+          $('narrator-profile-dropdown-options').classList.toggle('hidden');
+        }
+      });
+    }
+
+    // global close click watcher
+    document.addEventListener('click', () => {
+      if ($('narrator-profile-dropdown-options')) {
+        $('narrator-profile-dropdown-options').classList.add('hidden');
+      }
+    });
+
+    window.saveNarratorSettings = function() {
+      narratorSettings.name = ($('narrator-name') ? $('narrator-name').value.trim() : '') || 'The Narrator';
+      narratorSettings.isQuietMode = !$('narrator-quiet-mode').checked;
+      narratorSettings.voiceName = $('narrator-voice').value;
+      narratorSettings.voicePrompt = $('narrator-voice-prompt').value.trim();
+      narratorSettings.writingStyle = $('narrator-writing-style').value.trim();
+      narratorSettings.avatarUrl = $('narrator-settings-avatar-preview').src;
+      saveNarratorSettingsToStorage();
+
+      // Automatically overwrite changes to selected profile if active
+      if (activeNarratorProfileId) {
+        const idx = savedNarratorProfiles.findIndex(p => p.id === activeNarratorProfileId);
+        if (idx !== -1) {
+          savedNarratorProfiles[idx] = {
+            id: activeNarratorProfileId,
+            name: savedNarratorProfiles[idx].name, // keep user profile name
+            voiceName: narratorSettings.voiceName,
+            voicePrompt: narratorSettings.voicePrompt,
+            isQuietMode: narratorSettings.isQuietMode,
+            writingStyle: narratorSettings.writingStyle,
+            avatarUrl: narratorSettings.avatarUrl
+          };
+          saveNarratorProfilesToStorage();
+        }
+      }
+      
+      // Save adventure mode parameters inside Narrator Settings
+      appSettings.sandboxMode = $('settings-sandbox-mode') ? $('settings-sandbox-mode').checked : false;
+      appSettings.localAdventureMode = $('settings-local-adv-mode') ? $('settings-local-adv-mode').checked : false;
+      saveSettings();
+      
+      $('narrator-settings-modal').classList.add('hidden');
+      renderStage8AdventureChat(); // Re-render chat display with updated DM portraits
+    };
+
+    window.uploadNarratorAvatar = function(e) {
+      const file = e.target.files[0]; if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        $('narrator-settings-avatar-preview').src = evt.target.result;
+      };
+      reader.readAsDataURL(file);
+    };
 
     if ($('home-settings-btn')) {
       $('home-settings-btn').addEventListener('click', () => {
-        if ($('settings-sandbox-mode')) $('settings-sandbox-mode').checked = !!appSettings.sandboxMode;
-        if ($('settings-local-adv-mode')) $('settings-local-adv-mode').checked = !!appSettings.localAdventureMode;
         populateSettingsHiddenBots();
         $('settings-modal').classList.remove('hidden');
       });
@@ -1632,8 +2013,6 @@
 
     if ($('settings-save-btn')) {
       $('settings-save-btn').addEventListener('click', () => {
-        appSettings.sandboxMode = $('settings-sandbox-mode') ? $('settings-sandbox-mode').checked : false;
-        appSettings.localAdventureMode = $('settings-local-adv-mode') ? $('settings-local-adv-mode').checked : false;
         saveSettings(); $('settings-modal').classList.add('hidden');
       });
     }
@@ -1696,6 +2075,12 @@
         const id = i === 4 ? 'stage-profile-form' : `stage-${i}`;
         if ($(id)) $(id).classList.toggle('hidden', currentStage !== i);
       });
+
+      if ($('narrator-settings-btn')) {
+        const gatewayVisible = !$('gateway-overlay').classList.contains('opacity-0');
+        const isAdvStage = (currentStage === 6 || currentStage === 7 || currentStage === 8) && !gatewayVisible;
+        $('narrator-settings-btn').classList.toggle('hidden', !isAdvStage);
+      }
 
       const ind = $('stage-indicator');
 
@@ -2632,7 +3017,7 @@ async function speakMessage(text, bot, index = null) {
     };
 
     // ================= DIRECT API CONNECTORS =================
-    async function callGeminiDirect(apiMessages, systemPrompt, apiKey, modelName) {
+    async function callGeminiDirect(apiMessages, systemPrompt, apiKey, modelName, signal = null) {
       const contents = apiMessages.map(m => ({ role: m.role === 'user' ? 'user' : 'model', parts: [{ text: m.content }] }));
       const payload = {
         contents: contents,
@@ -2640,18 +3025,19 @@ async function speakMessage(text, bot, index = null) {
       };
       if (systemPrompt) payload.systemInstruction = { parts: [{ text: systemPrompt }] };
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
-      const response = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+      const response = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload), signal });
       if (!response.ok) await handleFetchError(response);
       const data = await response.json(); return data.candidates[0].content.parts[0].text;
     }
 
     const GEMINI_MODELS = ["gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-2.5-pro"];
 
-    async function callGeminiWithFallback(apiMessages, systemPrompt, apiKey) {
+    async function callGeminiWithFallback(apiMessages, systemPrompt, apiKey, signal = null) {
       let lastError = null;
       for (const model of GEMINI_MODELS) {
-        try { const reply = await callGeminiDirect(apiMessages, systemPrompt, apiKey, model); return { reply, modelUsed: model }; } 
+        try { const reply = await callGeminiDirect(apiMessages, systemPrompt, apiKey, model, signal); return { reply, modelUsed: model }; } 
         catch (err) {
+          if (err.name === 'AbortError') throw err;
           const errStr = err.message.toLowerCase();
           if (errStr.includes("quota") || errStr.includes("limit") || errStr.includes("429") || errStr.includes("rate") || errStr.includes("timeout") || errStr.includes("fetch") || errStr.includes("503") || errStr.includes("500") || errStr.includes("server") || errStr.includes("unavailable")) {
             lastError = err;
@@ -2663,10 +3049,10 @@ async function speakMessage(text, bot, index = null) {
       throw lastError;
     }
 
-    async function callLocalLLM(apiMessages, systemPrompt, endpoint, modelName) {
+    async function callLocalLLM(apiMessages, systemPrompt, endpoint, modelName, signal = null) {
       const messages = [ { role: "system", content: systemPrompt }, ...apiMessages ];
       const cleanEndpoint = endpoint.replace(/\/+$/, '');
-      const response = await fetch(`${cleanEndpoint}/chat/completions`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ model: modelName || "local-model", messages: messages }) });
+      const response = await fetch(`${cleanEndpoint}/chat/completions`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ model: modelName || "local-model", messages: messages }), signal });
       if (!response.ok) throw new Error(`Local LLM offline.`);
       const data = await response.json(); return data.choices[0].message.content;
     }
@@ -3220,6 +3606,7 @@ async function speakMessage(text, bot, index = null) {
     function getSpentPoints() { return Object.values(tempSheetObj.stats).reduce((sum, val) => sum + (STAT_COSTS[val] || 0), 0); }
 
     window.openCharacterSheet = function(id, type) {
+      closeRoster(); // Auto-closes slide panel whenever active character sheets open
       activeSheetId = id; activeSheetType = type;
       let targetObj;
       
@@ -3571,25 +3958,86 @@ async function speakMessage(text, bot, index = null) {
     window.saveCharacterSheet = function() {
       if (currentStage === 8 && lastAdventureState && lastAdventureState.characters && lastAdventureState.characters[activeSheetId]) {
          let localTarget = lastAdventureState.characters[activeSheetId];
+         localTarget.name = tempSheetObj.name;
+         localTarget.appearance = tempSheetObj.appearance;
+         localTarget.personality = tempSheetObj.personality;
+         localTarget.backstory = tempSheetObj.backstory;
+         localTarget.history = tempSheetObj.history;
          localTarget.stats = { ...tempSheetObj.stats }; 
          localTarget.inventory = [...tempSheetObj.inventory];
          localTarget.skills = [...tempSheetObj.skills];
          localTarget.passives = [...tempSheetObj.passives];
+         localTarget.level = tempSheetObj.level;
+         localTarget.exp = tempSheetObj.exp;
          localTarget.gold = parseInt($('sheet-gold-input').value, 10) || 0;
          autoSaveAdventure(); 
       } else {
           let targetObj = activeSheetType === 'user' ? userProfiles.find(p => p.id === activeSheetId) : chatbots.find(b => b.id === activeSheetId);
           if (!targetObj && activeSheetType === 'user' && activeSheetId === defaultProfile.id) targetObj = JSON.parse(JSON.stringify(defaultProfile));
           if (targetObj) {
+            targetObj.name = tempSheetObj.name;
+            targetObj.appearance = tempSheetObj.appearance;
+            targetObj.personality = tempSheetObj.personality;
+            targetObj.backstory = tempSheetObj.backstory;
+            targetObj.history = tempSheetObj.history;
             targetObj.stats = { ...tempSheetObj.stats }; 
             targetObj.inventory = [...tempSheetObj.inventory];
             targetObj.skills = [...tempSheetObj.skills];
             targetObj.passives = [...tempSheetObj.passives];
+            targetObj.level = tempSheetObj.level;
+            targetObj.exp = tempSheetObj.exp;
             targetObj.gold = parseInt($('sheet-gold-input').value, 10) || 0;
             if (activeSheetType === 'user') saveProfilesToLocalStorage(); else saveToLocalStorage();
           }
       }
       $('character-sheet-modal').classList.add('hidden');
+    };
+
+    window.silentSaveCharacterSheet = function() {
+      // Pull latest edited values from DOM to memory object first
+      tempSheetObj.name = $('sheet-bio-name').value.trim();
+      tempSheetObj.appearance = $('sheet-bio-appearance').value.trim();
+      tempSheetObj.personality = $('sheet-bio-personality').value.trim();
+      if (activeSheetType === 'user' || tempSheetObj.isNpc) {
+          tempSheetObj.backstory = $('sheet-bio-backstory').value.trim();
+      } else {
+          tempSheetObj.history = $('sheet-bio-backstory').value.trim();
+      }
+
+      if (currentStage === 8 && lastAdventureState && lastAdventureState.characters && lastAdventureState.characters[activeSheetId]) {
+         let localTarget = lastAdventureState.characters[activeSheetId];
+         localTarget.name = tempSheetObj.name;
+         localTarget.appearance = tempSheetObj.appearance;
+         localTarget.personality = tempSheetObj.personality;
+         localTarget.backstory = tempSheetObj.backstory;
+         localTarget.history = tempSheetObj.history;
+         localTarget.stats = { ...tempSheetObj.stats }; 
+         localTarget.inventory = [...tempSheetObj.inventory];
+         localTarget.skills = [...tempSheetObj.skills];
+         localTarget.passives = [...tempSheetObj.passives];
+         localTarget.level = tempSheetObj.level;
+         localTarget.exp = tempSheetObj.exp;
+         localTarget.gold = parseInt($('sheet-gold-input').value, 10) || 0;
+         autoSaveAdventure(); 
+      } else {
+          let targetObj = activeSheetType === 'user' ? userProfiles.find(p => p.id === activeSheetId) : chatbots.find(b => b.id === activeSheetId);
+          if (!targetObj && activeSheetType === 'user' && activeSheetId === defaultProfile.id) targetObj = JSON.parse(JSON.stringify(defaultProfile));
+          if (targetObj) {
+            targetObj.name = tempSheetObj.name;
+            targetObj.appearance = tempSheetObj.appearance;
+            targetObj.personality = tempSheetObj.personality;
+            targetObj.backstory = tempSheetObj.backstory;
+            targetObj.history = tempSheetObj.history;
+            targetObj.stats = { ...tempSheetObj.stats }; 
+            targetObj.inventory = [...tempSheetObj.inventory];
+            targetObj.skills = [...tempSheetObj.skills];
+            targetObj.passives = [...tempSheetObj.passives];
+            targetObj.level = tempSheetObj.level;
+            targetObj.exp = tempSheetObj.exp;
+            targetObj.gold = parseInt($('sheet-gold-input').value, 10) || 0;
+            if (activeSheetType === 'user') saveProfilesToLocalStorage(); else saveToLocalStorage();
+          }
+      }
     };
 
     // LOOT GENERATOR FUNCTIONS
@@ -3837,7 +4285,7 @@ async function speakMessage(text, bot, index = null) {
         if (isNarrator) {
           wrapper.className = `w-full flex justify-center py-2 z-10`;
           const bubble = document.createElement('div');
-          bubble.className = `bg-neutral-950/90 border border-red-900/60 rounded-2xl p-4 shadow-md backdrop-blur-md w-[95%] text-sm leading-relaxed whitespace-pre-wrap flex flex-col gap-1 cursor-pointer ${isCurrentlyPlaying ? 'shadow-[0_0_15px_rgba(185,28,28,0.3)]' : ''}`;
+          bubble.className = `bg-neutral-950/90 border border-red-900/60 rounded-2xl p-4 shadow-md backdrop-blur-md w-[95%] text-sm leading-relaxed whitespace-pre-wrap flex flex-col gap-3 cursor-pointer ${isCurrentlyPlaying ? 'shadow-[0_0_15px_rgba(185,28,28,0.3)]' : ''}`;
           bubble.onclick = () => toggleAdventureBubbleControls(idx);
 
           let actionControlsMarkup = '';
@@ -3847,7 +4295,17 @@ async function speakMessage(text, bot, index = null) {
             actionControlsMarkup = `<div class="flex justify-between items-center mt-2 border-t border-red-900/40 pt-2 select-none h-6"><div class="flex justify-start">${editBtnMarkup}</div><div class="flex justify-end gap-1.5 items-center">${rightSideMarkup}</div></div>`;
           }
 
-          bubble.innerHTML = `<span class="text-[10px] font-black uppercase tracking-widest text-red-500 text-center">The Narrator</span><div class="text-red-400 font-medium italic text-center">${parseMarkdown(msg.text)}</div>${actionControlsMarkup}`;
+          const narratorAvatar = narratorSettings.avatarUrl || "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'><rect width='100' height='100' rx='20' fill='%231a1a1a'/><text x='50' y='55' font-family='sans-serif' font-size='35' font-weight='bold' fill='%23dc2626' text-anchor='middle' alignment-baseline='middle'>DM</text></svg>";
+          const dmDisplayName = narratorSettings.name || 'The Narrator';
+
+          bubble.innerHTML = `
+            <div class="flex items-center gap-2.5 border-b border-red-900/30 pb-2 mb-1 shrink-0">
+              <img class="w-8 h-8 rounded-full object-cover border border-red-600/40 shadow-sm" src="${narratorAvatar}" alt="DM">
+              <span class="text-[10px] font-black uppercase tracking-widest text-red-500">${dmDisplayName}</span>
+            </div>
+            <div class="text-red-400 font-medium italic text-center">${parseMarkdown(msg.text)}</div>
+            ${actionControlsMarkup}
+          `;
           wrapper.appendChild(bubble);
         } else {
           wrapper.className = `flex gap-3 max-w-[85%] ${isUser ? 'self-end flex-row-reverse' : 'self-start'} z-10 relative`;
@@ -3905,7 +4363,7 @@ async function speakMessage(text, bot, index = null) {
     window.playAdventureBubbleSpeech = function(index) {
       const msg = activeAdventureChatHistory[index]; if (!msg) return;
       let botObj = null;
-      if (msg.sender === 'narrator') botObj = { name: "Narrator", voiceName: "Charon", voicePrompt: "Steady, authoritative, even paced", ttsEngine: "gemini" };
+      if (msg.sender === 'narrator') botObj = { name: "Narrator", voiceName: narratorSettings.voiceName || "Charon", voicePrompt: narratorSettings.voicePrompt || "Steady, authoritative", ttsEngine: "gemini" };
       else if (msg.sender === 'user') return; 
       else botObj = getAdventureContextChar(msg.sender, 'bot');
       if (botObj) speakMessage(msg.text, botObj, index);
@@ -3978,10 +4436,71 @@ async function speakMessage(text, bot, index = null) {
       originalSaveCharacterSheet();
     };
 
+    let isGeneratingSheet = false;
+    let sheetGenAbortController = null;
+
+    function setSheetGeneratingState(active, statusText = "Scanning timelines...") {
+      isGeneratingSheet = active;
+      const modal = $('character-sheet-modal');
+      const overlay = $('sheet-loading-overlay');
+      const overlayText = $('sheet-loading-text');
+      const genBtn = $('sheet-bio-generate-btn');
+
+      if (modal) {
+        modal.classList.toggle('cursor-wait', active);
+        if (overlay) {
+          overlay.classList.toggle('hidden', !active);
+          if (overlayText) overlayText.innerText = statusText;
+        }
+
+        // Freeze all elements in the modal backdrop
+        modal.classList.toggle('pointer-events-none', active);
+        
+        // Explicitly bypass the freeze exclusively for the generator button so it can be clicked to abort
+        if (genBtn) {
+          genBtn.classList.toggle('pointer-events-auto', active);
+        }
+      }
+    }
+
+    function extractJSON(text) {
+      if (!text) return null;
+      const start = text.indexOf('{');
+      const end = text.lastIndexOf('}');
+      if (start === -1 || end === -1) return null;
+      try {
+        return JSON.parse(text.substring(start, end + 1));
+      } catch (err) {
+        console.error("JSON parsing error on text:", text, err);
+        return null;
+      }
+    }
+
     window.generateActiveSheetBio = async function() {
       const btn = $('sheet-bio-generate-btn');
-      btn.innerText = "Scanning story & Generating...";
-      btn.disabled = true;
+
+      if (isGeneratingSheet) {
+        // Clicked during generation: abort active operations!
+        if (sheetGenAbortController) {
+          sheetGenAbortController.abort();
+          sheetGenAbortController = null;
+        }
+        return;
+      }
+
+      sheetGenAbortController = new AbortController();
+      const signal = sheetGenAbortController.signal;
+      
+      setSheetGeneratingState(true, `Weaving biography for ${tempSheetObj.name}...`);
+      btn.innerHTML = `<span class="flex items-center justify-center gap-2">
+        <svg class="animate-spin h-3.5 w-3.5 text-red-500" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        [ABORT GENERATION]
+      </span>`;
+      btn.classList.add('bg-red-955/60', 'hover:bg-red-900', 'border-red-600/50', 'text-red-400');
+      btn.classList.remove('bg-purple-900/40', 'hover:bg-purple-800', 'border-purple-500/50', 'text-purple-300');
 
       try {
         const historyDump = activeAdventureChatHistory.slice(Math.max(activeAdventureChatHistory.length - 15, 0)).map(m => m.text).join('\n');
@@ -3992,58 +4511,99 @@ ${settingContext}
 Recent Story Context:
 ${historyDump}
 
-If the story context does not provide enough details about "${tempSheetObj.name}", creatively INVENT a highly detailed, setting-appropriate appearance, personality, and backstory based purely on their name and the tone of the setting (e.g., a silly name gets a silly bio, a serious/scary name gets a serious bio). DO NOT leave any fields blank. 
+If the story context does not provide enough details about "${tempSheetObj.name}", creatively INVENT a highly detailed, setting-appropriate appearance, personality, and backstory based purely on their name and the tone of the setting. DO NOT leave any fields blank. 
 
 Return STRICTLY JSON: {"appearance": "...", "personality": "...", "backstory": "..."}`;
         
         let reply = "";
         if (appSettings.localAdventureMode) {
-            reply = await callLocalLLM([{role: "user", content: prompt}], "You are a backend game engine data generator.", appSettings.localUrl, appSettings.localModel);
+            reply = await callLocalLLM([{role: "user", content: prompt}], "You are a backend game engine data generator.", appSettings.localUrl, appSettings.localModel, signal);
         } else if (appSettings.geminiKey) {
-            const res = await callGeminiWithFallback([{role: "user", content: prompt}], "You are a backend game engine data generator.", appSettings.geminiKey);
+            const res = await callGeminiWithFallback([{role: "user", content: prompt}], "You are a backend game engine data generator.", appSettings.geminiKey, signal);
             reply = res.reply;
         } else throw new Error("No API configured.");
 
-        const iStart = reply.indexOf('{');
-        const iEnd = reply.lastIndexOf('}');
-        if (iStart !== -1 && iEnd !== -1) {
-            const parsed = JSON.parse(reply.substring(iStart, iEnd + 1));
-            if (parsed.appearance) $('sheet-bio-appearance').value = parsed.appearance;
-            if (parsed.personality) $('sheet-bio-personality').value = parsed.personality;
-            if (parsed.backstory) $('sheet-bio-backstory').value = parsed.backstory;
+        const parsed = extractJSON(reply);
+        if (parsed) {
+            if (parsed.appearance) {
+                $('sheet-bio-appearance').value = parsed.appearance;
+                tempSheetObj.appearance = parsed.appearance;
+            }
+            if (parsed.personality) {
+                $('sheet-bio-personality').value = parsed.personality;
+                tempSheetObj.personality = parsed.personality;
+            }
+            if (parsed.backstory) {
+                $('sheet-bio-backstory').value = parsed.backstory;
+                if (activeSheetType === 'user' || tempSheetObj.isNpc) tempSheetObj.backstory = parsed.backstory;
+                else tempSheetObj.history = parsed.backstory;
+            }
             
-            originalSaveCharacterSheet();
+            // Execute silent save to persist data without closing modal
+            window.silentSaveCharacterSheet();
             alert("Biography generated successfully!");
+            
+            // Restore generator button styling to default
+            btn.innerHTML = "✧ Auto-Generate Bio via AI ✧";
+            btn.classList.remove('bg-red-955/60', 'hover:bg-red-900', 'border-red-600/50', 'text-red-400');
+            btn.classList.add('bg-purple-900/40', 'hover:bg-purple-800', 'border-purple-500/50', 'text-purple-300');
+            setSheetGeneratingState(false);
+            sheetGenAbortController = null;
             
             if (confirm("Would you like the AI to also generate their Level, Stats, Skills, and Inventory to match the party?")) {
                 generateActiveSheetMechanics();
             }
-        } else throw new Error("JSON parse fail");
-      } catch(e) { alert("Failed to generate bio automatically. You can fill it in manually.");
-      } finally { btn.innerText = "✧ Auto-Generate Bio via AI ✧"; btn.disabled = false; }
+        } else throw new Error("System received empty or invalid response layout.");
+      } catch(e) { 
+        if (e.name === 'AbortError') {
+          alert("Biography generation canceled.");
+        } else {
+          alert("Failed to generate bio automatically: " + e.message);
+        }
+      } finally {
+        btn.innerHTML = "✧ Auto-Generate Bio via AI ✧";
+        btn.classList.remove('bg-red-955/60', 'hover:bg-red-900', 'border-red-600/50', 'text-red-400');
+        btn.classList.add('bg-purple-900/40', 'hover:bg-purple-800', 'border-purple-500/50', 'text-purple-300');
+        setSheetGeneratingState(false);
+        sheetGenAbortController = null;
+      }
     };
 
     // ================= TEMPORARY NPC & ROSTER LOGIC =================
     window.generateActiveSheetMechanics = async function() {
+        if (isGeneratingSheet) return;
+        
+        sheetGenAbortController = new AbortController();
+        const signal = sheetGenAbortController.signal;
+        
+        setSheetGeneratingState(true, `Simulating mechanics and stats for ${tempSheetObj.name}...`);
+
         const btn = $('sheet-bio-generate-btn');
-        btn.innerText = "Weaving Destiny & Mechanics...";
-        btn.disabled = true;
+        btn.innerHTML = `<span class="flex items-center justify-center gap-2">
+          <svg class="animate-spin h-3.5 w-3.5 text-red-500" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          [ABORT GENERATION]
+        </span>`;
+        btn.classList.add('bg-red-955/60', 'hover:bg-red-900', 'border-red-600/50', 'text-red-400');
+        btn.classList.remove('bg-purple-900/40', 'hover:bg-purple-800', 'border-purple-500/50', 'text-purple-300');
         
         try {
             const player = getAdventureContextChar(selectedAdventureProfileId, 'user');
             const pLevel = player.level || 1;
             
-            // Rarity check (10% chance for Rare/Elite NPC)
+            // Rarity check
             const isRare = Math.random() < 0.10;
             let targetLevel = pLevel;
             let rarityTier = "Standard";
             
             if (isRare) {
-                targetLevel = pLevel + 2 + Math.floor(Math.random() * 3); // +2 to +4 levels higher
+                targetLevel = pLevel + 2 + Math.floor(Math.random() * 3);
                 rarityTier = "Rare/Elite";
                 alert(`🌟 RARE NPC DETECTED!\n\nThe system senses unusual power in ${tempSheetObj.name}. Generating an Elite character sheet!`);
             } else {
-                targetLevel = Math.max(1, pLevel + (Math.floor(Math.random() * 3) - 1)); // -1 to +1 level
+                targetLevel = Math.max(1, pLevel + (Math.floor(Math.random() * 3) - 1));
             }
             
             const prompt = `You are a backend D&D 5e game engine. Create the mechanical stats for the character "${tempSheetObj.name}". 
@@ -4062,30 +4622,44 @@ Return STRICTLY JSON matching this structure:
 
             let reply = "";
             if (appSettings.localAdventureMode) {
-                reply = await callLocalLLM([{role: "user", content: prompt}], "You are a backend game engine data generator. Output ONLY JSON.", appSettings.localUrl, appSettings.localModel);
+                reply = await callLocalLLM([{role: "user", content: prompt}], "You are a backend game engine data generator. Output ONLY JSON.", appSettings.localUrl, appSettings.localModel, signal);
             } else if (appSettings.geminiKey) {
-                const res = await callGeminiWithFallback([{role: "user", content: prompt}], "You are a backend game engine data generator. Output ONLY JSON.", appSettings.geminiKey);
+                const res = await callGeminiWithFallback([{role: "user", content: prompt}], "You are a backend game engine data generator. Output ONLY JSON.", appSettings.geminiKey, signal);
                 reply = res.reply;
             } else throw new Error("No API configured.");
 
-            const iStart = reply.indexOf('{');
-            const iEnd = reply.lastIndexOf('}');
-            if (iStart !== -1 && iEnd !== -1) {
-                const parsed = JSON.parse(reply.substring(iStart, iEnd + 1));
+            const parsed = extractJSON(reply);
+            if (parsed) {
                 tempSheetObj.level = parsed.level || targetLevel;
                 if (parsed.stats) tempSheetObj.stats = parsed.stats;
                 if (parsed.skills) tempSheetObj.skills = parsed.skills;
                 if (parsed.passives) tempSheetObj.passives = parsed.passives;
                 if (parsed.inventory) tempSheetObj.inventory = parsed.inventory;
-                if (isRare) tempSheetObj.isRare = true; // Prepares sheet for future Rare Traits update
+                if (isRare) tempSheetObj.isRare = true;
                 
-                originalSaveCharacterSheet();
-                updateSheetUI(); renderSheetLists(); renderInventoryCategory();
+                // Execute silent save to persist data without closing modal
+                window.silentSaveCharacterSheet();
+                
+                updateSheetUI(); 
+                renderSheetLists(); 
+                renderInventoryCategory();
+                
                 alert(`${tempSheetObj.name}'s Mechanics generated and saved successfully!`);
-            } else throw new Error("JSON parse fail");
+            } else throw new Error("System received empty or invalid response layout.");
             
-        } catch(e) { alert("Failed to generate mechanics automatically. " + e.message);
-        } finally { btn.innerText = "✧ Auto-Generate Bio via AI ✧"; btn.disabled = false; }
+        } catch(e) { 
+            if (e.name === 'AbortError') {
+              alert("Mechanics generation canceled.");
+            } else {
+              alert("Failed to generate mechanics automatically: " + e.message);
+            }
+        } finally { 
+            btn.innerHTML = "✧ Auto-Generate Bio via AI ✧";
+            btn.classList.remove('bg-red-955/60', 'hover:bg-red-900', 'border-red-600/50', 'text-red-400');
+            btn.classList.add('bg-purple-900/40', 'hover:bg-purple-800', 'border-purple-500/50', 'text-purple-300');
+            setSheetGeneratingState(false);
+            sheetGenAbortController = null;
+        }
     };
 
     window.promptAddCompanion = function() {
@@ -4379,16 +4953,85 @@ Return STRICTLY JSON matching this structure:
       return `Level:${obj.level || 1} (EXP:${obj.exp || 0}) | Gold:${obj.gold || 0} | STR:${s.str} DEX:${s.dex} CON:${s.con} INT:${s.int} WIS:${s.wis} CHA:${s.cha} | Skills: ${skStrs} | Passives: ${psStrs} | Inv: ${eqStrs}`;
     }
 
+    let isSummarizing = false;
+
+    // progressive background plot summary compiler
+    async function updateAdventureSummary() {
+      if (isSummarizing) return;
+      if (!lastAdventureState || (!appSettings.geminiKey && !appSettings.localAdventureMode)) return;
+      if (activeAdventureChatHistory.length < 4) return;
+      
+      isSummarizing = true;
+      try {
+        const recentHistory = activeAdventureChatHistory.slice(-12).map(m => `${getAdventureSpeakerName(m.sender)}: ${m.text}`).join('\n');
+        const currentSummary = lastAdventureState.summary || "The adventure has just begun.";
+        
+        const summaryPrompt = `You are a background game engine summary generator. Update the running plot summary of this interactive D&D text adventure.
+        
+Previous Summary:
+"${currentSummary}"
+
+Recent Events:
+${recentHistory}
+
+Write a concise, updated running plot summary of the entire adventure so far (maximum 3 sentences). Preserve key achievements, active quests, and introduced characters. Do not include metadata. Output ONLY the summary paragraph directly.`;
+        
+        let newSummary = "";
+        if (appSettings.localAdventureMode) {
+          newSummary = await callLocalLLM([{role: "user", content: summaryPrompt}], "You are a backend game engine summary generator.", appSettings.localUrl, appSettings.localModel);
+        } else if (appSettings.geminiKey) {
+          const res = await callGeminiWithFallback([{role: "user", content: summaryPrompt}], "You are a backend game engine summary generator.", appSettings.geminiKey);
+          newSummary = res.reply;
+        }
+        
+        if (newSummary && newSummary.trim()) {
+          lastAdventureState.summary = newSummary.trim();
+          autoSaveAdventure();
+        }
+      } catch (e) {
+        console.error("Failed to update summary:", e);
+      } finally {
+        isSummarizing = false;
+      }
+    }
+
     function getNarratorSystemPrompt() {
       const profile = getAdventureContextChar(selectedAdventureProfileId, 'user');
       
+      const activeIds = [profile.id, ...selectedAdventureBotIds, ...(lastAdventureState?.npcIds || [])];
+      const historicalChars = [];
+      if (lastAdventureState && lastAdventureState.characters) {
+        for (const key in lastAdventureState.characters) {
+          if (!activeIds.includes(key)) {
+            const charObj = lastAdventureState.characters[key];
+            if (charObj && charObj.name) {
+              historicalChars.push(charObj);
+            }
+          }
+        }
+      }
+
+      let historicalSection = '';
+      if (historicalChars.length > 0) {
+        historicalSection = `\nHistorically Met / Inactive Characters (These characters have previously been introduced but are currently elsewhere or inactive. Remember them and reintroduce or reference them when contextually appropriate):\n` + 
+          historicalChars.map(c => `- ${c.name} | Appearance: ${c.appearance || 'Unknown'} | Backstory: ${c.backstory || c.history || 'Unknown'}`).join('\n');
+      }
+
+      const summaryText = (lastAdventureState && lastAdventureState.summary) ? lastAdventureState.summary : "No summary compiled yet.";
+
       const sandboxRule = appSettings.sandboxMode 
-        ? `5. ACCEPT ALL STORY EVENTS: If the user's message contains "[Story Event:", this is a Sandbox God-Mode override. You MUST accept whatever scenario, character, or item they describe as absolute truth and adapt your narrative to incorporate it flawlessly without evading or ignoring it.`
-        : `5. STRICT DM ENFORCEMENT: You are the ultimate authority. If a player attempts to auto-resolve their own actions, declare what NPCs do, or magically spawn items/creatures (e.g. using "[Story Event:"), you MUST reject or twist their attempt to maintain a realistic, grounded, and challenging world. Players can only declare their *attempts*; you decide what actually happens.`;
+        ? `5. ACCEPT ALL STORY EVENTS: If the user's message contains "[Story Event:", this is a Sandbox God-Mode override. You MUST accept whatever scenario, character, or item they describe as absolute truth and adapt your narrative to incorporate it flawlessly.`
+        : `5. STRICT DM ENFORCEMENT: You are the ultimate authority. If a player attempts to auto-resolve their own actions, declare what NPCs do, or magically spawn items (using "[Story Event:"), you MUST reject or twist their attempt. Players can only declare their *attempts*; you decide what actually happens.`;
+
+      const styleInstruction = narratorSettings.writingStyle ? `Writing Style Genre Constraints: ${narratorSettings.writingStyle}` : "";
 
       return `You are the Narrator of an interactive text adventure game.
 Title: ${adventureStoryTitle}
 Starting Premise: ${adventureStartingPrompt}
+${styleInstruction ? `${styleInstruction}\n` : ""}
+
+Current Running Chronicle Summary (Persistent Long-term Memory):
+"${summaryText}"
 
 Participating Party & Stats:
 - ${profile.name} (Player) | ${formatCharContext(profile)}
@@ -4398,18 +5041,18 @@ ${selectedAdventureBotIds.map(id => {
 ${(lastAdventureState && lastAdventureState.npcIds ? lastAdventureState.npcIds : []).map(id => {
   const npc = getAdventureContextChar(id, 'bot'); return npc ? `- ${npc.name} (NPC) | ${formatCharContext(npc)}` : '';
 }).join('\n')}
+${historicalSection}
 
 Roleplay Log Format:
-The chat history is presented to you with messages prefixed as "Name: Message".
-- "Narrator: ..." represents your previous world descriptions or NPC actions.
-- "${profile.name}: ..." represents the player's direct dialogue or actions.
-- Companion names represent dialogue or first-person actions from those party members.
+The chat history is presented with messages prefixed as "Name: Message".
+- "Narrator: ..." represents your descriptions, world events, or NPC responses.
+- "${profile.name}: ..." represents the player's actions or dialogue.
 
 Your Strict Boundaries:
-1. Speak ONLY as "Narrator". Focus entirely on environmental changes, hazard resolutions, and generic NPCs.
-2. NEVER speak, write dialogue, or take actions on behalf of the player (${profile.name}) or any of the companions.
-3. Do not assume what the companions do next. Describe the outcome of their previous turn and wait for their input.
-4. Keep your output to exactly 1 descriptive paragraph. Do not prefix your output with "Narrator:" or "NARRATOR:". Just write your narrative directly.
+1. Speak ONLY as "Narrator". You are the sole storyteller. You control the environment, describe resolutions, and speak for all NPCs.
+2. Act as the voice of the active Companion characters (${selectedAdventureBotIds.map(id => getAdventureContextChar(id, 'bot')?.name).filter(Boolean).join(', ') || 'none'}). Incorporate their dialogue, personalities, and actions directly into your descriptions to represent them traveling alongside the player.
+3. NEVER speak, write dialogue, or take actions on behalf of the player (${profile.name}).
+4. Keep your output engaging and immersive. Do not prefix your output with "Narrator:". Just write your narrative directly.
 ${sandboxRule}
 
 D&D Action Resolution System:
@@ -4418,10 +5061,10 @@ IF the prompt CONTAINS "[Action Attempt:", you MUST act as the Dungeon Master to
 Follow this EXACT sequence for Actions:
 1. Identify the acting character and the most relevant stat (STR, DEX, CON, INT, WIS, CHA).
 2. Calculate the Modifier: (Stat - 10) / 2, rounded down.
-3. Set a realistic Difficulty Class (DC): 5 (Very Easy/Mundane, like picking up a rock), 10 (Easy), 15 (Medium), 20 (Hard), 25 (Very Hard).
-4. "Roll" a d20 (pick a random number 1-20). Review their items and passives to see if they have Advantage. If they have Advantage, state so, roll twice, and take the higher. If Disadvantage, take the lower.
-5. Add the Roll + Modifier + Inventory/Skill Bonuses to get the Total.
-6. STRICT MATH CHECK: If Total >= DC, it is a Success. If Total < DC, it is a Failure. NEVER output a Success if the Total is lower than the DC!
+3. Set a realistic Difficulty Class (DC): 5 (Very Easy), 10 (Easy), 15 (Medium), 20 (Hard), 25 (Very Hard).
+4. Roll a d20. Review their items and passives to check for Advantage. If they have Advantage, state so, roll twice, and take the higher.
+5. Add Roll + Modifier + Inventory/Skill Bonuses to get the Total.
+6. If Total >= DC, it is a Success. If Total < DC, it is a Failure.
 7. EXP: Only award EXP on a Success (DC * 10). Multiply by 1.5x for a Critical Success (Nat 20). If Failure, award 0.
 
 When resolving an [Action Attempt], you MUST begin your response with this exact text block format to prove the math:
@@ -4429,7 +5072,7 @@ When resolving an [Action Attempt], you MUST begin your response with this exact
 **ACTION RESOLUTION**
 * **Character:** [Name]
 * **Stat Used:** [Stat Name] ([Modifier])
-* **Bonuses Applied:** [Any skill/passive/item modifiers applied, or '0']
+* **Bonuses Applied:** [Any modifiers applied, or '0']
 * **DC:** [DC Number]
 * **Roll Math:** [Roll] + [Modifier] + [Bonuses] = [Total]
 * **Result:** [Result Name]
@@ -4438,19 +5081,51 @@ When resolving an [Action Attempt], you MUST begin your response with this exact
 
 After this block, write your vivid narrative description of what happens.
 
-IMPORTANT: Differentiate between Grand Rewards, Mundane Pickups, and New NPCs!
-- For Grand Rewards: append the exact string [REWARD_CHOICE] at the very end of your response.
-- For all other Pickups or Gifting: append the exact string [ACQUIRE: CharacterName | Item Name | Category | Rarity | Brief description] at the very end of your response. Category MUST be Weapons, Armor, Consumables, Utility, Items, or Quest Items. Rarity MUST be Mundane, Magical, Rare, or Legendary.
-- Whenever you introduce a distinct new character (NPC) for the first time in the story, wrap their name in double brackets, like [[Captain Vance]]. Do NOT use brackets for players or existing companions.`;
+IMPORTANT MECHANICAL SYSTEM:
+At the very end of your response, if any mechanical events or changes occurred (such as an action resolution roll, rewarding EXP, acquiring/gifting an item, leveling up, or triggering a loot choice), you MUST append a structured JSON block wrapped inside <game_meta>...</game_meta> tags. Do not put markdown code block ticks inside the tags. Format:
+<game_meta>
+{
+  "action_resolution": {
+    "character": "Character Name",
+    "stat": "STR",
+    "dc": 12,
+    "roll_math": "13 + 1 = 14",
+    "result": "Success",
+    "exp_awarded": 120
+  },
+  "acquire_item": {
+    "character": "Character Name",
+    "item_name": "Rusty Dagger",
+    "category": "Weapons",
+    "rarity": "Mundane",
+    "description": "..."
+  },
+  "reward_choice": true
+}
+</game_meta>
+
+(For legacy compatibility with your interface triggers: whenever you introduce a distinct new character (NPC) for the first time in the story, wrap their name in double brackets, like [[Captain Vance]]. Do NOT use brackets for players or existing companions.)`;
     }
 
-    async function handleExpAndLevelUp(narratorText) {
-      const expMatch = narratorText.match(/\*\*EXP Awarded:\*\*\s*(\d+)/i);
-      const charMatch = narratorText.match(/\*\*Character:\*\*\s*([^\n\*]+)/i);
-      if (!expMatch || !charMatch) return;
+    async function handleExpAndLevelUp(narratorText, parsedGameMeta = null) {
+      let expGained = 0;
+      let charName = "";
 
-      const expGained = parseInt(expMatch[1], 10);
-      const charName = charMatch[1].trim().toLowerCase();
+      if (parsedGameMeta && parsedGameMeta.action_resolution) {
+          const ar = parsedGameMeta.action_resolution;
+          expGained = parseInt(ar.exp_awarded || ar.exp, 10) || 0;
+          charName = ar.character ? ar.character.trim().toLowerCase() : "";
+      } else {
+          // Robust Fallback: flexible regex matching various markdown formats
+          const expMatch = narratorText.match(/(?:EXP(?:\s+Awarded|\s+Gained)?|Experience):?\s*\*?\*?\s*(\d+)/i);
+          const charMatch = narratorText.match(/(?:Character|Name):?\s*\*?\*?\s*([^\n\*]+)/i);
+          if (expMatch && charMatch) {
+              expGained = parseInt(expMatch[1], 10);
+              charName = charMatch[1].trim().toLowerCase();
+          }
+      }
+
+      if (!charName || isNaN(expGained) || expGained === 0) return;
 
       const activeProfile = getAdventureContextChar(selectedAdventureProfileId, 'user');
       let targetObj = null;
@@ -4461,7 +5136,7 @@ IMPORTANT: Differentiate between Grand Rewards, Mundane Pickups, and New NPCs!
          if (foundId) targetObj = getAdventureContextChar(foundId, 'bot');
       }
 
-      if (!targetObj || isNaN(expGained) || expGained === 0) return;
+      if (!targetObj) return;
 
       if (!targetObj.exp) targetObj.exp = 0;
       if (!targetObj.level) targetObj.level = 1;
@@ -4492,7 +5167,7 @@ IMPORTANT: Differentiate between Grand Rewards, Mundane Pickups, and New NPCs!
 
                   if (perkData.type.toLowerCase() === 'skill') {
                       if (!targetObj.skills) targetObj.skills = [];
-                      targetObj.skills.push({name: perkData.name, description: perkData.description});
+                      targetObj.skills.push({name: perkData.name, description: perkData.description, showInMenu: true});
                   } else {
                       if (!targetObj.passives) targetObj.passives = [];
                       targetObj.passives.push({name: perkData.name, description: perkData.description});
@@ -4531,7 +5206,9 @@ IMPORTANT: Differentiate between Grand Rewards, Mundane Pickups, and New NPCs!
             const result = await callGeminiWithFallback(apiMessages, systemPrompt, appSettings.geminiKey); reply = result.reply;
           } else reply = `The air is thick with anticipation. Under the dark archway of ${adventureStoryTitle || 'The Unknown Sector'}, your party stands ready. The path forward remains unclear. What do you do?`;
         } else {
-          const apiMessages = activeAdventureChatHistory.filter(m => m.sender !== 'system_loot').map(msg => {
+          // Bounded Rolling History Window - only send last 20 messages to keep connections fast and limit cost
+          const rollingHistory = activeAdventureChatHistory.slice(-20);
+          const apiMessages = rollingHistory.filter(m => m.sender !== 'system_loot').map(msg => {
             return { role: msg.sender === 'narrator' ? 'assistant' : 'user', content: `${getAdventureSpeakerName(msg.sender)}: ${msg.text}` };
           });
           if (appSettings.localAdventureMode) {
@@ -4544,37 +5221,66 @@ IMPORTANT: Differentiate between Grand Rewards, Mundane Pickups, and New NPCs!
         const nameRegex = new RegExp(`^(Narrator):\\s*`, "gi"); reply = reply.replace(nameRegex, '').replace(nameRegex, '');
         
         let hasRewardChoice = false;
-        if (reply.includes('[REWARD_CHOICE]')) {
-            hasRewardChoice = true;
-            reply = reply.replace(/\[REWARD_CHOICE\]/g, '').trim();
+        let parsedGameMeta = null;
+        let itemAddedText = null;
+
+        // Resilient Parser: Parse <game_meta> XML block first
+        const metaMatch = reply.match(/<game_meta>([\s\S]*?)<\/game_meta>/i);
+        if (metaMatch) {
+            try {
+                parsedGameMeta = JSON.parse(metaMatch[1].trim());
+                reply = reply.replace(metaMatch[0], '').trim();
+            } catch (e) {
+                console.error("Failed to parse <game_meta> JSON:", e);
+            }
         }
 
-        let acquireMatch = reply.match(/\[ACQUIRE:\s*([^\]]+)\]/i);
-        let itemAddedText = null;
-        if (acquireMatch) {
-            let parts = acquireMatch[1].split('|').map(s => s.trim());
-            let charName = getAdventureContextChar(selectedAdventureProfileId, 'user').name; 
-            let itemName = "Item"; 
-            let itemCat = "Items"; 
-            let itemRarity = "Mundane"; 
-            let itemDesc = "A recovered item.";
-            
-            if (parts.length >= 5) {
-                charName = parts[0]; itemName = parts[1]; itemCat = parts[2]; itemRarity = parts[3]; itemDesc = parts.slice(4).join(' ');
-            } else if (parts.length >= 3) {
-                charName = parts[0]; itemName = parts[1]; itemDesc = parts.slice(2).join(' ');
-            } else if (parts.length > 0) {
-                itemName = parts[0];
+        // Process item rewards
+        let itemToAcquire = null;
+        if (parsedGameMeta && parsedGameMeta.acquire_item) {
+            itemToAcquire = parsedGameMeta.acquire_item;
+        } else {
+            // Robust Legacy Fallback if <game_meta> is missing
+            let acquireMatch = reply.match(/\[ACQUIRE:\s*([^\]]+)\]/i);
+            if (acquireMatch) {
+                reply = reply.replace(acquireMatch[0], '').trim();
+                let parts = acquireMatch[1].split('|').map(s => s.trim());
+                let charName = getAdventureContextChar(selectedAdventureProfileId, 'user').name; 
+                let itemName = "Item"; 
+                let itemCat = "Items"; 
+                let itemRarity = "Mundane"; 
+                let itemDesc = "A recovered item.";
+                
+                if (parts.length >= 5) {
+                    charName = parts[0]; itemName = parts[1]; itemCat = parts[2]; itemRarity = parts[3]; itemDesc = parts.slice(4).join(' ');
+                } else if (parts.length >= 3) {
+                    charName = parts[0]; itemName = parts[1]; itemDesc = parts.slice(2).join(' ');
+                } else if (parts.length > 0) {
+                    itemName = parts[0];
+                }
+                const fullAcquireStr = acquireMatch[1].toLowerCase();
+                if (fullAcquireStr.includes('legendary')) itemRarity = 'Legendary';
+                else if (fullAcquireStr.includes('rare')) itemRarity = 'Rare';
+                else if (fullAcquireStr.includes('magical')) itemRarity = 'Magical';
+                else if (fullAcquireStr.includes('mundane') || fullAcquireStr.includes('normal')) itemRarity = 'Mundane';
+
+                itemToAcquire = {
+                    character: charName,
+                    item_name: itemName,
+                    category: itemCat,
+                    rarity: itemRarity,
+                    description: itemDesc
+                };
             }
+        }
 
-            const fullAcquireStr = acquireMatch[1].toLowerCase();
-            if (fullAcquireStr.includes('legendary')) itemRarity = 'Legendary';
-            else if (fullAcquireStr.includes('rare')) itemRarity = 'Rare';
-            else if (fullAcquireStr.includes('magical')) itemRarity = 'Magical';
-            else if (fullAcquireStr.includes('mundane') || fullAcquireStr.includes('normal')) itemRarity = 'Mundane';
+        if (itemToAcquire) {
+            let charName = itemToAcquire.character || getAdventureContextChar(selectedAdventureProfileId, 'user').name;
+            let itemName = itemToAcquire.item_name || "Mystery Item";
+            let itemCat = itemToAcquire.category || "Items";
+            let itemRarity = itemToAcquire.rarity || "Mundane";
+            let itemDesc = itemToAcquire.description || "A recovered item.";
 
-            reply = reply.replace(acquireMatch[0], '').trim();
-            
             let targetObj = null;
             const activeProfile = getAdventureContextChar(selectedAdventureProfileId, 'user');
             if (activeProfile.name.toLowerCase() === charName.toLowerCase()) { targetObj = activeProfile; } 
@@ -4583,7 +5289,7 @@ IMPORTANT: Differentiate between Grand Rewards, Mundane Pickups, and New NPCs!
                if (foundId) targetObj = getAdventureContextChar(foundId, 'bot');
             }
             if (!targetObj) targetObj = activeProfile; 
-            
+
             if (itemRarity === 'Mundane') {
                 if (!targetObj.inventory) targetObj.inventory = [];
                 targetObj.inventory.push({ 
@@ -4616,22 +5322,46 @@ IMPORTANT: Differentiate between Grand Rewards, Mundane Pickups, and New NPCs!
                     targetObj.inventory.push({ name: itemName, category: ITEM_CATEGORIES.includes(itemCat) ? itemCat : 'Items', tags: itemRarity, description: itemDesc });
                 }
             }
-
             itemAddedText = `*(Added ${itemName} to ${targetObj.name}'s inventory)*`;
         }
-        
-        if (reply) activeAdventureChatHistory.push({ sender: 'narrator', text: reply }); 
+
+        // Process reward choices
+        if (parsedGameMeta && parsedGameMeta.reward_choice === true) {
+            hasRewardChoice = true;
+        } else if (reply.includes('[REWARD_CHOICE]')) {
+            // Legacy fallback
+            hasRewardChoice = true;
+            reply = reply.replace(/\[REWARD_CHOICE\]/g, '').trim();
+        }
+
+        if (reply) {
+            activeAdventureChatHistory.push({ sender: 'narrator', text: reply });
+            // Speak Narrator Response automatically if Talk Mode is on
+            if (!narratorSettings.isQuietMode && narratorSettings.voiceName) {
+                const tempNarratorBot = {
+                    name: "Narrator",
+                    voiceName: narratorSettings.voiceName,
+                    voicePrompt: narratorSettings.voicePrompt,
+                    ttsEngine: "gemini"
+                };
+                speakMessage(reply, tempNarratorBot, activeAdventureChatHistory.length - 1);
+            }
+        }
         if (itemAddedText) activeAdventureChatHistory.push({ sender: 'narrator', text: itemAddedText });
         autoSaveAdventure();
         
-        await handleExpAndLevelUp(reply);
+        await handleExpAndLevelUp(reply, parsedGameMeta);
 
         if (hasRewardChoice) {
             activeAdventureChatHistory.push({ sender: 'system_loot', text: 'System UI Payload' });
         }
 
         if (typingInd) typingInd.classList.add('hidden');
-        renderStage8AdventureChat(); autoSaveAdventure();
+        renderStage8AdventureChat(); 
+        autoSaveAdventure();
+
+        // Progressive compilation of summary background worker
+        setTimeout(updateAdventureSummary, 1000);
       } catch (err) {
         if (typingInd) typingInd.classList.add('hidden'); alert("Narrator generation error: " + err.message);
       }
@@ -4700,37 +5430,11 @@ Your Strict Boundaries:
       if (modeUsed === 'action') sentText = `[Action Attempt: ${text}]`;
 
       activeAdventureChatHistory.push({ sender: 'user', text: sentText });
-      if (input) input.value = ''; renderStage8AdventureChat(); autoSaveAdventure();
+      if (input) input.value = ''; 
+      renderStage8AdventureChat(); 
+      autoSaveAdventure();
 
-      async function runBots(pending) {
-        if (pending.length > 0) {
-          const nextBotId = pending.shift();
-          const bot = getAdventureContextChar(nextBotId, 'bot');
-          if (bot) { 
-            await triggerAdventureBotResponse(bot); 
-            setTimeout(() => runBots(pending), 400); 
-          } else runBots(pending);
-        }
-      }
-
-      if (modeUsed === 'dialogue') {
-        let pendingParticipants = [...selectedAdventureBotIds, ...(lastAdventureState && lastAdventureState.npcIds ? lastAdventureState.npcIds : [])];
-        if (pendingParticipants.length === 0) {
-          await triggerAdventureNarratorResponse();
-          let newPending = [...selectedAdventureBotIds, ...(lastAdventureState && lastAdventureState.npcIds ? lastAdventureState.npcIds : [])];
-          await runBots(newPending);
-        } else {
-          await runBots(pendingParticipants);
-        }
-      } else {
-        await triggerAdventureNarratorResponse();
-        
-        const lastMsg = activeAdventureChatHistory[activeAdventureChatHistory.length - 1];
-        if (lastMsg && lastMsg.sender === 'system_loot') return;
-        
-        let pendingParticipants = [...selectedAdventureBotIds, ...(lastAdventureState && lastAdventureState.npcIds ? lastAdventureState.npcIds : [])];
-        await runBots(pendingParticipants);
-      }
+      await triggerAdventureNarratorResponse();
     }
 
     function initAdventureViewportGestures() {
@@ -4800,7 +5504,10 @@ Your Strict Boundaries:
 
     if ($('header-back-to-overlay')) {
       $('header-back-to-overlay').addEventListener('click', () => {
-        stopCurrentAudio(); if ($('gateway-overlay')) $('gateway-overlay').classList.remove('opacity-0', 'pointer-events-none', 'scale-105');
+        stopCurrentAudio(); 
+        if ($('gateway-overlay')) $('gateway-overlay').classList.remove('opacity-0', 'pointer-events-none', 'scale-105');
+        if ($('narrator-settings-modal')) $('narrator-settings-modal').classList.add('hidden');
+        updateStageUI();
       });
     }
 
